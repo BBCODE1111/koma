@@ -82,6 +82,20 @@ frame.onload=async()=>{
   T("不存在的掉格標號會被略過並警告",()=>{const r=k(`parseEDL('001 AX V C 00:01:00;00 00:01:01;00 01:00:00;00 01:00:01;00\\n002 AX V C 00:02:00;02 00:02:01;02 01:00:01;00 01:00:02;00\\n',29.97)`);return (r.clips.length===1&&String(r.warn).includes("不合法"))||r});
   T("EDL 保留檔名中的連續空白",()=>{k("load({clips:[{id:'a',src:'take  01.mov',out:9}]})");return k("buildEDL()").includes("take  01.mov")||"collapsed"});
   T("文字格數會被拒絕",()=>{try{k("normalize({clips:[{in:'abc',out:9}]})");return "accepted"}catch(e){return true}});
+  T("還原時主草稿寫入失敗：備份仍在，畫面不變",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('out',-1);loadNew({clips:[{id:'z',out:9}]});window.__set=store.set;store.set=(v,key=KEY)=>key===KEY?false:window.__set(v,key);restorePrev();store.set=window.__set");
+    return (k("doc.clips[0].id")==="z"&&k("prevDrafts.length")===1&&k("prevDrafts[0].doc.clips[0].out")===116)||k("[doc.clips[0].id,prevDrafts.length]")});
+  T("標記到上限後不能再新增",()=>{k("load({clips:[{id:'a',out:50}],markers:Array.from({length:20000},(_,i)=>({id:'m'+i,clip:'a',at:0}))});addMarker()");return eq(k("doc.markers.length"),20000)});
+  T("讀不到又備份不了的草稿不會被範例覆寫",()=>{k("saveBlocked=true;window.__n=0;window.__set=store.set;store.set=(v,key)=>{window.__n++;return true};load(SAMPLE);store.set=window.__set;saveBlocked=false");return eq(k("window.__n"),0)});
+  T("影片校準期間不做任何定位",()=>{k("load(SAMPLE);videoURL='x';window.__c=video.currentTime;calibrating={};playhead=100;updatePreview(layout(doc));calibrating=null;videoURL=null");return eq(k("video.currentTime"),k("window.__c"))});
+  T("手動清單先延長再裁切，每步都做得到",()=>{k("load({clips:[{id:'a',in:100,out:200}]});doc.clips[0].in=0;doc.clips[0].out=50");const x=k("buildManual()");
+    return (x.indexOf("開頭延長 100 格")>0&&x.indexOf("開頭延長 100 格")<x.indexOf("結尾裁掉 150 格"))||x});
+  T("有損匯入先詢問，取消就不改時間軸",()=>{reset();const edl="001 AX V C 00:00:00:00 00:00:01:00 01:00:00:00 01:00:01:00\\n002 AX V C 00:00:00:00 00:00:01:00 01:00:02:00 01:00:03:00\\n";
+    const m=k(`importText('${edl}','a.edl')`);const a=k("doc.clips.length");k("settleImport(false)");const b=k("doc.clips.length");
+    k(`importText('${edl}','a.edl');settleImport(true)`);return (m.includes("尚未載入")&&a===6&&b===6&&k("doc.clips.length")===2)||{m,a,b}});
+  T("FCPXML 位置不連續會警告",()=>{const x=k(`parseFCPXML('<fcpxml version="1.9"><resources><format id="r1" frameDuration="1/30s"/><asset id="r2" name="a"/></resources><library><event><project name="p"><sequence format="r1"><spine><asset-clip ref="r2" offset="0s" start="0s" duration="1s"/><asset-clip ref="r2" offset="5s" start="0s" duration="1s"/></spine></sequence></project></event></library></fcpxml>').warn`);return String(x).includes("不連續")||x});
+  T("手動清單給實際下刀的四段時間碼",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('out',-10)");const x=k("buildManual()");return x.includes("在 00:00:02:02 切一刀，刪到 00:00:02:12")||x});
+  T("手動清單的延長會提醒需要原始素材",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('in',-4)");const x=k("buildManual()");return (x.includes("開頭延長 4 格（需要原始素材）")&&x.includes("請改請 Claude"))||x});
+  T("只有裁切時不出現原始素材提醒",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('in',4)");return !k("buildManual()").includes("需要原始素材")||"shown"});
   T("?test 不寫入瀏覽器儲存",()=>eq(k("store.get()"),null));
 
   reset();
