@@ -485,6 +485,7 @@ function keepPrev(d){const before=prevDrafts;prevDrafts=[...prevDrafts,d].slice(
   if(!savePrevs()){prevDrafts=before;savePrevs();throw new Error("瀏覽器空間不足，無法備份目前的草稿。請先匯出 JSON，再載入新的時間軸")}}
 function restorePrev(){
   if(!prevDrafts.length)return;
+  if(saveBlocked)return toast("正在保護無法讀取的舊草稿，暫時不能還原。請先釋放瀏覽器空間");
   const before=prevDrafts,p=before[before.length-1],cur=changes().length?{orig,doc}:null,rest=before.slice(0,-1);
   const fail=t=>{prevDrafts=before;savePrevs();toast(t)};
   try{normalize(p.orig);normalize(p.doc)}catch(e){prevDrafts=rest;savePrevs();return toast("這份草稿已損毀，無法還原")}
