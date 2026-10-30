@@ -1,0 +1,10 @@
+.DS_Store
+.claude/
+
+# 影片素材與輸出不進版控
+*.mp4
+*.mov
+*.m4v
+*.webm
+*.fcpxml
+*.edl

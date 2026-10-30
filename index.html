@@ -1,0 +1,936 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Koma</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a quiet editing desk — generous margins, preview + inspector, transport, a film-strip timeline with vertical labels, notebook below. */
+:root{
+  --paper:#f1f1ef; --sheet:#fafaf8; --well:#e8e8e5; --ink:#2b2d2f; --sub:#76797c; --line:#d8d8d4; --hair:#e5e5e1;
+  --ac:#4e6470; --ac2:#a3766d; --gold:#a08e62; --onac:#fafaf8; --stage:#2b2c2d;
+  --f-disp:"Shippori Mincho","Hiragino Mincho ProN","Songti TC","PMingLiU",serif;
+  --f-ui:"Zen Kaku Gothic New","Hiragino Sans","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  --f-mono:"DM Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#19191a; --sheet:#202122; --well:#272829; --ink:#e0dfdb; --sub:#8e9093; --line:#333436; --hair:#2a2b2d;
+  --ac:#9fb1ba; --ac2:#c49a90; --gold:#c2ad7c; --onac:#19191a; --stage:#121213; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#19191a; --sheet:#202122; --well:#272829; --ink:#e0dfdb; --sub:#8e9093; --line:#333436; --hair:#2a2b2d;
+  --ac:#9fb1ba; --ac2:#c49a90; --gold:#c2ad7c; --onac:#19191a; --stage:#121213; color-scheme:dark}
+[hidden]{display:none!important}
+html,body{background:var(--paper);color:var(--ink)}
+body{font-family:var(--f-ui);font-size:14px;line-height:1.7;letter-spacing:.02em}
+.app{max-width:1320px;margin:0 auto;padding-block:22px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+button,select,input,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+:focus-visible{outline:1.5px solid var(--ac);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:0}
+.sub{color:var(--sub)}
+
+/* header */
+.top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:40px;height:40px;flex:none;color:var(--ink)}
+.brand h1{margin:0;font-family:var(--f-disp);font-weight:600;font-size:28px;letter-spacing:.22em;line-height:1}
+.brand p{margin:5px 0 0;font-family:var(--f-disp);font-style:italic;font-size:12.5px;color:var(--sub);letter-spacing:.06em}
+.proj{display:flex;gap:10px;align-items:baseline;flex:1;min-width:0;flex-wrap:wrap}
+.proj b{font-family:var(--f-disp);font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.pill{font-family:var(--f-mono);font-size:11px;color:var(--sub);white-space:nowrap;letter-spacing:0}
+.pill.warn{color:var(--ac2)}
+.pill.warn::before{content:"— "}
+.btn{background:transparent;border:1px solid var(--line);border-radius:var(--r);padding:6px 14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--ac);color:var(--ac)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn:disabled:hover{border-color:var(--line);color:inherit}
+.btn.pri,.btn.shu{background:var(--ac);border-color:var(--ac);color:var(--onac)}
+.btn.pri:hover,.btn.shu:hover{background:color-mix(in srgb,var(--ac) 85%,var(--ink));color:var(--onac)}
+.btn.ghost{color:var(--ac2);border-color:color-mix(in srgb,var(--ac2) 40%,var(--line))}
+.btn.sm{padding:3px 11px;font-size:12px}
+.btn svg{width:14px;height:14px;fill:currentColor}
+
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r)}
+
+/* stage */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px}
+@media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr)}}
+.preview{display:flex;align-items:center;justify-content:center;padding:18px;min-height:240px;background:var(--stage);border-color:var(--stage)}
+.frame{position:relative;height:min(52vh,520px);max-width:100%;aspect-ratio:9/16;background:#0e0e0f;border-radius:1px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.06)}
+.frame video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.ph{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:22px 20px 46px;color:#f6faf8;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c,#9aaba3) 55%,#5a5b5c) 0%,color-mix(in srgb,var(--c,#9aaba3) 30%,#2a2b2c) 60%,#161617 100%)}
+.ph .nm{font-family:var(--f-disp);font-weight:500;font-size:22px;line-height:1.45;letter-spacing:.08em;text-wrap:balance}
+.ph .hint{opacity:.65;font-size:11.5px;margin-top:8px}
+.ov{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;gap:6px;pointer-events:none;font-family:var(--f-mono);font-size:10.5px;color:#f6faf8}
+.ov span{background:rgba(12,18,17,.5);padding:1px 7px;border-radius:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
+.cutflag{position:absolute;left:10px;bottom:10px;border:1px solid #f6faf8;color:#f6faf8;font-size:11px;padding:0 8px;border-radius:2px;background:rgba(12,18,17,.35)}
+.fxbadge{position:absolute;right:10px;top:38px;width:42%;display:flex;flex-direction:column;gap:4px;background:rgba(12,18,17,.55);padding:5px;border-radius:3px;color:#f6faf8;font-size:11px;text-align:center;animation:fade .3s ease}
+@keyframes fade{from{opacity:0}}
+.warnbox{position:absolute;inset:auto 10px 40px 10px;background:rgba(12,18,17,.82);color:#f6faf8;border-left:2px solid var(--gold);font-size:12px;padding:8px 10px}
+
+/* inspector */
+.insp{padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.eyebrow{font-family:var(--f-disp);font-size:13px;color:var(--sub);letter-spacing:.2em;display:flex;align-items:center;gap:10px}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--hair)}
+.insp h3{margin:0;font-family:var(--f-disp);font-size:19px;font-weight:600;letter-spacing:.06em;text-wrap:balance}
+.chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11px;color:var(--sub);letter-spacing:.04em}
+.chip::before{content:"";width:18px;height:3px;background:var(--c)}
+.src{color:var(--sub);font-family:var(--f-mono);font-size:12px;word-break:break-all;letter-spacing:0}
+.row{display:grid;grid-template-columns:44px 1fr;gap:4px 10px;align-items:center}
+.row .lb{color:var(--sub);font-size:13px}
+.nudge{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.nudge .v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;min-width:82px;text-align:center;font-size:13px;padding:3px 6px;border-bottom:1px solid var(--ink);letter-spacing:0}
+.nb{background:transparent;border:1px solid var(--line);border-radius:3px;font-family:var(--f-mono);font-size:12px;padding:2px 0;width:36px;letter-spacing:0}
+.nb:hover{border-color:var(--ac);color:var(--ac)}
+.delta{grid-column:2;font-size:12px;color:var(--sub)}
+.delta.on{color:var(--ac2)}
+.help{color:var(--sub);font-size:12px;margin:0}
+textarea,select,input[type=text]{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:8px 10px;width:100%;box-sizing:border-box}
+textarea:focus,input[type=text]:focus{border-color:var(--ac);outline:none}
+textarea{resize:vertical;min-height:64px}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:26px 1fr;gap:6px;counter-increment:s;color:var(--sub)}
+.steps li::before{content:counter(s,cjk-ideographic);font-family:var(--f-disp);font-size:15px;color:var(--ac);line-height:1.6}
+.steps b{color:var(--ink);font-weight:500}
+
+/* effect picker */
+.fxhero{display:grid;grid-template-columns:132px 1fr;gap:14px;align-items:center}
+.fxhero b{font-family:var(--f-disp);font-size:17px;font-weight:600;letter-spacing:.06em}
+.fxhero p{margin:4px 0 0;font-size:12px;color:var(--sub)}
+.fxgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:10px 8px}
+.fxt{background:none;border:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--sub);text-align:left}
+.fxt .fxv{outline:1px solid var(--hair);outline-offset:2px;transition:outline-color .2s}
+.fxt:hover{color:var(--ink)}
+.fxt:hover .fxv{outline-color:var(--line)}
+.fxt[aria-pressed=true]{color:var(--ink)}
+.fxt[aria-pressed=true] .fxv{outline:1.5px solid var(--fxc)}
+.fxt[aria-pressed=true] span::before{content:"";display:inline-block;width:8px;height:2px;background:var(--fxc);vertical-align:middle;margin-right:5px}
+.fxt:not(:hover):not(:focus-visible):not([aria-pressed=true]) .fxv *{animation-play-state:paused!important}
+
+/* mini effect screens — they depict footage, so their colors are fixed in both themes */
+.fxv{position:relative;aspect-ratio:16/10;border-radius:2px;overflow:hidden;background:#101615;isolation:isolate;container-type:inline-size}
+.fxv .sc{position:absolute;inset:0;background:linear-gradient(#c3d0d4 0%,#dfe2dd 48%,#e6d8cf 100%)}
+.fxv .sun{position:absolute;width:22%;aspect-ratio:1;border-radius:50%;background:#cf9783;left:60%;top:20%}
+.fxv .m1{position:absolute;left:0;right:0;bottom:0;height:58%;background:#8ba29b;clip-path:polygon(0 100%,0 58%,28% 14%,52% 62%,74% 32%,100% 68%,100% 100%)}
+.fxv .m2{position:absolute;left:0;right:0;bottom:0;height:34%;background:#4d605c;clip-path:polygon(0 100%,0 40%,40% 70%,70% 20%,100% 60%,100% 100%)}
+.fxv .fo{position:absolute;inset:0;pointer-events:none}
+.fxv .tag{position:absolute;right:4px;top:4px;font-size:9px;line-height:1.4;padding:0 4px;background:rgba(12,18,17,.55);color:#f6faf8;font-family:var(--f-mono);letter-spacing:0}
+.fx-glitch .b{animation:glitch 1.8s steps(1) infinite;filter:hue-rotate(140deg) saturate(1.6)}
+@keyframes glitch{0%,58%,100%{clip-path:inset(0 0 100% 0);transform:none}60%{clip-path:inset(18% 0 58% 0);transform:translateX(-9%)}63%{clip-path:inset(60% 0 14% 0);transform:translateX(8%)}66%{clip-path:inset(36% 0 40% 0);transform:translateX(-4%)}69%{clip-path:inset(0 0 100% 0)}}
+.fx-glitch .sc:not(.b){animation:gj 1.8s steps(1) infinite}
+@keyframes gj{0%,58%,72%,100%{transform:none}61%{transform:translateX(3%)}65%{transform:translateX(-2%)}}
+.fx-flash .fo{background:#fff;animation:flash 1.6s ease-out infinite}
+@keyframes flash{0%,62%,100%{opacity:0}66%{opacity:1}78%{opacity:0}}
+.fx-rgb .sc>i{animation:rgb 1.6s ease-in-out infinite}
+@keyframes rgb{0%,100%{filter:drop-shadow(0 0 0 rgba(255,40,120,0)) drop-shadow(0 0 0 rgba(0,210,255,0))}50%{filter:drop-shadow(4px 0 0 rgba(255,40,120,.85)) drop-shadow(-4px 0 0 rgba(0,210,255,.85))}}
+.fx-zoom .sc{animation:zoom 2.4s cubic-bezier(.5,0,.3,1) infinite;transform-origin:68% 32%}
+@keyframes zoom{0%,15%{transform:scale(1)}70%,85%{transform:scale(1.6)}100%{transform:scale(1)}}
+.fxv .ball{position:absolute;width:9%;aspect-ratio:1;border-radius:50%;background:#fbfdfc;box-shadow:0 0 0 1.5px #4d605c;top:30%;left:-12%}
+.fx-slow .ball{animation:slide 4.5s linear infinite}
+.fx-slow .ball.g1{opacity:.4;animation-delay:-.25s}
+.fx-slow .ball.g2{opacity:.18;animation-delay:-.5s}
+.fx-ramp .ball{animation:slide 2.6s cubic-bezier(.05,.95,.95,.05) infinite}
+@keyframes slide{from{left:-12%}to{left:104%}}
+.fx-shake .sc{animation:shake .7s steps(1) infinite}
+@keyframes shake{0%{transform:translate(0,0) scale(1.08)}20%{transform:translate(-3%,2%) scale(1.08)}40%{transform:translate(3%,-2%) scale(1.08)}60%{transform:translate(-2%,-3%) scale(1.08)}80%{transform:translate(2%,3%) scale(1.08)}}
+.fx-scan .sc{filter:saturate(.5) contrast(1.15)}
+.fx-scan .fo{background:repeating-linear-gradient(0deg,rgba(0,0,0,.25) 0 1px,transparent 1px 3px)}
+.fx-scan .fo::after{content:"";position:absolute;left:0;right:0;height:22%;background:linear-gradient(transparent,rgba(255,255,255,.35),transparent);animation:band 2s linear infinite}
+@keyframes band{from{top:-25%}to{top:105%}}
+.fx-text .cap{position:absolute;left:50%;bottom:14%;transform:translateX(-50%);white-space:nowrap;font-family:var(--f-disp);letter-spacing:.2em;font-size:clamp(9px,12cqi,22px);color:#fbfdfc;text-shadow:0 1px 3px rgba(0,0,0,.5);animation:cap 2.8s ease infinite}
+@keyframes cap{0%,10%{opacity:0;transform:translate(-50%,30%)}32%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,0)}}
+.fx-trans .b{filter:hue-rotate(185deg) brightness(.55) saturate(1.2);animation:wipe 2.4s cubic-bezier(.6,0,.3,1) infinite}
+@keyframes wipe{0%,15%{clip-path:inset(0 100% 0 0)}60%,85%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 0 0 100%)}}
+.fx-grade .sc{animation:grade 3s ease-in-out infinite}
+@keyframes grade{0%,100%{filter:none}33%{filter:sepia(.7) saturate(1.4) hue-rotate(-12deg)}66%{filter:hue-rotate(170deg) saturate(.7) brightness(.9)}}
+.fx-sfx .fo{display:flex;align-items:center;justify-content:center;gap:5%;background:rgba(12,18,17,.2)}
+.fx-sfx .fo i{width:4%;height:46%;background:#fbfdfc;animation:wave .9s ease-in-out infinite;animation-delay:calc(var(--i)*-.13s)}
+@keyframes wave{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+.fx-other .fo i{position:absolute;font-style:normal;color:#fffbe8;font-size:clamp(8px,15cqi,22px);animation:tw 1.6s ease-in-out infinite;text-shadow:0 0 6px #ffe9a8}
+@keyframes tw{0%,100%{opacity:.1;transform:scale(.6)}50%{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.fxv *,.fxv *::after{animation:none!important}}
+
+/* transport */
+.transport{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 16px}
+.tc{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:400;letter-spacing:.04em}
+.tc small{color:var(--sub);font-size:12px}
+.tgroup{display:flex;gap:2px;align-items:center}
+.ib{width:36px;height:36px;display:grid;place-items:center;background:transparent;border:0;border-radius:3px;color:var(--sub)}
+.ib svg{width:14px;height:14px;fill:currentColor}
+.ib:hover{color:var(--ac);background:var(--well)}
+.ib.play{width:44px;height:44px;border-radius:50%;border:1px solid var(--ink);color:var(--ink);margin:0 4px}
+.ib.play:hover{border-color:var(--ac);color:var(--ac);background:transparent}
+.spacer{flex:1}
+.zoom{display:flex;align-items:center;gap:8px;color:var(--sub);font-size:12px}
+.zoom input{width:110px;accent-color:var(--ac)}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:40px minmax(0,1fr);overflow:hidden}
+.labs{border-right:1px solid var(--line);font-family:var(--f-disp);font-size:12px;color:var(--sub);letter-spacing:.3em}
+.labs div{display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--hair)}
+.labs .l1,.labs .l2{writing-mode:vertical-rl}
+.labs .l0{height:28px;font-size:0}.labs .l1{height:82px}.labs .l2{height:56px;border-bottom:0}
+.scroll{overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scrollbar-color:var(--line) transparent}
+.inner{position:relative;min-width:100%;padding-left:10px;box-sizing:border-box}
+.ruler,.track{margin-left:-10px;padding-left:10px}
+.ruler{height:28px;position:relative;border-bottom:1px solid var(--hair);cursor:ew-resize;touch-action:none;
+  background-image:linear-gradient(to right,var(--line) 1px,transparent 1px);background-repeat:repeat-x;background-position:10px 100%}
+.tick{position:absolute;top:8px;bottom:0;border-left:1px solid var(--sub);margin-left:10px}
+.tick span{position:absolute;left:5px;top:-3px;font-family:var(--f-mono);font-size:10px;color:var(--sub);white-space:nowrap;letter-spacing:0}
+.track{position:relative;border-bottom:1px solid var(--hair)}
+.track.v{height:82px;background:
+  linear-gradient(var(--hair),var(--hair)) 0 9px/100% 1px no-repeat,
+  linear-gradient(var(--hair),var(--hair)) 0 calc(100% - 9px)/100% 1px no-repeat}
+.track.f{height:56px;border-bottom:0}
+.clip{position:absolute;top:14px;bottom:14px;margin-left:10px;box-sizing:border-box;background:color-mix(in srgb,var(--c) 16%,var(--sheet));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-top:3px solid var(--c);border-radius:2px;overflow:hidden;touch-action:none;cursor:pointer}
+.clip.mod{border-style:dashed;border-top-style:solid;border-color:var(--ac2);border-top-color:var(--c)}
+.clip.sel{outline:1.5px solid var(--ink);outline-offset:1px;z-index:2}
+.clip .body{position:absolute;inset:0 10px;padding-top:4px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.clip .body b{font-family:var(--f-mono);font-weight:500;color:var(--sub);margin-right:6px;letter-spacing:0}
+.clip .body em{display:block;font-style:normal;font-family:var(--f-mono);font-size:10px;color:var(--sub);margin-top:0;letter-spacing:0}
+.h{position:absolute;top:0;bottom:0;width:9px;cursor:ew-resize;z-index:3;touch-action:none}
+.h.l{left:0}.h.r{right:0}
+.h::after{content:"";position:absolute;top:28%;bottom:28%;left:3px;width:2px;background:color-mix(in srgb,var(--c) 70%,var(--ink));opacity:.45;transition:opacity .15s}
+.clip:hover .h::after{opacity:.9}
+.h:hover,.h:active{background:color-mix(in srgb,var(--ac) 22%,transparent)}
+.d{position:absolute;bottom:3px;font-style:normal;font-family:var(--f-mono);font-size:10px;color:var(--ac2);pointer-events:none;letter-spacing:0}
+.d.dl{left:12px}.d.dr{right:12px}
+.mk{position:absolute;top:10px;margin-left:10px;display:flex;align-items:flex-start;gap:5px;cursor:grab;touch-action:none;z-index:2}
+.mk i{width:2px;height:30px;background:var(--c);flex:none}
+.mk span{font-size:11px;line-height:1.5;color:var(--ink);background:var(--sheet);border:1px solid var(--line);border-left:0;padding:0 7px 0 4px;white-space:nowrap}
+.mk.sel span{border-color:var(--ink);font-weight:500}
+.mk.sel i{width:3px;background:var(--ink)}
+.phd{position:absolute;top:0;bottom:0;width:0;border-left:1.5px solid var(--ac2);pointer-events:none;z-index:5;margin-left:10px}
+.phd::before{content:"";position:absolute;top:0;left:-5px;width:8.5px;height:8px;background:var(--ac2);clip-path:polygon(0 0,100% 0,50% 100%)}
+
+/* notebook panel */
+.tabs{display:flex;gap:22px;padding:0 20px;overflow-x:auto;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;border-bottom:1.5px solid transparent;padding:12px 0;color:var(--sub);white-space:nowrap;margin-bottom:-1px}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ink)}
+.tab .n{font-family:var(--f-mono);font-size:11px;color:var(--ac2);margin-left:6px;letter-spacing:0}
+.tp{padding:20px}
+.log{margin:0;padding-left:26px;display:flex;flex-direction:column;gap:8px;max-width:82ch}
+.log li::marker{font-family:var(--f-mono);color:var(--sub)}
+.log .fx{color:var(--ac)}
+.logbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.logbar label{display:flex;gap:6px;align-items:center;color:var(--sub);font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:28px}
+.blk{display:flex;flex-direction:column;gap:10px;min-width:0}
+.blk h4{margin:0;font-family:var(--f-disp);font-size:16px;font-weight:600;letter-spacing:.1em}
+.drop{border:1px dashed var(--line);border-radius:var(--r);padding:20px;text-align:center;color:var(--sub);display:flex;flex-direction:column;gap:10px;align-items:center;transition:border-color .2s,background .2s}
+.drop b{color:var(--ink);font-weight:500}
+.drop .types{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+body.dragging .drop{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 6%,var(--sheet))}
+.msg{font-size:12px;margin:0}.msg.err{color:var(--ac2)}.msg.ok{color:var(--ac)}
+pre.snip{white-space:pre-wrap;background:var(--paper);border:1px solid var(--hair);border-radius:3px;padding:12px;font-family:var(--f-mono);font-size:11.5px;margin:0;max-height:260px;overflow:auto;letter-spacing:0}
+.exp{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--hair)}
+.expbtn{display:grid;grid-template-columns:70px 1fr;gap:0 14px;align-items:baseline;text-align:left;background:none;border:0;border-bottom:1px solid var(--hair);padding:12px 2px}
+.expbtn:hover b{color:var(--ac)}
+.expbtn .ext{grid-row:span 2;font-family:var(--f-mono);font-size:12px;color:var(--ac);letter-spacing:0}
+.expbtn b{font-weight:500}
+.expbtn span:last-child{font-size:12px;color:var(--sub)}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:0}
+.keys dd{margin:0}
+kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);border-radius:3px;padding:0 6px;letter-spacing:0}
+.foot{text-align:center;font-family:var(--f-disp);font-size:12px;color:var(--sub);letter-spacing:.1em}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 18px;border-radius:3px;z-index:50;animation:fade .25s ease;max-width:calc(100% - 40px)}
+@media (max-width:560px){.zoom input{width:80px}.tc{font-size:18px}.brand h1{font-size:23px}.fxhero{grid-template-columns:104px 1fr}.tabs{gap:16px;padding:0 16px}}
+@media (prefers-reduced-motion:reduce){.fxbadge,.toast{animation:none}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2v4" stroke="var(--ac2)" stroke-width="1.5"/><path d="M17 1.5h6l-3 3.5z" fill="var(--ac2)"/>
+<rect x="2.5" y="9.5" width="35" height="24" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<rect x="5.5" y="13.5" width="8" height="16" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
+<rect x="16" y="13.5" width="8" height="16" fill="var(--ac)"/>
+<rect x="26.5" y="13.5" width="8" height="16" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
+<g fill="currentColor" opacity=".5"><rect x="6" y="11" width="2" height="1.2"/><rect x="11" y="11" width="2" height="1.2"/><rect x="16" y="11" width="2" height="1.2"/><rect x="21" y="11" width="2" height="1.2"/><rect x="26" y="11" width="2" height="1.2"/><rect x="31" y="11" width="2" height="1.2"/><rect x="6" y="31" width="2" height="1.2"/><rect x="11" y="31" width="2" height="1.2"/><rect x="16" y="31" width="2" height="1.2"/><rect x="21" y="31" width="2" height="1.2"/><rect x="26" y="31" width="2" height="1.2"/><rect x="31" y="31" width="2" height="1.2"/></g></svg><div><h1>Koma</h1><p>editor for Claude Video</p></div></div>
+    <div class="proj"><b id="projName"></b><span class="pill" id="projMeta"></span><span class="pill warn" id="sampleTag" hidden>範例資料</span></div>
+    <button class="btn" id="undoBtn" title="復原 (Ctrl/⌘+Z)"><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62A7.95 7.95 0 0 1 20.4 16l2.37-.78A10.5 10.5 0 0 0 12.5 8z"/></svg>復原</button>
+  </header>
+
+  <section class="stage">
+    <div class="card preview">
+      <div class="frame" id="frame">
+        <video id="video" playsinline preload="auto" hidden></video>
+        <div class="ph" id="ph"><div class="nm" id="phName"></div><div class="hint">拖入成片影片，這裡就會顯示實際畫面</div></div>
+        <div class="ov"><span id="ovClip"></span><span id="ovSrc"></span></div>
+        <div class="warnbox" id="warn" hidden>這一格不在目前的成片裡（鏡頭被你延長了）。照常標記即可，Claude 會用素材重新輸出。</div>
+        <div class="cutflag" id="cutFlag" hidden>剪接點</div>
+        <div class="fxbadge" id="fxBadge" hidden></div>
+      </div>
+    </div>
+    <aside class="card insp" id="insp" aria-live="polite"></aside>
+  </section>
+
+  <div class="card transport">
+    <div class="tc" id="tc">00:00:00 <small>/ 00:00:00</small></div>
+    <div class="tgroup">
+      <button class="ib" data-t="prevcut" title="上一個剪接點 (↑)" aria-label="上一個剪接點"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9.5 12z"/></svg></button>
+      <button class="ib" data-t="-1" title="上一格 (←)" aria-label="上一格"><svg viewBox="0 0 24 24"><path d="M16 5v14L6 12z"/></svg></button>
+      <button class="ib play" id="playBtn" data-t="play" title="播放 / 暫停 (空白鍵)" aria-label="播放"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></button>
+      <button class="ib" data-t="+1" title="下一格 (→)" aria-label="下一格"><svg viewBox="0 0 24 24"><path d="M8 5v14l10-7z"/></svg></button>
+      <button class="ib" data-t="nextcut" title="下一個剪接點 (↓)" aria-label="下一個剪接點"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l10.5-7z"/></svg></button>
+    </div>
+    <button class="btn shu" data-t="mark" title="在播放頭加特效 (M)">＋ 加特效</button>
+    <div class="spacer"></div>
+    <div class="zoom"><label for="zoom">縮放</label><input type="range" id="zoom" min="0" max="100" step="1"><button class="btn sm" data-t="fit">全覽</button></div>
+  </div>
+
+  <div class="card tl">
+    <div class="labs"><div class="l0">時間</div><div class="l1">鏡頭</div><div class="l2">特效</div></div>
+    <div class="scroll" id="scroll">
+      <div class="inner" id="inner">
+        <div class="ruler" id="ruler"></div>
+        <div class="track v" id="trV"></div>
+        <div class="track f" id="trF"></div>
+        <div class="phd" id="phd"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="log">修改清單<span class="n" id="logN" hidden></span></button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="in">匯入</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="out">匯出到剪輯軟體</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="keys">快捷鍵</button>
+    </div>
+    <div class="tp" data-panel="log">
+      <div class="logbar">
+        <button class="btn pri" id="copyLog">複製給 Claude</button>
+        <label><input type="checkbox" id="withJson"> 附上完整時間軸</label>
+        <span class="spacer"></span>
+        <button class="btn sm ghost" id="resetBtn">全部還原</button>
+      </div>
+      <ol class="log" id="log"></ol>
+      <p class="help" id="logEmpty">還沒有修改。拖鏡頭兩側的邊、或在右側逐格微調，按 <kbd>M</kbd> 在播放頭加特效，這裡會自動整理成可以直接貼給 Claude 的文字。</p>
+      <textarea id="copyFallback" rows="8" hidden readonly aria-label="修改清單文字"></textarea>
+    </div>
+    <div class="tp" data-panel="in" hidden>
+      <div class="grid2">
+        <div class="blk">
+          <h4>拖進來就好</h4>
+          <label class="drop" for="anyFile">
+            <b>把影片和時間軸檔一起拖進頁面任何地方</b>
+            <span class="types"><span class="pill">.mp4 .mov 成片</span><span class="pill">.json Claude</span><span class="pill">.fcpxml</span><span class="pill">.edl</span></span>
+            <span class="btn sm">或選擇檔案</span>
+          </label>
+          <input type="file" id="anyFile" multiple hidden accept="video/*,.json,.fcpxml,.xml,.edl,.txt">
+          <div class="row" style="grid-template-columns:auto 1fr"><label class="lb" for="edlFps">EDL 幀率</label>
+            <select id="edlFps"><option>23.976</option><option>24</option><option>25</option><option>29.97</option><option selected>30</option><option>50</option><option>59.94</option><option>60</option></select></div>
+          <p class="help">EDL 檔案本身沒有記錄幀率，匯入前請先選好。影片只在你的瀏覽器裡播放，不會上傳。</p>
+          <p class="msg" id="inMsg"></p>
+        </div>
+        <div class="blk">
+          <h4>或貼上文字</h4>
+          <textarea id="pasteIn" rows="6" placeholder="貼上 Claude 給的時間軸 JSON、FCPXML 或 EDL 內容"></textarea>
+          <div class="acts"><button class="btn pri" id="loadPaste">載入</button><button class="btn" id="loadSample">載入範例</button></div>
+        </div>
+        <div class="blk">
+          <h4>給 Claude 的指令</h4>
+          <p class="help">貼到 Claude 的專案指示裡一次，之後每次剪片都會附上 Koma 時間軸。</p>
+          <pre class="snip" id="askSnip"></pre>
+          <div class="acts"><button class="btn" id="copySnip">複製指令</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="tp" data-panel="out" hidden>
+      <div class="grid2">
+        <div class="blk">
+          <h4>匯出修改後的時間軸</h4>
+          <div class="exp">
+            <button class="expbtn" data-exp="fcpxml"><span class="ext">.fcpxml</span><b>Final Cut Pro · DaVinci Resolve</b><span>剪接點、鏡頭名稱、特效標記（變成 marker）</span></button>
+            <button class="expbtn" data-exp="edl"><span class="ext">.edl</span><b>Premiere Pro · DaVinci · Avid</b><span>剪接點與鏡頭名稱；特效寫成註解</span></button>
+            <button class="expbtn" data-exp="json"><span class="ext">.json</span><b>Koma 時間軸</b><span>給 Claude 或下次再用 Koma 打開</span></button>
+          </div>
+          <p class="msg" id="outMsg"></p>
+        </div>
+        <div class="blk">
+          <h4>素材在哪裡？</h4>
+          <label class="help" for="mediaDir">素材資料夾路徑（選填）。填了以後，剪輯軟體開啟時就能自動連結素材；沒填的話開啟後再手動「重新連結」即可。</label>
+          <input type="text" id="mediaDir" placeholder="例：/Users/you/Movies/素材/">
+          <p class="help">調色、字卡和動態特效不會跟著過去，只有剪接點和標記。特效會以 marker 出現在時間軸上，提醒你在那裡做什麼。</p>
+          <textarea id="exportOut" rows="6" hidden readonly aria-label="匯出內容"></textarea>
+          <div class="acts" id="exportOutActs" hidden><button class="btn sm" id="copyExport">複製內容</button><span class="help" id="exportOutHint"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tp" data-panel="keys" hidden>
+      <dl class="keys">
+        <dt><kbd>空白鍵</kbd></dt><dd>播放 / 暫停</dd>
+        <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>前後一格（加 <kbd>Shift</kbd> 一次 5 格）</dd>
+        <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>跳到上一個 / 下一個剪接點</dd>
+        <dt><kbd>M</kbd></dt><dd>在播放頭加特效</dd>
+        <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>把選取鏡頭的入點 / 出點設在播放頭</dd>
+        <dt><kbd>Delete</kbd></dt><dd>刪除選取的特效</dd>
+        <dt><kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd></dt><dd>復原</dd>
+        <dt>拖曳</dt><dd>鏡頭兩側的邊＝修剪入出點（後面鏡頭自動順移）；拖水滴＝移動特效；拖上方時間列＝快速瀏覽；在特效軌雙擊＝新增特效</dd>
+      </dl>
+    </div>
+  </div>
+  <p class="foot">Koma 是獨立的開放工具，非 Anthropic 官方產品。</p>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const SAMPLE={project:"範例｜霓虹夜行 Reel",fps:30,width:1080,height:1920,sample:true,
+ clips:[
+  {id:"c1",name:"開場｜霓虹招牌閃爍",src:"IMG_2041.MOV",in:45,out:117},
+  {id:"c2",name:"人物走入雨中",src:"IMG_2043.MOV",in:210,out:300},
+  {id:"c3",name:"街道橫搖向右",src:"IMG_2050.MOV",in:12,out:84},
+  {id:"c4",name:"特寫｜眼睛反光",src:"IMG_2052.MOV",in:90,out:138},
+  {id:"c5",name:"捷運月台慢速",src:"IMG_2060.MOV",in:300,out:420},
+  {id:"c6",name:"收尾字卡",src:"title_card.png",in:0,out:60}],
+ markers:[
+  {id:"m1",clip:"c1",at:0,type:"flash",note:"開頭閃白一格"},
+  {id:"m2",clip:"c3",at:30,type:"rgb",note:""},
+  {id:"m3",clip:"c6",at:8,type:"text",note:"字卡淡入"}]};
+
+const FX=[
+ {k:"glitch",l:"Glitch 抖動",c:"#b07085",d:"畫面瞬間錯位、撕裂。適合放在重拍或轉場前。"},
+ {k:"flash",l:"閃白",c:"#b5a26a",d:"一兩格全白閃一下，強調重音或開場。"},
+ {k:"rgb",l:"RGB 分離",c:"#8f80a8",d:"紅藍色版錯開，帶出迷幻、賽博的質感。"},
+ {k:"zoom",l:"推近",c:"#6f98a8",d:"畫面放大推進，製造張力或聚焦主體。"},
+ {k:"slow",l:"慢動作",c:"#7889aa",d:"放慢速度，讓情緒或動作細節停留久一點。"},
+ {k:"ramp",l:"速度坡道",c:"#6f9a88",d:"快→慢→快，動作帶有呼吸般的節奏感。"},
+ {k:"shake",l:"畫面震動",c:"#b08670",d:"鏡頭晃動，配合撞擊、低頻或鼓點。"},
+ {k:"scan",l:"掃描線",c:"#8a93a0",d:"老電視、監視器般的線條與雜訊。"},
+ {k:"text",l:"字卡 / 字幕",c:"#b39a5c",d:"這裡要出現文字、標題或字幕。"},
+ {k:"trans",l:"轉場",c:"#7d9a7e",d:"切到下一個畫面的方式，例如劃、溶、推。"},
+ {k:"grade",l:"調色",c:"#a8809d",d:"這段改變色調或氛圍。"},
+ {k:"sfx",l:"音效點",c:"#9a8768",d:"這裡要放音效，或讓畫面對準某個聲音。"},
+ {k:"other",l:"其他",c:"#8e9096",d:"其他想法，請在下面寫清楚。"}];
+const PAL=["#93a79e","#97a8b8","#a7a0b6","#b7ab8c","#b69d9d","#8ea6a6","#a3ac93","#b49f91"];
+const KEY="koma:v1";
+const $=s=>document.querySelector(s);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const sgn=d=>(d>0?"+":"")+d+"f";
+const fxOf=k=>FX.find(f=>f.k===k)||FX[FX.length-1];
+const store={get(){try{return localStorage.getItem(KEY)}catch(e){return null}},set(v){try{localStorage.setItem(KEY,v)}catch(e){}}};
+const IN_CLAUDE=!!window.claude;
+
+let orig,doc,fps=30,ppf=6,playhead=0,sel=null,undo=[],playing=false,videoURL=null,last=0,acc=0;
+const video=$("#video"),scroll=$("#scroll"),inner=$("#inner");
+
+function tcBase(){return Math.round(fps)}
+function tc(f){f=Math.max(0,Math.round(f));const b=tcBase(),ff=f%b,s=Math.floor(f/b);return `${pad(Math.floor(s/60))}:${pad(s%60)}:${pad(ff)}`}
+function normalize(d){
+  if(!d||!Array.isArray(d.clips)) throw new Error("找不到 clips 鏡頭清單");
+  const o={project:String(d.project||"未命名專案"),fps:+d.fps>0?+d.fps:30,width:+d.width||1080,height:+d.height||1920,sample:!!d.sample};
+  const seen=new Set();
+  o.clips=d.clips.map((c,i)=>{let id=String(c.id??("c"+(i+1)));if(seen.has(id))id+="_"+i;seen.add(id);
+    return {id,name:String(c.name||("鏡頭 "+(i+1))),src:String(c.src||""),in:Math.max(0,Math.round(+c.in||0)),out:Math.round(+c.out||0),note:String(c.note||"")}}).filter(c=>c.out>c.in);
+  if(!o.clips.length) throw new Error("沒有有效的鏡頭（out 要大於 in）");
+  o.markers=(d.markers||[]).map((m,i)=>({id:String(m.id??("m"+(i+1))),clip:String(m.clip),at:Math.max(0,Math.round(+m.at||0)),type:FX.some(f=>f.k===m.type)?m.type:"other",note:String(m.note||"")}));
+  return o;
+}
+function layout(d){let s=0;const map={};d.clips.forEach((c,i)=>{map[c.id]={c,i,start:s};s+=c.out-c.in});return{map,total:s}}
+function clipAt(f,L){for(const id in L.map){const e=L.map[id];if(f>=e.start&&f<e.start+e.c.out-e.c.in)return e}return null}
+function markerFrame(m,L){const e=L.map[m.clip];if(!e)return null;return e.start+clamp(m.at,0,e.c.out-e.c.in-1)}
+function clipColor(c,i){const oi=orig.clips.findIndex(x=>x.id===c.id);return PAL[(oi<0?i:oi)%PAL.length]}
+function total(){return layout(doc).total}
+
+function load(data,draftDoc){
+  orig=normalize(data);doc=draftDoc?normalize(draftDoc):clone(orig);fps=orig.fps;
+  playhead=0;sel=null;undo=[];
+  $("#frame").style.aspectRatio=`${orig.width}/${orig.height}`;
+  fit();renderAll();checkVideo();
+}
+function save(){store.set(JSON.stringify({orig,doc}))}
+function pushUndo(){undo.push(JSON.stringify(doc));if(undo.length>300)undo.shift();$("#undoBtn").disabled=false}
+function doUndo(){if(!undo.length)return;doc=JSON.parse(undo.pop());if(sel&&!(sel.kind==="clip"?doc.clips:doc.markers).some(x=>x.id===sel.id))sel=null;renderAll();toast("已復原")}
+function mutate(fn){pushUndo();fn();renderAll()}
+
+/* ---------- effect thumbnails ---------- */
+const SCN='<i class="sun"></i><i class="m1"></i><i class="m2"></i>';
+function thumb(k){
+  let x="";
+  if(k==="glitch"||k==="trans")x=`<div class="sc b">${SCN}</div>`;
+  else if(k==="flash"||k==="scan")x='<div class="fo"></div>';
+  else if(k==="slow")x='<div class="fo"><i class="ball g2"></i><i class="ball g1"></i><i class="ball"></i></div><span class="tag">×0.5</span>';
+  else if(k==="ramp")x='<div class="fo"><i class="ball"></i></div><span class="tag">快·慢·快</span>';
+  else if(k==="text")x='<div class="fo"><span class="cap">夜の街</span></div>';
+  else if(k==="sfx")x='<div class="fo">'+[0,1,2,3,4,5,6].map(i=>`<i style="--i:${i}"></i>`).join("")+'</div>';
+  else if(k==="other")x='<div class="fo"><i style="left:18%;top:20%">✦</i><i style="left:62%;top:44%;animation-delay:-.6s">✦</i><i style="left:36%;top:58%;animation-delay:-1.1s">✦</i></div>';
+  return `<div class="fxv fx-${k}" aria-hidden="true"><div class="sc">${SCN}</div>${x}</div>`;
+}
+
+/* ---------- render ---------- */
+function renderAll(){
+  $("#projName").textContent=doc.project;
+  $("#projMeta").textContent=`${+fps.toFixed(3)}fps · ${orig.width}×${orig.height}`;
+  $("#sampleTag").hidden=!orig.sample;
+  $("#undoBtn").disabled=!undo.length;
+  renderTimeline();renderInspector();renderLog();save();
+}
+function renderTimeline(){
+  const L=layout(doc),OL=layout(orig);
+  inner.style.width=Math.max(L.total*ppf+90,scroll.clientWidth)+"px";
+  const b=tcBase(),steps=[1,2,5,10,b/2,b,2*b,3*b,5*b,10*b,15*b,30*b,60*b,120*b,300*b].map(Math.round);
+  const step=steps.find(s=>s*ppf>=80)||steps[steps.length-1];
+  let h="";for(let f=0;f<=L.total;f+=step)h+=`<div class="tick" style="left:${f*ppf}px"><span>${tc(f)}</span></div>`;
+  const R=$("#ruler");R.innerHTML=h;R.style.backgroundSize=ppf>=5?`${ppf}px 6px`:"0 0";
+  $("#trV").innerHTML=doc.clips.map((c,i)=>{
+    const e=L.map[c.id],o=OL.map[c.id]?.c,dI=o?c.in-o.in:0,dO=o?c.out-o.out:0,isSel=sel?.kind==="clip"&&sel.id===c.id;
+    return `<div class="clip${isSel?" sel":""}${dI||dO?" mod":""}" data-id="${esc(c.id)}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
+      <div class="h l" data-edge="in" title="拖曳修剪入點"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${c.out-c.in}f · ${esc(c.src)}</em></div><div class="h r" data-edge="out" title="拖曳修剪出點"></div>
+      ${dI?`<i class="d dl">入${sgn(dI)}</i>`:""}${dO?`<i class="d dr">出${sgn(dO)}</i>`:""}</div>`}).join("");
+  $("#trF").innerHTML=doc.markers.map(m=>{const f=markerFrame(m,L);if(f==null)return"";const fx=fxOf(m.type),isSel=sel?.kind==="mk"&&sel.id===m.id;
+    return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?"："+m.note:""))}"><i></i><span>${esc(fx.l)}</span></div>`}).join("");
+  updatePlayhead();
+}
+let badgeKey="";
+function updatePlayhead(){
+  const L=layout(doc);playhead=clamp(playhead,0,Math.max(0,L.total-1));
+  $("#phd").style.left=playhead*ppf+"px";
+  $("#tc").innerHTML=`${tc(playhead)} <small>/ ${tc(L.total)}</small>`;
+  if(playing){const x=playhead*ppf;if(x<scroll.scrollLeft+20||x>scroll.scrollLeft+scroll.clientWidth-40)scroll.scrollLeft=x-60}
+  const near=doc.markers.find(m=>{const f=markerFrame(m,L);return f!=null&&playhead>=f&&playhead<f+Math.max(6,Math.round(fps/3))});
+  const bk=near?near.id+near.type:"";
+  if(bk!==badgeKey){badgeKey=bk;const b=$("#fxBadge");b.hidden=!near;if(near)b.innerHTML=thumb(near.type)+`<span>${esc(fxOf(near.type).l)}</span>`}
+  updatePreview(L);
+}
+function updatePreview(L){
+  const hit=clipAt(playhead,L);if(!hit)return;
+  const{c,i,start}=hit,k=playhead-start,srcF=c.in+k;
+  $("#ovClip").textContent=`鏡頭 ${pad(i+1)} · 第 ${k} 格`;
+  $("#ovSrc").textContent=`${c.src||"素材"} @ ${srcF}`;
+  $("#cutFlag").hidden=!(k===0||k===c.out-c.in-1);
+  $("#cutFlag").textContent=k===0?"剪接點・入":"剪接點・出";
+  if(!videoURL){$("#ph").style.setProperty("--c",clipColor(c,i));$("#phName").textContent=c.name;$("#warn").hidden=true;return}
+  const o=layout(orig).map[c.id];let ok=false,of=0;
+  if(o&&srcF>=o.c.in&&srcF<o.c.out){ok=true;of=o.start+(srcF-o.c.in)}
+  $("#warn").hidden=ok;
+  if(!ok){if(!video.paused)video.pause();return}
+  const t=(of+.5)/fps;
+  if(playing){if(video.paused)video.play().catch(()=>{});if(Math.abs(video.currentTime-t)>.15)video.currentTime=t}
+  else{if(!video.paused)video.pause();if(Math.abs(video.currentTime-t)>.4/fps)video.currentTime=t}
+}
+function nudgeRow(lb,key,v,o){const d=o==null?0:v-o;return `<div class="lb">${lb}</div><div class="nudge">
+  <button class="nb" data-a="${key}:-5">−5</button><button class="nb" data-a="${key}:-1">−1</button><span class="v">${v}</span><button class="nb" data-a="${key}:1">+1</button><button class="nb" data-a="${key}:5">+5</button></div>
+  <div class="delta${d?" on":""}">${o==null?"新項目":d?`原本 ${o}，${d>0?"晚":"早"} ${Math.abs(d)} 格`:"未修改"}</div>`}
+function renderInspector(){
+  const el=$("#insp");
+  if(sel?.kind==="clip"){
+    const i=doc.clips.findIndex(c=>c.id===sel.id),c=doc.clips[i];if(!c){sel=null;return renderInspector()}
+    const o=orig.clips.find(x=>x.id===c.id),dd=o?(c.out-c.in)-(o.out-o.in):0;
+    el.innerHTML=`<div class="eyebrow">鏡頭</div>
+      <div><span class="chip" style="--c:${clipColor(c,i)}">鏡頭 ${pad(i+1)}</span></div>
+      <h3>${esc(c.name)}</h3><div class="src">${esc(c.src||"（未標示素材）")}</div>
+      <div class="row">${nudgeRow("入點","in",c.in,o?.in)}${nudgeRow("出點","out",c.out,o?.out)}
+        <div class="lb">長度</div><div class="mono">${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒${dd?` <span style="color:var(--ac2)">(${sgn(dd)})</span>`:""}</div></div>
+      <p class="help">數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。</p>
+      <label class="help" for="clipNote">給 Claude 的備註</label>
+      <textarea id="clipNote" placeholder="例：這顆鏡頭調色再冷一點">${esc(c.note)}</textarea>
+      <div class="acts"><button class="btn sm" data-a="go:in">跳到入點</button><button class="btn sm" data-a="go:out">跳到出點</button><button class="btn sm ghost" data-a="delclip">刪除鏡頭</button></div>`;
+    $("#clipNote").oninput=e=>{c.note=e.target.value;renderLog();save()};
+  }else if(sel?.kind==="mk"){
+    const m=doc.markers.find(x=>x.id===sel.id);if(!m){sel=null;return renderInspector()}
+    const L=layout(doc),e=L.map[m.clip],f=markerFrame(m,L),om=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type);
+    el.innerHTML=`<div class="eyebrow">特效</div>
+      <div class="fxhero">${thumb(m.type)}<div><b>${esc(fx.l)}</b><p>${esc(fx.d)}</p></div></div>
+      <div class="help">鏡頭 ${pad(e.i+1)}「${esc(e.c.name)}」第 ${f-e.start} 格 · <span class="mono">${tc(f)}</span></div>
+      <div class="row"><div class="lb">位置</div><div class="nudge"><button class="nb" data-a="mk:-5">−5</button><button class="nb" data-a="mk:-1">−1</button><span class="v">${tc(f)}</span><button class="nb" data-a="mk:1">+1</button><button class="nb" data-a="mk:5">+5</button></div>
+      <div class="delta${om?"":" on"}">${om?"Claude 原本放的特效":"你新增的特效"}</div></div>
+      <div class="eyebrow">換一種特效</div>
+      <div class="fxgrid" role="group" aria-label="特效種類">${FX.map(x=>`<button class="fxt" data-fx="${x.k}" aria-pressed="${x.k===m.type}" style="--fxc:${x.c}">${thumb(x.k)}<span>${x.l}</span></button>`).join("")}</div>
+      <label class="help" for="mkNote">想要的效果（越具體越好）</label>
+      <textarea id="mkNote" placeholder="例：抖 6 格、強度中等，配合鼓點">${esc(m.note)}</textarea>
+      <div class="acts"><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">刪除特效</button></div>`;
+    $("#mkNote").oninput=ev=>{m.note=ev.target.value;renderLog();save()};
+  }else{
+    el.innerHTML=`<div class="eyebrow">使い方</div><ol class="steps">
+      <li><span><b>點時間軸上的鏡頭</b>，在這裡用 ±1 / ±5 逐格調入點、出點，也可以直接拖鏡頭兩側的邊。</span></li>
+      <li><span><b>把播放頭停在想加特效的格子</b>，按「＋ 加特效」或 <kbd>M</kbd>，從小動畫裡挑效果，再寫一句想要的感覺。</span></li>
+      <li><span>到下方<b>修改清單</b>按「複製給 Claude」，貼回對話就好；也可以匯出到剪輯軟體。</span></li></ol>
+      <p class="help">${orig.sample?"現在是範例時間軸。把 Claude 給的影片和時間軸檔拖進頁面就能開始。":"修改會自動暫存在這台裝置的瀏覽器。"}</p>`;
+  }
+}
+function changes(){
+  const out=[],L=layout(doc),OL=layout(orig);
+  orig.clips.forEach((o,i)=>{
+    const n=doc.clips.find(c=>c.id===o.id),lab=`鏡頭 ${pad(i+1)}「${o.name}」`;
+    if(!n){out.push({t:`${lab}：整段刪除（原長 ${o.out-o.in} 格）`});return}
+    const p=[];
+    if(n.in!==o.in){const d=n.in-o.in;p.push(`入點${d>0?"晚":"早"} ${Math.abs(d)} 格（素材格 ${o.in}→${n.in}）`)}
+    if(n.out!==o.out){const d=n.out-o.out;p.push(`出點${d>0?"晚":"早"} ${Math.abs(d)} 格（素材格 ${o.out}→${n.out}）`)}
+    if(n.note.trim()&&n.note!==o.note)p.push(`備註：${n.note.trim()}`);
+    if(p.length){const dd=(n.out-n.in)-(o.out-o.in);out.push({t:`${lab}：${p.join("；")}${dd?`。鏡頭長度 ${dd>0?"+":""}${dd} 格`:""}`})}
+  });
+  const where=(m,LL)=>{const e=LL.map[m.clip];if(!e)return"（鏡頭已刪除）";const f=markerFrame(m,LL);return `鏡頭 ${pad(e.i+1)}「${e.c.name}」第 ${f-e.start} 格（成片 ${tc(f)}）`};
+  doc.markers.forEach(m=>{
+    const o=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type).l,note=m.note.trim()?`：${m.note.trim()}`:"";
+    if(!L.map[m.clip])return;
+    if(!o){out.push({t:`新增特效【${fx}】於 ${where(m,L)}${note}`,fx:1});return}
+    const p=[];
+    if(o.clip!==m.clip||o.at!==m.at)p.push(`位置移到 ${where(m,L)}`);
+    if(o.type!==m.type)p.push(`改成【${fx}】`);
+    if(o.note!==m.note&&m.note.trim())p.push(`說明改為：${m.note.trim()}`);
+    if(p.length)out.push({t:`特效【${fxOf(o.type).l}】原在 ${where(o,OL)}：${p.join("；")}`,fx:1});
+  });
+  orig.markers.forEach(o=>{if(!doc.markers.some(m=>m.id===o.id)&&OL.map[o.clip])out.push({t:`移除特效【${fxOf(o.type).l}】（原在 ${where(o,OL)}）`,fx:1})});
+  return out;
+}
+function exportDoc(){const d=clone(doc);delete d.sample;d.markers=d.markers.filter(m=>d.clips.some(c=>c.id===m.clip));return d}
+function logText(){
+  const ch=changes();
+  let s=`【Koma 剪輯回饋】${doc.project}｜${+fps.toFixed(3)}fps\n說明：入點／出點以素材格數計，「晚」＝往後、「早」＝往前；成片時間碼為 分:秒:格。\n`;
+  s+=ch.length?ch.map((c,i)=>`${i+1}. ${c.t}`).join("\n"):"（沒有修改）";
+  if($("#withJson").checked)s+="\n\n修改後的 Koma 時間軸：\n"+JSON.stringify(exportDoc());
+  return s;
+}
+function renderLog(){
+  const ch=changes();
+  $("#log").innerHTML=ch.map(c=>`<li${c.fx?' class="fx"':""}>${esc(c.t)}</li>`).join("");
+  $("#logEmpty").hidden=ch.length>0;$("#log").hidden=!ch.length;
+  const n=$("#logN");n.hidden=!ch.length;n.textContent=ch.length;
+}
+
+/* ---------- editing ---------- */
+function seek(f){playhead=f;updatePlayhead()}
+function cutPoints(){const L=layout(doc),p=doc.clips.map(c=>L.map[c.id].start);p.push(L.total-1);return p}
+function nudgeClip(edge,d){const c=doc.clips.find(x=>x.id===sel.id);mutate(()=>{if(edge==="in")c.in=clamp(c.in+d,0,c.out-1);else c.out=Math.max(c.in+1,c.out+d)});
+  const e=layout(doc).map[c.id];seek(edge==="in"?e.start:e.start+c.out-c.in-1)}
+function placeMarker(m,f){const L=layout(doc);f=clamp(f,0,L.total-1);const h=clipAt(f,L);m.clip=h.c.id;m.at=f-h.start}
+function addMarker(){const id="m"+Date.now().toString(36);mutate(()=>{const m={id,clip:"",at:0,type:"glitch",note:""};placeMarker(m,playhead);doc.markers.push(m);sel={kind:"mk",id}})}
+
+$("#insp").addEventListener("click",e=>{
+  const t=e.target.closest(".fxt");
+  if(t&&sel?.kind==="mk"){const m=doc.markers.find(x=>x.id===sel.id);if(m.type!==t.dataset.fx){mutate(()=>{m.type=t.dataset.fx});badgeKey="";updatePlayhead()}return}
+  const b=e.target.closest("[data-a]");if(!b||!sel)return;const[a,v]=b.dataset.a.split(":");
+  if(a==="in"||a==="out")nudgeClip(a,+v);
+  else if(a==="mk"){const m=doc.markers.find(x=>x.id===sel.id);mutate(()=>placeMarker(m,markerFrame(m,layout(doc))+ +v));seek(markerFrame(m,layout(doc)))}
+  else if(a==="go"){const L=layout(doc);if(v==="mk")seek(markerFrame(doc.markers.find(x=>x.id===sel.id),L));else{const e2=L.map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1)}}
+  else if(a==="delmk")mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null});
+  else if(a==="delclip"){
+    if(b.dataset.armed){if(doc.clips.length<2)return toast("至少要留一個鏡頭");mutate(()=>{doc.clips=doc.clips.filter(x=>x.id!==sel.id);sel=null})}
+    else{b.dataset.armed=1;b.textContent="再按一次確認";setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent="刪除鏡頭"}},2500)}
+  }
+});
+
+function frameAt(x){const r=inner.getBoundingClientRect();return clamp(Math.floor((x-r.left-10)/ppf),0,Math.max(0,total()-1))}
+function drag(e,onMove,onUp){
+  e.preventDefault();const x0=e.clientX;let moved=false;
+  const mv=ev=>{if(Math.abs(ev.clientX-x0)>3)moved=true;onMove(ev,ev.clientX-x0,moved)};
+  const up=()=>{removeEventListener("pointermove",mv);removeEventListener("pointerup",up);removeEventListener("pointercancel",up);onUp&&onUp(moved)};
+  addEventListener("pointermove",mv);addEventListener("pointerup",up);addEventListener("pointercancel",up);
+}
+function stopPlay(){if(playing)togglePlay()}
+$("#ruler").addEventListener("pointerdown",e=>{stopPlay();seek(frameAt(e.clientX));drag(e,ev=>seek(frameAt(ev.clientX)))});
+$("#trV").addEventListener("pointerdown",e=>{
+  stopPlay();
+  const cl=e.target.closest(".clip");if(!cl){sel=null;renderTimeline();renderInspector();seek(frameAt(e.clientX));return}
+  const id=cl.dataset.id,h=e.target.closest(".h");
+  if(h){
+    const edge=h.dataset.edge,c=doc.clips.find(x=>x.id===id),v0=c[edge],before=JSON.stringify(doc);
+    pushUndo();sel={kind:"clip",id};
+    drag(e,(ev,dx)=>{const d=Math.round(dx/ppf);if(edge==="in")c.in=clamp(v0+d,0,c.out-1);else c.out=Math.max(c.in+1,v0+d);
+      const e2=layout(doc).map[id];playhead=edge==="in"?e2.start:e2.start+c.out-c.in-1;renderTimeline();renderInspector();renderLog()},
+      ()=>{if(JSON.stringify(doc)===before)undo.pop();renderAll()});
+    renderTimeline();renderInspector();return;
+  }
+  sel={kind:"clip",id};renderTimeline();renderInspector();seek(frameAt(e.clientX));
+  drag(e,ev=>seek(frameAt(ev.clientX)));
+});
+$("#trF").addEventListener("pointerdown",e=>{
+  stopPlay();
+  const mk=e.target.closest(".mk");if(!mk){sel=null;renderTimeline();renderInspector();seek(frameAt(e.clientX));return}
+  const m=doc.markers.find(x=>x.id===mk.dataset.id);sel={kind:"mk",id:m.id};pushUndo();
+  const f0=markerFrame(m,layout(doc));
+  drag(e,(ev,dx,moved)=>{if(!moved)return;placeMarker(m,f0+Math.round(dx/ppf));playhead=markerFrame(m,layout(doc));renderTimeline();renderInspector();renderLog()},
+    moved=>{if(!moved)undo.pop();renderAll()});
+  seek(f0);renderTimeline();renderInspector();
+});
+$("#trF").addEventListener("dblclick",e=>{if(!e.target.closest(".mk")){seek(frameAt(e.clientX));addMarker()}});
+
+function togglePlay(){
+  playing=!playing;
+  const pb=$("#playBtn");pb.setAttribute("aria-label",playing?"暫停":"播放");
+  pb.innerHTML=playing?'<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>':'<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>';
+  if(playing){if(playhead>=total()-1)playhead=0;last=performance.now();acc=0;requestAnimationFrame(tick)}else video.pause();
+  updatePlayhead();
+}
+function tick(t){if(!playing)return;acc+=(t-last)/1000*fps;last=t;const n=Math.floor(acc);
+  if(n>0){acc-=n;const T=total();playhead+=n;if(playhead>=T){playhead=T-1;togglePlay();return}updatePlayhead()}
+  requestAnimationFrame(tick)}
+function transport(a){
+  if(a==="play")return togglePlay();
+  stopPlay();
+  if(a==="mark")return addMarker();
+  if(a==="fit"){fit();renderTimeline();return}
+  const p=cutPoints();
+  if(a==="prevcut")return seek([...p].reverse().find(x=>x<playhead)??0);
+  if(a==="nextcut")return seek(p.find(x=>x>playhead)??total()-1);
+  seek(playhead+ +a);
+}
+document.querySelector(".transport").addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(b)transport(b.dataset.t)});
+
+const ZMIN=.25,ZMAX=48;
+const z2v=p=>Math.round(Math.log(p/ZMIN)/Math.log(ZMAX/ZMIN)*100),v2z=v=>ZMIN*Math.pow(ZMAX/ZMIN,v/100);
+function fit(){const T=Math.max(1,total());ppf=clamp((scroll.clientWidth-90)/T,ZMIN,ZMAX);$("#zoom").value=z2v(ppf)}
+$("#zoom").addEventListener("input",e=>{ppf=v2z(+e.target.value);renderTimeline();scroll.scrollLeft=playhead*ppf-scroll.clientWidth/2});
+
+addEventListener("keydown",e=>{
+  if(e.target.closest("input,textarea,select"))return;
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="z"){e.preventDefault();return doUndo()}
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const k=e.key;
+  if(k===" "){e.preventDefault();transport("play")}
+  else if(k==="ArrowLeft"){e.preventDefault();transport(e.shiftKey?"-5":"-1")}
+  else if(k==="ArrowRight"){e.preventDefault();transport(e.shiftKey?"+5":"+1")}
+  else if(k==="ArrowUp"){e.preventDefault();transport("prevcut")}
+  else if(k==="ArrowDown"){e.preventDefault();transport("nextcut")}
+  else if(k==="m"||k==="M")transport("mark");
+  else if((k==="Delete"||k==="Backspace")&&sel?.kind==="mk"){e.preventDefault();mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null})}
+  else if((k==="["||k==="]")&&sel?.kind==="clip"){
+    const e2=layout(doc).map[sel.id],c=e2.c,k2=playhead-e2.start;
+    if(k2<0||k2>=c.out-c.in)return toast("播放頭要在選取的鏡頭範圍內");
+    mutate(()=>{if(k==="[")c.in+=k2;else c.out=c.in+k2+1});
+    const e3=layout(doc).map[sel.id];seek(k==="["?e3.start:e3.start+c.out-c.in-1);
+  }
+});
+
+/* ---------- timing helpers for interchange ---------- */
+function rat(f){
+  const t={"23.976":[1001,24000],"29.97":[1001,30000],"59.94":[1001,60000],"47.952":[1001,48000],"119.88":[1001,120000]};
+  const k=String(+(+f).toFixed(3));if(t[k])return t[k];
+  if(Number.isInteger(f))return[1,f];return[100,Math.round(f*100)];
+}
+function snapFps(f){const c=[23.976,24,25,29.97,30,48,50,59.94,60,119.88,120];const n=c.find(x=>Math.abs(x-f)<.01);return n||+f.toFixed(3)}
+function parseT(s){if(!s)return 0;s=String(s).replace(/s$/,"");if(s.includes("/")){const[a,b]=s.split("/");return(+a)/(+b)}return +s}
+function tcToF(s,base){const m=String(s).match(/(\d+)[:;.](\d+)[:;.](\d+)[:;.](\d+)/);if(!m)return null;return((+m[1]*60+ +m[2])*60+ +m[3])*base+ +m[4]}
+function fToTc(f,base){const ff=f%base,s=Math.floor(f/base);return `${pad(Math.floor(s/3600))}:${pad(Math.floor(s/60)%60)}:${pad(s%60)}:${pad(ff)}`}
+function fxFromText(s){s=String(s||"");const f=FX.find(x=>s.includes(x.l)||s.toLowerCase().includes(x.k));return f?f.k:"other"}
+const baseName=p=>{try{p=decodeURIComponent(p)}catch(e){}return p.split(/[\\/]/).pop()};
+const xesc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"}[c]));
+
+/* ---------- import ---------- */
+function parseEDL(text,f){
+  const base=Math.round(f),ev=[],locs=[];let title="";
+  for(const raw of text.split(/\r?\n/)){
+    const line=raw.trimEnd();
+    const t=line.match(/^TITLE:\s*(.*)$/i);if(t){title=t[1].trim();continue}
+    const m=line.match(/^\s*(\d{1,6})\s+(\S+)\s+(\S+)\s+(C|D|W\d+|K\s*B?)\s*(\d+)?\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s*$/i);
+    if(m){
+      if(!/^V/i.test(m[3]))continue;
+      const si=tcToF(m[6],base),so=tcToF(m[7],base),ri=tcToF(m[8],base),ro=tcToF(m[9],base);
+      if([si,so,ri,ro].some(x=>x==null)||so<=si)continue;
+      ev.push({num:m[1],reel:m[2],si,so,ri,ro,name:"",src:"",note:""});continue;
+    }
+    const cur=ev[ev.length-1];
+    let c;
+    if(cur&&(c=line.match(/^\*\s*FROM CLIP NAME:\s*(.*)$/i)))cur.name=c[1].trim();
+    else if(cur&&(c=line.match(/^\*\s*SOURCE FILE:\s*(.*)$/i)))cur.src=baseName(c[1].trim());
+    else if(cur&&(c=line.match(/^\*\s*COMMENT:\s*(.*)$/i)))cur.note=(cur.note?cur.note+" ":"")+c[1].trim();
+    else if(c=line.match(/^\*\s*LOC:\s*(\S+)\s+(\S+)?\s*(.*)$/i))locs.push({t:tcToF(c[1],base),txt:c[3]||""});
+    else if(c=line.match(/\|C:\S*\s*\|M:(.*?)\s*\|D:\d+/))locs.push({t:ev.length?ev[ev.length-1].ri:0,txt:c[1]});
+  }
+  if(!ev.length)throw new Error("EDL 裡沒有找到影像剪接事件");
+  ev.sort((a,b)=>a.ri-b.ri);
+  const clips=[],markers=[];
+  ev.forEach((e,i)=>clips.push({id:"c"+(i+1),name:e.name||e.src||e.reel,src:e.src||e.name||e.reel,in:e.si,out:e.so,note:e.note}));
+  locs.forEach((l,i)=>{const j=ev.findIndex(e=>l.t>=e.ri&&l.t<e.ro);if(j<0)return;
+    const nm=l.txt.match(/^\[(.+?)\]\s*(.*)$/);markers.push({id:"m"+(i+1),clip:"c"+(j+1),at:l.t-ev[j].ri,type:fxFromText(nm?nm[1]:l.txt),note:nm?nm[2]:l.txt})});
+  return{project:title||"EDL 匯入",fps:f,clips,markers};
+}
+function parseFCPXML(text){
+  const x=new DOMParser().parseFromString(text,"application/xml");
+  if(x.querySelector("parsererror"))throw new Error("FCPXML 格式有誤");
+  const formats={},assets={};
+  x.querySelectorAll("resources > format").forEach(f=>formats[f.id]=f);
+  x.querySelectorAll("resources > asset, resources > media").forEach(a=>{
+    const mr=a.querySelector("media-rep");const src=a.getAttribute("src")||mr?.getAttribute("src")||"";
+    assets[a.id]={name:a.getAttribute("name")||"",src:src?baseName(src):""}});
+  const seq=x.querySelector("project sequence")||x.querySelector("sequence");
+  if(!seq)throw new Error("FCPXML 裡沒有找到序列");
+  const fmt=formats[seq.getAttribute("format")]||Object.values(formats)[0];
+  const fd=parseT(fmt?.getAttribute("frameDuration")||"1/30s")||1/30,f=snapFps(1/fd);
+  const spine=seq.querySelector("spine");if(!spine)throw new Error("FCPXML 序列是空的");
+  const clips=[],markers=[];let skipped=0;
+  [...spine.children].forEach(el=>{
+    const tag=el.tagName;
+    if(tag==="gap"||tag==="transition"){if(tag==="gap")skipped++;return}
+    if(!["asset-clip","clip","video","ref-clip","mc-clip","sync-clip","title"].includes(tag))return;
+    const start=parseT(el.getAttribute("start")),dur=parseT(el.getAttribute("duration"));
+    if(!(dur>0))return;
+    let ref=el.getAttribute("ref");if(!ref){const inner=el.querySelector("[ref]");ref=inner?.getAttribute("ref")}
+    const a=assets[ref]||{};
+    const id="c"+(clips.length+1),i0=Math.round(start*f);
+    clips.push({id,name:el.getAttribute("name")||a.name||tag,src:a.src||a.name||"",in:i0,out:i0+Math.max(1,Math.round(dur*f))});
+    el.querySelectorAll(":scope > marker, :scope > chapter-marker").forEach(mk=>{
+      const v=mk.getAttribute("value")||"",n=mk.getAttribute("note")||"";
+      markers.push({id:"m"+(markers.length+1),clip:id,at:Math.max(0,Math.round((parseT(mk.getAttribute("start"))-start)*f)),type:fxFromText(v),note:FX.some(q=>q.l===v)?n:[v,n].filter(Boolean).join("｜")})});
+  });
+  if(!clips.length)throw new Error("FCPXML 主時間軸上沒有鏡頭");
+  const proj=x.querySelector("project");
+  return{data:{project:proj?.getAttribute("name")||"FCPXML 匯入",fps:f,width:+fmt?.getAttribute("width")||1920,height:+fmt?.getAttribute("height")||1080,clips,markers},skipped};
+}
+function importText(text,name=""){
+  const s=text.replace(/^\uFEFF/,"").trim();
+  const lower=name.toLowerCase();
+  if(/^```/.test(s))return importText(s.replace(/^```\w*\s*/,"").replace(/```\s*$/,""),name);
+  if(s.startsWith("{")){load(JSON.parse(s));return `已載入 Koma 時間軸：${doc.clips.length} 個鏡頭、${doc.markers.length} 個特效。`}
+  if(s.includes("<fcpxml")){const r=parseFCPXML(s);load(r.data);return `已載入 FCPXML：${doc.clips.length} 個鏡頭、${doc.markers.length} 個標記，${+fps.toFixed(3)}fps。`+(r.skipped?`略過 ${r.skipped} 段空白。`:"")}
+  if(s.includes("<xmeml"))throw new Error("這是 Premiere 的 XML。請在 Premiere 改匯出 EDL（檔案 → 匯出 → EDL）");
+  if(lower.endsWith(".edl")||/^TITLE:/im.test(s)||/^\s*\d{3,6}\s+\S+\s+V/m.test(s)){const f=+$("#edlFps").value;load(parseEDL(s,f));return `已載入 EDL：${doc.clips.length} 個鏡頭（以 ${f}fps 計算）。`}
+  throw new Error("看不出是哪一種格式。支援 Koma JSON、FCPXML、EDL");
+}
+function say(el,ok,t){el.className="msg "+(ok?"ok":"err");el.textContent=t}
+async function handleFiles(list){
+  const msgs=[];let err=false;
+  const files=[...list];
+  for(const f of files.filter(f=>!f.type.startsWith("video/")&&!/\.(mp4|mov|m4v|webm)$/i.test(f.name))){
+    try{msgs.push(importText(await f.text(),f.name))}catch(e){err=true;msgs.push(`${f.name}：${e.message}`)}
+  }
+  const v=files.find(f=>f.type.startsWith("video/")||/\.(mp4|mov|m4v|webm)$/i.test(f.name));
+  if(v){loadVideo(v);msgs.push(`影片：${v.name}`)}
+  if(msgs.length){say($("#inMsg"),!err,msgs.join(" "));toast(err?"有檔案無法讀取，詳情見「匯入」":"已載入")}
+}
+function loadVideo(f){if(videoURL)URL.revokeObjectURL(videoURL);videoURL=URL.createObjectURL(f);video.src=videoURL;video.hidden=false;$("#ph").hidden=true;
+  video.onloadedmetadata=()=>{checkVideo();updatePlayhead()}}
+function checkVideo(){if(!videoURL||!video.duration||!orig)return;
+  const tl=layout(orig).total/fps,diff=Math.abs(video.duration-tl);
+  if(diff>.5)say($("#inMsg"),false,`影片 ${video.duration.toFixed(2)} 秒、時間軸 ${tl.toFixed(2)} 秒，可能不是同一版，畫面會對不準。`)}
+$("#anyFile").addEventListener("change",e=>{handleFiles(e.target.files);e.target.value=""});
+let dragDepth=0;
+addEventListener("dragenter",e=>{if([...e.dataTransfer.types].includes("Files")){dragDepth++;document.body.classList.add("dragging")}});
+addEventListener("dragleave",()=>{if(--dragDepth<=0){dragDepth=0;document.body.classList.remove("dragging")}});
+addEventListener("dragover",e=>{if([...e.dataTransfer.types].includes("Files"))e.preventDefault()});
+addEventListener("drop",e=>{if(!e.dataTransfer.files.length)return;e.preventDefault();dragDepth=0;document.body.classList.remove("dragging");handleFiles(e.dataTransfer.files)});
+$("#loadPaste").addEventListener("click",()=>{try{say($("#inMsg"),true,importText($("#pasteIn").value))}catch(e){say($("#inMsg"),false,"無法載入："+e.message)}});
+$("#loadSample").addEventListener("click",()=>{load(SAMPLE);say($("#inMsg"),true,"已載入範例。")});
+
+/* ---------- export ---------- */
+function buildFCPXML(){
+  const d=exportDoc(),[num,den]=rat(fps),T=n=>n<=0?"0s":`${n*num}/${den}s`,dir=$("#mediaDir").value.trim();
+  const url=s=>{if(!dir)return"file:///"+encodeURI(s);let p=dir.replace(/\\/g,"/");if(!p.endsWith("/"))p+="/";if(!p.startsWith("/")&&!/^[a-z]:/i.test(p))p="/"+p;if(/^[a-z]:/i.test(p))p="/"+p;return"file://"+encodeURI(p+s)};
+  const assets={};let rid=2;
+  d.clips.forEach(c=>{const k=c.src||c.name;if(!assets[k])assets[k]={id:"r"+rid++,name:k.replace(/\.[^.]+$/,""),src:k,max:0};assets[k].max=Math.max(assets[k].max,c.out)});
+  const L=layout(d);
+  let s=`<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE fcpxml>\n<fcpxml version="1.9">\n  <resources>\n    <format id="r1" frameDuration="${T(1)}" width="${orig.width}" height="${orig.height}"/>\n`;
+  Object.values(assets).forEach(a=>{s+=`    <asset id="${a.id}" name="${xesc(a.name)}" src="${xesc(url(a.src))}" start="0s" duration="${T(a.max+fps*2)}" hasVideo="1" hasAudio="1" format="r1"/>\n`});
+  s+=`  </resources>\n  <library>\n    <event name="Koma">\n      <project name="${xesc(d.project)}">\n        <sequence format="r1" duration="${T(L.total)}" tcStart="0s" tcFormat="NDF">\n          <spine>\n`;
+  d.clips.forEach(c=>{const a=assets[c.src||c.name],e=L.map[c.id];
+    s+=`            <asset-clip ref="${a.id}" name="${xesc(c.name)}" offset="${T(e.start)}" start="${T(c.in)}" duration="${T(c.out-c.in)}" format="r1" tcFormat="NDF">\n`;
+    if(c.note)s+=`              <note>${xesc(c.note)}</note>\n`;
+    d.markers.filter(m=>m.clip===c.id).forEach(m=>{const at=clamp(m.at,0,c.out-c.in-1);s+=`              <marker start="${T(c.in+at)}" duration="${T(1)}" value="${xesc(fxOf(m.type).l)}"${m.note?` note="${xesc(m.note)}"`:""}/>\n`});
+    s+=`            </asset-clip>\n`});
+  s+=`          </spine>\n        </sequence>\n      </project>\n    </event>\n  </library>\n</fcpxml>\n`;
+  return s;
+}
+function buildEDL(){
+  const d=exportDoc(),b=Math.round(fps),L=layout(d),R0=3600*b;
+  let s=`TITLE: ${d.project.replace(/[\r\n]/g," ").slice(0,70)}\nFCM: NON-DROP FRAME\n\n`;
+  d.clips.forEach((c,i)=>{const e=L.map[c.id],reel=("AX").padEnd(8);
+    s+=`${String(i+1).padStart(3,"0")}  ${reel} V     C        ${fToTc(c.in,b)} ${fToTc(c.out,b)} ${fToTc(R0+e.start,b)} ${fToTc(R0+e.start+c.out-c.in,b)}\n`;
+    s+=`* FROM CLIP NAME: ${c.name}\n`;if(c.src)s+=`* SOURCE FILE: ${c.src}\n`;if(c.note)s+=`* COMMENT: ${c.note.replace(/\s+/g," ")}\n`;
+    d.markers.filter(m=>m.clip===c.id).forEach(m=>{s+=`* LOC: ${fToTc(R0+e.start+clamp(m.at,0,c.out-c.in-1),b)} YELLOW  [${fxOf(m.type).l}] ${m.note.replace(/\s+/g," ")}\n`});
+    s+="\n"});
+  return s;
+}
+const safeName=s=>(s||"koma").replace(/[\\/:*?"<>|]+/g,"_").slice(0,60);
+/* tiny store-only zip so non-allowlisted extensions can still be saved inside claude.ai */
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(u){let c=~0;for(let i=0;i<u.length;i++)c=CRC[(c^u[i])&255]^(c>>>8);return(~c)>>>0}
+function zip(files){
+  const enc=new TextEncoder(),parts=[],cen=[];let off=0;
+  files.forEach(f=>{const n=enc.encode(f.name),d=enc.encode(f.text),cr=crc32(d);
+    const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x800,true);h.setUint16(12,33,true);h.setUint32(14,cr,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,n.length,true);
+    parts.push(h,n,d);
+    const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x800,true);c.setUint16(14,33,true);c.setUint32(16,cr,true);c.setUint32(20,d.length,true);c.setUint32(24,d.length,true);c.setUint16(28,n.length,true);c.setUint32(42,off,true);
+    cen.push(c,n);off+=30+n.length+d.length});
+  const cs=cen.reduce((a,x)=>a+x.byteLength,0),e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...cen,e],{type:"application/zip"});
+}
+let dlP=null;
+async function deliver(name,text){
+  const msg=$("#outMsg"),ext=name.split(".").pop().toLowerCase();
+  if(IN_CLAUDE){
+    dlP=dlP||window.claude.use("downloads").catch(()=>null);const dl=await dlP;
+    if(dl){
+      const direct=["json","txt","md"].includes(ext);
+      try{await dl.save(direct?{filename:name,data:text}:{filename:name.replace(/\.[^.]+$/,"")+".zip",data:zip([{name,text}])});
+        say(msg,true,direct?`已儲存 ${name}`:`已儲存壓縮檔，解壓後就是 ${name}，可直接匯入剪輯軟體。`)}
+      catch(e){if(e?.code==="declined")say(msg,false,"已取消儲存。");else{say(msg,false,"這裡無法直接存檔，已把內容放在右邊，可以複製後存成 "+name);showOut(name,text)}}
+      return;
+    }
+    say(msg,false,"這裡無法直接存檔，已把內容放在右邊，可以複製後存成 "+name);showOut(name,text);return;
+  }
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/octet-stream"}));a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);say(msg,true,`已下載 ${name}`);
+}
+function showOut(name,text){const t=$("#exportOut");t.hidden=false;t.value=text;$("#exportOutActs").hidden=false;$("#exportOutHint").textContent="存成 "+name}
+document.querySelectorAll("[data-exp]").forEach(b=>b.addEventListener("click",()=>{
+  const k=b.dataset.exp,n=safeName(doc.project);
+  if(k==="fcpxml")deliver(n+".fcpxml",buildFCPXML());
+  else if(k==="edl")deliver(n+".edl",buildEDL());
+  else deliver(n+".koma.json",JSON.stringify(exportDoc(),null,2));
+}));
+$("#copyExport").addEventListener("click",()=>copy($("#exportOut").value,$("#exportOut")));
+
+/* ---------- bottom panel ---------- */
+document.querySelector(".tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(!t)return;
+  document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
+  document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==t.dataset.tab)});
+function copy(text,fallbackEl){
+  const fb=()=>{if(fallbackEl){fallbackEl.hidden=false;fallbackEl.value=text;fallbackEl.focus();fallbackEl.select();toast("請手動複製選取的文字")}};
+  try{navigator.clipboard.writeText(text).then(()=>toast("已複製"),fb)}catch(err){fb()}
+}
+$("#copyLog").addEventListener("click",()=>copy(logText(),$("#copyFallback")));
+$("#copySnip").addEventListener("click",()=>copy($("#askSnip").textContent,null));
+$("#resetBtn").addEventListener("click",e=>{const b=e.currentTarget;
+  if(b.dataset.armed){delete b.dataset.armed;b.textContent="全部還原";mutate(()=>{doc=clone(orig);sel=null});toast("已還原成 Claude 原版，可按「復原」找回");return}
+  b.dataset.armed=1;b.textContent="確定還原？再按一次";setTimeout(()=>{if(b.dataset.armed){delete b.dataset.armed;b.textContent="全部還原"}},3000)});
+$("#undoBtn").addEventListener("click",doUndo);
+try{const md=localStorage.getItem("koma:mediaDir");if(md)$("#mediaDir").value=md}catch(e){}
+$("#mediaDir").addEventListener("change",e=>{try{localStorage.setItem("koma:mediaDir",e.target.value)}catch(err){}});
+
+const HERE=!IN_CLAUDE&&/^https?:/.test(location.protocol)?location.origin+location.pathname:"<Koma 網址>";
+$("#askSnip").textContent=`每次幫我剪完影片，請另外附上「Koma 時間軸」，讓我用 Koma 逐格微調：
+
+1. 一個 .koma.json 檔，格式：
+{ "project": 片名, "fps": 幀率, "width": 寬, "height": 高,
+  "clips": [ { "id": "c1", "name": 鏡頭描述, "src": 素材檔名,
+               "in": 素材入點格數, "out": 素材出點格數（不含） } ],
+  "markers": [ { "id": "m1", "clip": 鏡頭 id, "at": 鏡頭內第幾格,
+                 "type": 特效種類, "note": 說明 } ] }
+鏡頭依成片順序排列；type 只用 glitch, flash, rgb, zoom, slow, ramp, shake, scan, text, trans, grade, sfx, other。
+
+2. 一個 Koma 連結：把上面的 JSON（不換行）用 raw deflate 壓縮、再用 base64url 編碼，接成
+${HERE}#koma=z<編碼結果>
+
+我修改後會貼回「Koma 剪輯回饋」，請照清單重新輸出成片和新的時間軸。`;
+
+let tt;function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,2200)}
+let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderTimeline,120)});
+
+/* ---------- boot: link > saved draft > sample ---------- */
+async function fromHash(){
+  const m=location.hash.match(/^#koma=([zj])([A-Za-z0-9_-]+)/);if(!m)return null;
+  let b=m[2].replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";
+  const bytes=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
+  if(m[1]==="j")return JSON.parse(new TextDecoder().decode(bytes));
+  const txt=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text();
+  return JSON.parse(txt);
+}
+(async function(){
+  let s=null;try{s=JSON.parse(store.get()||"null")}catch(e){}
+  try{if(s&&s.orig&&s.doc)load(s.orig,s.doc);else load(SAMPLE)}catch(e){load(SAMPLE)}
+  try{const h=await fromHash();if(h){const n=normalize(h);
+    if(s&&JSON.stringify(s.orig)===JSON.stringify(n))toast("已接續上次的修改");
+    else{load(h);toast(`已從連結載入：${doc.clips.length} 個鏡頭`)}
+    say($("#inMsg"),true,"時間軸已從連結載入。把成片影片拖進來就能對照畫面。");}}
+  catch(e){toast("連結裡的時間軸無法讀取")}
+})();
+</script>
+
+</body></html>

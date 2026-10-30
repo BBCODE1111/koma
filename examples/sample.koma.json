@@ -1,0 +1,19 @@
+{
+  "project": "範例｜霓虹夜行 Reel",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "clips": [
+    { "id": "c1", "name": "開場｜霓虹招牌閃爍", "src": "IMG_2041.MOV", "in": 45, "out": 117 },
+    { "id": "c2", "name": "人物走入雨中", "src": "IMG_2043.MOV", "in": 210, "out": 300 },
+    { "id": "c3", "name": "街道橫搖向右", "src": "IMG_2050.MOV", "in": 12, "out": 84 },
+    { "id": "c4", "name": "特寫｜眼睛反光", "src": "IMG_2052.MOV", "in": 90, "out": 138 },
+    { "id": "c5", "name": "捷運月台慢速", "src": "IMG_2060.MOV", "in": 300, "out": 420 },
+    { "id": "c6", "name": "收尾字卡", "src": "title_card.png", "in": 0, "out": 60 }
+  ],
+  "markers": [
+    { "id": "m1", "clip": "c1", "at": 0, "type": "flash", "note": "開頭閃白一格" },
+    { "id": "m2", "clip": "c3", "at": 30, "type": "rgb", "note": "" },
+    { "id": "m3", "clip": "c6", "at": 8, "type": "text", "note": "字卡淡入" }
+  ]
+}

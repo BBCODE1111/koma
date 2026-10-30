@@ -1,0 +1,589 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>剪輯回饋台</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: NLE desk — preview + inspector on top, transport bar, two-track timeline, feedback panel below. Single dark look by design. */
+:root{
+  color-scheme:dark;
+  --bg:#0e1016; --panel:#151821; --panel2:#1b1f2b; --line:#272c3b; --line2:#343a4d;
+  --fg:#e3e6ef; --muted:#868da3; --accent:#ffb547; --cyan:#5fd2e6; --danger:#ff6b6b;
+  --f-disp:"Chakra Petch","Noto Sans TC",system-ui,sans-serif;
+  --f-body:"Noto Sans TC",system-ui,-apple-system,"PingFang TC",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--f-body);font-size:14px;line-height:1.5}
+.app{max-width:1320px;margin:0 auto;padding-block:14px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* header */
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand h1{margin:0;font-family:var(--f-disp);font-weight:700;font-size:22px;letter-spacing:.02em}
+.brand small{font-family:var(--f-disp);color:var(--accent);letter-spacing:.24em;font-size:11px}
+.proj{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px;min-width:0;flex:1}
+.proj b{color:var(--fg);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tag{font-family:var(--f-mono);font-size:11px;border:1px solid var(--line2);border-radius:4px;padding:1px 6px;color:var(--muted);white-space:nowrap}
+.tag.warn{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,transparent)}
+.btn{background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:6px 11px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#1a1205;font-weight:700}
+.btn.danger{color:var(--danger)}
+.btn.sm{padding:3px 8px;font-size:12px}
+.btn svg{width:15px;height:15px;fill:currentColor}
+
+/* stage */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:12px}
+@media (max-width:860px){.stage{grid-template-columns:minmax(0,1fr)}}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.preview{display:flex;align-items:center;justify-content:center;padding:12px;min-height:240px;position:relative}
+.frame{position:relative;height:min(52vh,520px);max-width:100%;aspect-ratio:9/16;background:#000;border-radius:6px;overflow:hidden}
+.frame video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.ph{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;
+  background:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px),
+    linear-gradient(160deg,color-mix(in srgb,var(--c,#5b6cff) 70%,#000) 0%,#07080c 85%)}
+.ph .nm{font-family:var(--f-disp);font-size:20px;font-weight:700;line-height:1.2;text-wrap:balance}
+.ph .hint{color:rgba(255,255,255,.6);font-size:12px;margin-top:6px}
+.ov{position:absolute;left:8px;right:8px;top:8px;display:flex;justify-content:space-between;gap:6px;pointer-events:none;font-family:var(--f-mono);font-size:11px}
+.ov span{background:rgba(0,0,0,.62);padding:2px 6px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
+.cutflag{position:absolute;left:8px;bottom:8px;background:var(--accent);color:#1a1205;font-family:var(--f-mono);font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px}
+.warnbox{position:absolute;inset:auto 8px 36px 8px;background:rgba(14,16,22,.9);border:1px solid var(--accent);color:var(--fg);font-size:12px;padding:8px 10px;border-radius:6px}
+
+/* inspector */
+.insp{padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.insp h2{margin:0;font-family:var(--f-disp);font-size:12px;letter-spacing:.2em;color:var(--muted);font-weight:500}
+.insp h3{margin:0;font-size:17px;font-weight:700;text-wrap:balance}
+.chip{display:inline-block;font-family:var(--f-mono);font-size:11px;padding:1px 7px;border-radius:4px;background:color-mix(in srgb,var(--c) 30%,transparent);border:1px solid var(--c);color:var(--fg)}
+.src{color:var(--muted);font-family:var(--f-mono);font-size:12px;word-break:break-all}
+.row{display:grid;grid-template-columns:44px 1fr;gap:4px 8px;align-items:center}
+.row .lb{color:var(--muted);font-size:12px}
+.nudge{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.nudge .v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;min-width:74px;text-align:center;font-size:13px;padding:3px 4px;background:var(--bg);border:1px solid var(--line);border-radius:5px}
+.nb{background:var(--panel2);border:1px solid var(--line2);border-radius:5px;font-family:var(--f-mono);font-size:12px;padding:3px 0;width:34px}
+.nb:hover{border-color:var(--cyan);color:var(--cyan)}
+.delta{grid-column:2;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.delta.on{color:var(--accent)}
+.help{color:var(--muted);font-size:12px}
+textarea,select,input[type=text]{background:var(--bg);border:1px solid var(--line2);border-radius:6px;padding:7px 9px;width:100%;box-sizing:border-box}
+textarea{resize:vertical;min-height:62px}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.empty ol{margin:0;padding-left:18px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.empty b{color:var(--fg);font-weight:500}
+
+/* transport */
+.transport{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px}
+.tc{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;color:var(--accent);letter-spacing:.02em}
+.tc small{color:var(--muted);font-size:12px;font-weight:400}
+.tgroup{display:flex;gap:4px}
+.ib{width:36px;height:34px;display:grid;place-items:center;background:var(--panel2);border:1px solid var(--line2);border-radius:6px}
+.ib svg{width:16px;height:16px;fill:currentColor}
+.ib:hover{border-color:var(--muted)}
+.ib.play{width:46px;background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.spacer{flex:1}
+.zoom{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}
+.zoom input{width:110px;accent-color:var(--cyan)}
+
+/* timeline */
+.tl{display:grid;grid-template-columns:54px minmax(0,1fr);overflow:hidden}
+.labs{border-right:1px solid var(--line);font-family:var(--f-disp);font-size:11px;letter-spacing:.12em;color:var(--muted)}
+.labs div{display:flex;align-items:center;padding-left:10px;border-bottom:1px solid var(--line)}
+.labs .l0{height:26px}.labs .l1{height:70px}.labs .l2{height:46px;border-bottom:0}
+.scroll{overflow-x:auto;overflow-y:hidden;position:relative;touch-action:pan-x;scrollbar-color:var(--line2) transparent}
+.inner{position:relative;min-width:100%}
+.ruler{height:26px;position:relative;border-bottom:1px solid var(--line);cursor:ew-resize;
+  background-image:linear-gradient(to right,var(--line2) 1px,transparent 1px);background-repeat:repeat-x;background-position:0 100%;touch-action:none}
+.tick{position:absolute;top:0;bottom:0;border-left:1px solid var(--muted)}
+.tick span{position:absolute;left:4px;top:4px;font-family:var(--f-mono);font-size:10px;color:var(--muted);white-space:nowrap}
+.track{position:relative;border-bottom:1px solid var(--line)}
+.track.v{height:70px}.track.f{height:46px;border-bottom:0}
+.clip{position:absolute;top:6px;bottom:6px;box-sizing:border-box;background:color-mix(in srgb,var(--c) 34%,var(--panel));border:1px solid color-mix(in srgb,var(--c) 70%,transparent);border-radius:5px;overflow:hidden;touch-action:none;cursor:pointer}
+.clip.mod{border-style:dashed;border-color:var(--accent)}
+.clip.sel{box-shadow:0 0 0 2px var(--fg);z-index:2}
+.clip .body{position:absolute;inset:0 10px;padding-top:5px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.clip .body b{font-family:var(--f-mono);font-weight:600;color:var(--fg);margin-right:4px}
+.clip .body em{display:block;font-style:normal;font-family:var(--f-mono);font-size:10px;color:var(--muted);margin-top:2px}
+.h{position:absolute;top:0;bottom:0;width:10px;cursor:ew-resize;z-index:3;touch-action:none}
+.h.l{left:0;background:linear-gradient(to right,color-mix(in srgb,var(--c) 80%,#fff),transparent)}
+.h.r{right:0;background:linear-gradient(to left,color-mix(in srgb,var(--c) 80%,#fff),transparent)}
+.h:hover,.h:active{background:var(--accent)}
+.d{position:absolute;bottom:3px;font-style:normal;font-family:var(--f-mono);font-size:10px;font-weight:600;color:#1a1205;background:var(--accent);padding:0 3px;border-radius:3px;pointer-events:none}
+.d.dl{left:12px}.d.dr{right:12px}
+.mk{position:absolute;top:6px;transform:translateX(-7px);display:flex;align-items:center;gap:4px;cursor:grab;touch-action:none;z-index:2}
+.mk i{width:12px;height:12px;background:var(--c);transform:rotate(45deg);border:1px solid rgba(0,0,0,.4);flex:none}
+.mk span{font-size:11px;background:var(--panel2);border:1px solid var(--line2);border-left:2px solid var(--c);padding:0 5px;border-radius:3px;white-space:nowrap}
+.mk.sel span{border-color:var(--fg);border-left-color:var(--c)}
+.mk.sel i{outline:2px solid var(--fg)}
+.mk::after{content:"";position:absolute;left:6px;top:14px;height:20px;border-left:1px dashed var(--c)}
+.phd{position:absolute;top:0;bottom:0;width:0;border-left:2px solid var(--accent);pointer-events:none;z-index:5}
+.phd::before{content:"";position:absolute;top:0;left:-7px;border:6px solid transparent;border-top:9px solid var(--accent)}
+
+/* bottom panel */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 8px;overflow-x:auto}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;color:var(--muted);white-space:nowrap}
+.tab[aria-selected=true]{color:var(--fg);border-bottom-color:var(--accent)}
+.tab .n{font-family:var(--f-mono);font-size:11px;background:var(--accent);color:#1a1205;border-radius:8px;padding:0 6px;margin-left:4px}
+.tp{padding:14px}
+.log{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;max-width:80ch}
+.log li::marker{font-family:var(--f-mono);color:var(--muted)}
+.log .fx{color:var(--cyan)}
+.logbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.logbar label{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
+.blk{display:flex;flex-direction:column;gap:8px;min-width:0}
+.blk h4{margin:0;font-size:14px}
+.msg{font-size:12px}.msg.err{color:var(--danger)}.msg.ok{color:var(--cyan)}
+pre.snip{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;font-family:var(--f-mono);font-size:12px;margin:0}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+kbd{font-family:var(--f-mono);font-size:12px;background:var(--panel2);border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:0 6px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:6px;font-weight:500;z-index:50}
+@media (max-width:560px){.zoom input{width:80px}.tc{font-size:17px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand"><h1>剪輯回饋台</h1><small>CUT&nbsp;DESK</small></div>
+    <div class="proj"><b id="projName"></b><span class="tag" id="projMeta"></span><span class="tag warn" id="sampleTag" hidden>範例資料</span></div>
+    <button class="btn" id="undoBtn" title="復原 (Ctrl/⌘+Z)"><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62A7.95 7.95 0 0 1 20.4 16l2.37-.78A10.5 10.5 0 0 0 12.5 8z"/></svg>復原</button>
+  </header>
+
+  <section class="stage">
+    <div class="pane preview">
+      <div class="frame" id="frame">
+        <video id="video" playsinline preload="auto" hidden></video>
+        <div class="ph" id="ph"><div class="nm" id="phName"></div><div class="hint">載入成片影片後，這裡會顯示實際畫面</div></div>
+        <div class="ov"><span id="ovClip"></span><span id="ovSrc"></span></div>
+        <div class="warnbox" id="warn" hidden>這一格不在目前的成片裡（你把鏡頭延長了）。照常標記即可，Claude 會用素材重新輸出。</div>
+        <div class="cutflag" id="cutFlag" hidden>剪接點</div>
+      </div>
+    </div>
+    <aside class="pane insp" id="insp" aria-live="polite"></aside>
+  </section>
+
+  <div class="pane transport">
+    <div class="tc" id="tc">00:00:00 <small>/ 00:00:00</small></div>
+    <div class="tgroup">
+      <button class="ib" data-t="prevcut" title="上一個剪接點 (↑)"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9.5 12z"/></svg></button>
+      <button class="ib" data-t="-1" title="上一格 (←)"><svg viewBox="0 0 24 24"><path d="M16 5v14L6 12z"/></svg></button>
+      <button class="ib play" id="playBtn" data-t="play" title="播放 / 暫停 (空白鍵)"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></button>
+      <button class="ib" data-t="+1" title="下一格 (→)"><svg viewBox="0 0 24 24"><path d="M8 5v14l10-7z"/></svg></button>
+      <button class="ib" data-t="nextcut" title="下一個剪接點 (↓)"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l10.5-7z"/></svg></button>
+    </div>
+    <button class="btn pri" data-t="mark" title="在播放頭加特效標記 (M)">＋ 特效標記</button>
+    <div class="spacer"></div>
+    <div class="zoom"><label for="zoom">縮放</label><input type="range" id="zoom" min="0" max="100" step="1"><button class="btn sm" data-t="fit">全覽</button></div>
+  </div>
+
+  <div class="pane tl">
+    <div class="labs"><div class="l0">TC</div><div class="l1">鏡頭</div><div class="l2">特效</div></div>
+    <div class="scroll" id="scroll">
+      <div class="inner" id="inner">
+        <div class="ruler" id="ruler"></div>
+        <div class="track v" id="trV"></div>
+        <div class="track f" id="trF"></div>
+        <div class="phd" id="phd"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pane">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="log">修改清單<span class="n" id="logN" hidden></span></button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="io">匯入時間軸 / 成片</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="keys">快捷鍵</button>
+    </div>
+    <div class="tp" data-panel="log">
+      <div class="logbar">
+        <button class="btn pri" id="copyLog">複製給 Claude</button>
+        <label><input type="checkbox" id="withJson"> 附上完整時間軸 JSON</label>
+        <span class="spacer"></span>
+        <button class="btn sm danger" id="resetBtn">全部還原成 Claude 原版</button>
+      </div>
+      <ol class="log" id="log"></ol>
+      <p class="help" id="logEmpty">還沒有修改。拖鏡頭邊緣或在右側面板逐格微調，按 <kbd>M</kbd> 在播放頭加特效標記，這裡會自動整理成可以直接貼給 Claude 的文字。</p>
+      <textarea id="copyFallback" rows="8" hidden readonly aria-label="修改清單文字"></textarea>
+    </div>
+    <div class="tp" data-panel="io" hidden>
+      <div class="grid2">
+        <div class="blk">
+          <h4>1. 載入成片影片（選用）</h4>
+          <p class="help">選 Claude 剪好的影片，預覽區就會對到每一格的實際畫面。影片只在你的瀏覽器裡播放，不會上傳。</p>
+          <input type="file" id="videoFile" accept="video/*">
+          <div class="msg" id="videoMsg"></div>
+        </div>
+        <div class="blk">
+          <h4>2. 貼上 Claude 給的時間軸</h4>
+          <textarea id="jsonIn" rows="6" placeholder='{"project":"…","fps":30,"clips":[…],"markers":[…]}'></textarea>
+          <div class="acts"><button class="btn pri" id="loadJson">載入時間軸</button><label class="btn" for="jsonFile">選 .json 檔</label><input type="file" id="jsonFile" accept=".json,application/json" hidden><button class="btn" id="loadSample">載入範例</button></div>
+          <div class="msg" id="jsonMsg"></div>
+        </div>
+        <div class="blk">
+          <h4>3. 剪片時請 Claude 這樣輸出</h4>
+          <pre class="snip" id="askSnip">剪完後，請另外給我這支片的時間軸 JSON，我要貼進「剪輯回饋台」微調：
+{ "project": 片名, "fps": 幀率, "width": 寬, "height": 高,
+  "clips": [ { "id", "name": 鏡頭描述, "src": 素材檔名,
+               "in": 素材入點格數, "out": 素材出點格數（不含） } ],
+  "markers": [ { "id", "clip": 鏡頭 id, "at": 鏡頭內第幾格,
+                 "type": 特效種類, "note": 說明 } ] }
+鏡頭依成片順序排列。</pre>
+          <div class="acts"><button class="btn" id="copySnip">複製這段</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="tp" data-panel="keys" hidden>
+      <dl class="keys">
+        <dt><kbd>空白鍵</kbd></dt><dd>播放 / 暫停</dd>
+        <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>前後一格（加 <kbd>Shift</kbd> 一次 5 格）</dd>
+        <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>跳到上一個 / 下一個剪接點</dd>
+        <dt><kbd>M</kbd></dt><dd>在播放頭加特效標記</dd>
+        <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>把選取鏡頭的入點 / 出點設在播放頭</dd>
+        <dt><kbd>Delete</kbd></dt><dd>刪除選取的特效標記</dd>
+        <dt><kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd></dt><dd>復原</dd>
+        <dt>拖曳</dt><dd>鏡頭兩側的亮邊＝修剪入出點（後面鏡頭自動順移）；拖菱形＝移動特效位置；拖時間碼列＝快速瀏覽</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const SAMPLE={project:"範例｜霓虹夜行 Reel",fps:30,width:1080,height:1920,sample:true,
+ clips:[
+  {id:"c1",name:"開場 hook｜霓虹招牌閃爍",src:"IMG_2041.MOV",in:45,out:117},
+  {id:"c2",name:"人物走入雨中",src:"IMG_2043.MOV",in:210,out:300},
+  {id:"c3",name:"街道橫搖向右",src:"IMG_2050.MOV",in:12,out:84},
+  {id:"c4",name:"特寫｜眼睛反光",src:"IMG_2052.MOV",in:90,out:138},
+  {id:"c5",name:"捷運月台慢速",src:"IMG_2060.MOV",in:300,out:420},
+  {id:"c6",name:"收尾字卡",src:"title_card.png",in:0,out:60}],
+ markers:[
+  {id:"m1",clip:"c1",at:0,type:"flash",note:"開頭閃白一格"},
+  {id:"m2",clip:"c3",at:30,type:"rgb",note:""},
+  {id:"m3",clip:"c6",at:8,type:"text",note:"字卡淡入"}]};
+
+const FX=[
+ {k:"glitch",l:"Glitch 抖動",c:"#ff5d8f"},{k:"flash",l:"閃白",c:"#f2efe6"},{k:"rgb",l:"RGB 分離",c:"#b07cff"},
+ {k:"zoom",l:"推近 / 縮放",c:"#5fd2e6"},{k:"slow",l:"慢動作",c:"#6aa8ff"},{k:"ramp",l:"速度坡道",c:"#4fc3a1"},
+ {k:"shake",l:"畫面震動",c:"#ff8a5c"},{k:"scan",l:"掃描線 / 雜訊",c:"#9fb0c8"},{k:"text",l:"文字 / 字卡",c:"#ffd36b"},
+ {k:"trans",l:"轉場",c:"#7ee081"},{k:"grade",l:"調色",c:"#e48bd6"},{k:"sfx",l:"音效點",c:"#c9a26b"},{k:"other",l:"其他",c:"#8b92a8"}];
+const PAL=["#5b6cff","#2bb3a3","#c2557a","#8a63d2","#3f8fd6","#c98a2b","#4f9e5c","#b5577c"];
+const KEY="cutdesk:v1";
+const $=s=>document.querySelector(s);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const sgn=d=>(d>0?"+":"")+d+"f";
+const fxOf=k=>FX.find(f=>f.k===k)||FX[FX.length-1];
+const store={get(){try{return localStorage.getItem(KEY)}catch(e){return null}},set(v){try{localStorage.setItem(KEY,v)}catch(e){}}};
+
+let orig,doc,fps=30,ppf=6,playhead=0,sel=null,undo=[],playing=false,videoURL=null,last=0,acc=0;
+const video=$("#video"),scroll=$("#scroll"),inner=$("#inner");
+
+function tc(f){f=Math.max(0,Math.round(f));const ff=f%fps,s=Math.floor(f/fps);return `${pad(Math.floor(s/60))}:${pad(s%60)}:${pad(ff)}`}
+function normalize(d){
+  if(!d||!Array.isArray(d.clips)) throw new Error("找不到 clips 陣列");
+  const o={project:String(d.project||"未命名專案"),fps:+d.fps>0?+d.fps:30,width:+d.width||1080,height:+d.height||1920,sample:!!d.sample};
+  const seen=new Set();
+  o.clips=d.clips.map((c,i)=>{let id=String(c.id??("c"+(i+1)));if(seen.has(id))id+="_"+i;seen.add(id);
+    return {id,name:String(c.name||("鏡頭 "+(i+1))),src:String(c.src||""),in:Math.max(0,Math.round(+c.in||0)),out:Math.round(+c.out||0),note:String(c.note||"")}}).filter(c=>c.out>c.in);
+  if(!o.clips.length) throw new Error("沒有有效的鏡頭（out 要大於 in）");
+  o.markers=(d.markers||[]).map((m,i)=>({id:String(m.id??("m"+(i+1))),clip:String(m.clip),at:Math.max(0,Math.round(+m.at||0)),type:String(m.type||"other"),note:String(m.note||"")}));
+  return o;
+}
+function layout(d){let s=0;const map={};d.clips.forEach((c,i)=>{map[c.id]={c,i,start:s};s+=c.out-c.in});return{map,total:s}}
+function clipAt(f,L,d=doc){let s=0;for(let i=0;i<d.clips.length;i++){const c=d.clips[i],n=c.out-c.in;if(f<s+n)return{c,i,start:s};s+=n}return null}
+function markerFrame(m,L){const e=L.map[m.clip];if(!e)return null;return e.start+clamp(m.at,0,e.c.out-e.c.in-1)}
+function clipColor(c,i){const oi=orig.clips.findIndex(x=>x.id===c.id);return PAL[(oi<0?i:oi)%PAL.length]}
+function total(){return layout(doc).total}
+
+function load(data,draftDoc){
+  orig=normalize(data);doc=draftDoc?normalize(draftDoc):clone(orig);fps=orig.fps;
+  playhead=0;sel=null;undo=[];
+  $("#frame").style.aspectRatio=`${orig.width}/${orig.height}`;
+  fit();renderAll();
+}
+function save(){store.set(JSON.stringify({orig,doc}))}
+function pushUndo(){undo.push(JSON.stringify(doc));if(undo.length>300)undo.shift();$("#undoBtn").disabled=false}
+function doUndo(){if(!undo.length)return;doc=JSON.parse(undo.pop());if(sel&&!(sel.kind==="clip"?doc.clips:doc.markers).some(x=>x.id===sel.id))sel=null;playhead=clamp(playhead,0,total()-1);renderAll();toast("已復原")}
+function mutate(fn){pushUndo();fn();renderAll()}
+
+/* ---------- render ---------- */
+function renderAll(){
+  $("#projName").textContent=doc.project;
+  $("#projMeta").textContent=`${fps}fps · ${orig.width}×${orig.height}`;
+  $("#sampleTag").hidden=!orig.sample;
+  $("#undoBtn").disabled=!undo.length;
+  renderTimeline();renderInspector();renderLog();save();
+}
+function renderTimeline(){
+  const L=layout(doc),OL=layout(orig);
+  inner.style.width=Math.max(L.total*ppf+80,scroll.clientWidth)+"px";
+  const steps=[1,2,5,10,15,30,60,90,150,300,450,900,1800,3600,7200];
+  const step=steps.find(s=>s*ppf>=78)||7200;
+  let h="";for(let f=0;f<=L.total;f+=step)h+=`<div class="tick" style="left:${f*ppf}px"><span>${tc(f)}</span></div>`;
+  const R=$("#ruler");R.innerHTML=h;R.style.backgroundSize=ppf>=5?`${ppf}px 6px`:"0 0";
+  $("#trV").innerHTML=doc.clips.map((c,i)=>{
+    const e=L.map[c.id],o=OL.map[c.id]?.c,dI=o?c.in-o.in:0,dO=o?c.out-o.out:0,isSel=sel?.kind==="clip"&&sel.id===c.id;
+    return `<div class="clip${isSel?" sel":""}${dI||dO?" mod":""}" data-id="${esc(c.id)}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
+      <div class="h l" data-edge="in" title="拖曳修剪入點"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${(c.out-c.in)}f · ${esc(c.src)}</em></div><div class="h r" data-edge="out" title="拖曳修剪出點"></div>
+      ${dI?`<i class="d dl">入${sgn(dI)}</i>`:""}${dO?`<i class="d dr">出${sgn(dO)}</i>`:""}</div>`}).join("");
+  $("#trF").innerHTML=doc.markers.map(m=>{const f=markerFrame(m,L);if(f==null)return"";const fx=fxOf(m.type),isSel=sel?.kind==="mk"&&sel.id===m.id;
+    return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?"："+m.note:""))}"><i></i><span>${esc(fx.l)}</span></div>`}).join("");
+  updatePlayhead();
+}
+function updatePlayhead(){
+  const L=layout(doc);playhead=clamp(playhead,0,Math.max(0,L.total-1));
+  $("#phd").style.left=playhead*ppf+"px";
+  $("#tc").innerHTML=`${tc(playhead)} <small>/ ${tc(L.total)}</small>`;
+  if(playing){const x=playhead*ppf;if(x<scroll.scrollLeft+20||x>scroll.scrollLeft+scroll.clientWidth-40)scroll.scrollLeft=x-60}
+  updatePreview(L);
+}
+function updatePreview(L){
+  const hit=clipAt(playhead,L);if(!hit)return;
+  const{c,i,start}=hit,k=playhead-start,srcF=c.in+k;
+  $("#ovClip").textContent=`鏡頭 ${pad(i+1)} · 第 ${k} 格`;
+  $("#ovSrc").textContent=`${c.src||"素材"} @ ${srcF}`;
+  $("#cutFlag").hidden=!(k===0||k===c.out-c.in-1);
+  $("#cutFlag").textContent=k===0?"剪接點｜入":"剪接點｜出";
+  if(!videoURL){const ph=$("#ph");ph.style.setProperty("--c",clipColor(c,i));$("#phName").textContent=c.name;$("#warn").hidden=true;return}
+  const o=layout(orig).map[c.id];let ok=false,of=0;
+  if(o&&srcF>=o.c.in&&srcF<o.c.out){ok=true;of=o.start+(srcF-o.c.in)}
+  $("#warn").hidden=ok;
+  if(!ok){if(!video.paused)video.pause();return}
+  const t=(of+.5)/fps;
+  if(playing){if(video.paused)video.play().catch(()=>{});if(Math.abs(video.currentTime-t)>.15)video.currentTime=t}
+  else{if(!video.paused)video.pause();if(Math.abs(video.currentTime-t)>.4/fps)video.currentTime=t}
+}
+function nudgeRow(lb,key,v,o){const d=o==null?0:v-o;return `<div class="lb">${lb}</div><div class="nudge">
+  <button class="nb" data-a="${key}:-5">−5</button><button class="nb" data-a="${key}:-1">−1</button><span class="v">${v}</span><button class="nb" data-a="${key}:1">+1</button><button class="nb" data-a="${key}:5">+5</button></div>
+  <div class="delta${d?" on":""}">${o==null?"新項目":d?`原 ${o} → ${d>0?"晚":"早"} ${Math.abs(d)} 格`:"未修改"}</div>`}
+function renderInspector(){
+  const el=$("#insp");
+  if(sel?.kind==="clip"){
+    const i=doc.clips.findIndex(c=>c.id===sel.id),c=doc.clips[i];if(!c){sel=null;return renderInspector()}
+    const o=orig.clips.find(x=>x.id===c.id),dd=o?(c.out-c.in)-(o.out-o.in):0;
+    el.innerHTML=`<h2>鏡頭</h2>
+      <div><span class="chip" style="--c:${clipColor(c,i)}">鏡頭 ${pad(i+1)}</span></div>
+      <h3>${esc(c.name)}</h3><div class="src">${esc(c.src||"（未標示素材）")}</div>
+      <div class="row">${nudgeRow("入點","in",c.in,o?.in)}${nudgeRow("出點","out",c.out,o?.out)}
+        <div class="lb">長度</div><div class="mono">${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒${dd?` <span style="color:var(--accent)">(${sgn(dd)})</span>`:""}</div></div>
+      <p class="help">數字是素材的格數。＋＝往後（較晚），−＝往前（較早）。後面的鏡頭會自動順移。</p>
+      <label class="help" for="clipNote">給 Claude 的備註</label>
+      <textarea id="clipNote" placeholder="例：這顆鏡頭調色再冷一點">${esc(c.note)}</textarea>
+      <div class="acts"><button class="btn sm" data-a="go:in">跳到入點</button><button class="btn sm" data-a="go:out">跳到出點</button><button class="btn sm danger" data-a="delclip">刪除鏡頭</button></div>`;
+    $("#clipNote").oninput=e=>{c.note=e.target.value;renderLog();save()};
+  }else if(sel?.kind==="mk"){
+    const m=doc.markers.find(x=>x.id===sel.id);if(!m){sel=null;return renderInspector()}
+    const L=layout(doc),e=L.map[m.clip],f=markerFrame(m,L),om=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type);
+    el.innerHTML=`<h2>特效標記</h2>
+      <div><span class="chip" style="--c:${fx.c}">${esc(fx.l)}</span></div>
+      <div class="mono help">鏡頭 ${pad(e.i+1)}「${esc(e.c.name)}」第 ${f-e.start} 格 · 成片 ${tc(f)}</div>
+      <label class="help" for="mkType">特效種類</label>
+      <select id="mkType">${FX.map(x=>`<option value="${x.k}"${x.k===m.type?" selected":""}>${x.l}</option>`).join("")}</select>
+      <div class="row"><div class="lb">位置</div><div class="nudge"><button class="nb" data-a="mk:-5">−5</button><button class="nb" data-a="mk:-1">−1</button><span class="v">${tc(f)}</span><button class="nb" data-a="mk:1">+1</button><button class="nb" data-a="mk:5">+5</button></div>
+      <div class="delta${om?"":" on"}">${om?"Claude 原本放的標記":"你新增的標記"}</div></div>
+      <label class="help" for="mkNote">想要的效果（越具體越好）</label>
+      <textarea id="mkNote" placeholder="例：抖 6 格、強度中等，配合鼓點">${esc(m.note)}</textarea>
+      <div class="acts"><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm danger" data-a="delmk">刪除標記</button></div>`;
+    $("#mkNote").oninput=ev=>{m.note=ev.target.value;renderLog();save()};
+    $("#mkType").onchange=ev=>mutate(()=>{m.type=ev.target.value});
+  }else{
+    el.innerHTML=`<h2>怎麼用</h2><div class="empty"><ol>
+      <li><b>點時間軸上的鏡頭</b>，在這裡用 ±1 / ±5 逐格調入點、出點。也可以直接拖鏡頭兩側的亮邊。</li>
+      <li><b>把播放頭停在想加特效的格子</b>，按「＋ 特效標記」或 <kbd>M</kbd>，選種類、寫一句想要的感覺。</li>
+      <li>到下方<b>修改清單</b>按「複製給 Claude」，貼回對話就好。</li></ol></div>
+      <p class="help">${orig.sample?"目前是範例時間軸。請 Claude 剪片時一併輸出時間軸 JSON，再到「匯入時間軸 / 成片」貼上。":"修改會自動暫存在這台裝置的瀏覽器。"}</p>`;
+  }
+}
+function changes(){
+  const out=[],L=layout(doc),OL=layout(orig);
+  orig.clips.forEach((o,i)=>{
+    const n=doc.clips.find(c=>c.id===o.id),lab=`鏡頭 ${pad(i+1)}「${o.name}」`;
+    if(!n){out.push({t:`${lab}：整段刪除（原長 ${o.out-o.in} 格）`});return}
+    const p=[];
+    if(n.in!==o.in){const d=n.in-o.in;p.push(`入點${d>0?"晚":"早"} ${Math.abs(d)} 格（素材格 ${o.in}→${n.in}）`)}
+    if(n.out!==o.out){const d=n.out-o.out;p.push(`出點${d>0?"晚":"早"} ${Math.abs(d)} 格（素材格 ${o.out}→${n.out}）`)}
+    if(n.note.trim()&&n.note!==o.note)p.push(`備註：${n.note.trim()}`);
+    if(p.length){const dd=(n.out-n.in)-(o.out-o.in);out.push({t:`${lab}：${p.join("；")}${dd?`。鏡頭長度 ${dd>0?"+":""}${dd} 格`:""}`})}
+  });
+  const where=(m,LL,d)=>{const e=LL.map[m.clip];if(!e)return"（鏡頭已刪除）";const f=markerFrame(m,LL);return `鏡頭 ${pad(e.i+1)}「${e.c.name}」第 ${f-e.start} 格（成片 ${tc(f)}）`};
+  doc.markers.forEach(m=>{
+    const o=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type).l,note=m.note.trim()?`：${m.note.trim()}`:"";
+    if(!L.map[m.clip])return;
+    if(!o){out.push({t:`新增特效【${fx}】於 ${where(m,L)}${note}`,fx:1});return}
+    const p=[];
+    if(o.clip!==m.clip||o.at!==m.at)p.push(`位置移到 ${where(m,L)}`);
+    if(o.type!==m.type)p.push(`改成【${fx}】`);
+    if(o.note!==m.note&&m.note.trim())p.push(`說明改為：${m.note.trim()}`);
+    if(p.length)out.push({t:`特效【${fxOf(o.type).l}】原在 ${where(o,OL)}：${p.join("；")}`,fx:1});
+  });
+  orig.markers.forEach(o=>{if(!doc.markers.some(m=>m.id===o.id)&&OL.map[o.clip])out.push({t:`移除特效【${fxOf(o.type).l}】（原在 ${where(o,OL)}）`,fx:1})});
+  return out;
+}
+function logText(){
+  const ch=changes();
+  let s=`【剪輯回饋】${doc.project}｜${fps}fps\n說明：入點／出點以素材格數計，「晚」＝往後、「早」＝往前；成片時間碼為 分:秒:格。\n`;
+  s+=ch.length?ch.map((c,i)=>`${i+1}. ${c.t}`).join("\n"):"（沒有修改）";
+  if($("#withJson").checked){const d=clone(doc);delete d.sample;s+="\n\n修改後時間軸 JSON：\n"+JSON.stringify(d)}
+  return s;
+}
+function renderLog(){
+  const ch=changes();
+  $("#log").innerHTML=ch.map(c=>`<li${c.fx?' class="fx"':""}>${esc(c.t)}</li>`).join("");
+  $("#logEmpty").hidden=ch.length>0;$("#log").hidden=!ch.length;
+  const n=$("#logN");n.hidden=!ch.length;n.textContent=ch.length;
+}
+
+/* ---------- actions ---------- */
+function seek(f){playhead=f;updatePlayhead()}
+function cutPoints(){const L=layout(doc),p=[];doc.clips.forEach(c=>p.push(L.map[c.id].start));p.push(L.total-1);return p}
+function setSelSeek(kind,id){sel={kind,id};renderTimeline();renderInspector()}
+function nudgeClip(edge,d){const c=doc.clips.find(x=>x.id===sel.id);mutate(()=>{if(edge==="in")c.in=clamp(c.in+d,0,c.out-1);else c.out=Math.max(c.in+1,c.out+d)});
+  const L=layout(doc),e=L.map[c.id];seek(edge==="in"?e.start:e.start+c.out-c.in-1)}
+function placeMarker(m,f){const L=layout(doc);f=clamp(f,0,L.total-1);const h=clipAt(f,L);m.clip=h.c.id;m.at=f-h.start}
+function addMarker(){const id="m"+Date.now().toString(36);mutate(()=>{const m={id,clip:"",at:0,type:"glitch",note:""};placeMarker(m,playhead);doc.markers.push(m);sel={kind:"mk",id}});
+  setTimeout(()=>$("#mkNote")?.focus(),0)}
+
+$("#insp").addEventListener("click",e=>{
+  const b=e.target.closest("[data-a]");if(!b||!sel)return;const[a,v]=b.dataset.a.split(":");
+  if(a==="in"||a==="out")nudgeClip(a,+v);
+  else if(a==="mk"){const m=doc.markers.find(x=>x.id===sel.id);mutate(()=>placeMarker(m,markerFrame(m,layout(doc))+ +v));seek(markerFrame(m,layout(doc)))}
+  else if(a==="go"){const L=layout(doc);if(v==="mk")seek(markerFrame(doc.markers.find(x=>x.id===sel.id),L));else{const e=L.map[sel.id];seek(v==="in"?e.start:e.start+e.c.out-e.c.in-1)}}
+  else if(a==="delmk"){mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null})}
+  else if(a==="delclip"){
+    if(b.dataset.armed){if(doc.clips.length<2)return toast("至少要留一個鏡頭");mutate(()=>{doc.clips=doc.clips.filter(x=>x.id!==sel.id);sel=null})}
+    else{b.dataset.armed=1;b.textContent="再按一次確認刪除";setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent="刪除鏡頭"}},2500)}
+  }
+});
+
+function frameAt(x){const r=inner.getBoundingClientRect();return clamp(Math.floor((x-r.left)/ppf),0,Math.max(0,total()-1))}
+function drag(e,onMove,onUp){
+  e.preventDefault();const x0=e.clientX;let moved=false;
+  const mv=ev=>{if(Math.abs(ev.clientX-x0)>3)moved=true;onMove(ev,ev.clientX-x0,moved)};
+  const up=ev=>{removeEventListener("pointermove",mv);removeEventListener("pointerup",up);removeEventListener("pointercancel",up);onUp&&onUp(moved)};
+  addEventListener("pointermove",mv);addEventListener("pointerup",up);addEventListener("pointercancel",up);
+}
+$("#ruler").addEventListener("pointerdown",e=>{if(playing)togglePlay();seek(frameAt(e.clientX));drag(e,ev=>seek(frameAt(ev.clientX)))});
+$("#trV").addEventListener("pointerdown",e=>{
+  if(playing)togglePlay();
+  const cl=e.target.closest(".clip");if(!cl){sel=null;renderTimeline();renderInspector();seek(frameAt(e.clientX));return}
+  const id=cl.dataset.id,h=e.target.closest(".h");
+  if(h){
+    const edge=h.dataset.edge,c=doc.clips.find(x=>x.id===id),v0=c[edge],before=JSON.stringify(doc);
+    pushUndo();sel={kind:"clip",id};
+    drag(e,(ev,dx)=>{const d=Math.round(dx/ppf);if(edge==="in")c.in=clamp(v0+d,0,c.out-1);else c.out=Math.max(c.in+1,v0+d);
+      const e2=layout(doc).map[id];playhead=edge==="in"?e2.start:e2.start+c.out-c.in-1;renderTimeline();renderInspector();renderLog()},
+      ()=>{if(JSON.stringify(doc)===before){undo.pop()}renderAll()});
+    renderTimeline();renderInspector();return;
+  }
+  setSelSeek("clip",id);seek(frameAt(e.clientX));
+  drag(e,ev=>seek(frameAt(ev.clientX)));
+});
+$("#trF").addEventListener("pointerdown",e=>{
+  if(playing)togglePlay();
+  const mk=e.target.closest(".mk");if(!mk){sel=null;renderTimeline();renderInspector();seek(frameAt(e.clientX));return}
+  const m=doc.markers.find(x=>x.id===mk.dataset.id);sel={kind:"mk",id:m.id};pushUndo();
+  const f0=markerFrame(m,layout(doc));
+  drag(e,(ev,dx,moved)=>{if(!moved)return;placeMarker(m,f0+Math.round(dx/ppf));playhead=markerFrame(m,layout(doc));renderTimeline();renderInspector();renderLog()},
+    moved=>{if(!moved)undo.pop();renderAll()});
+  seek(f0);renderTimeline();renderInspector();
+});
+$("#trF").addEventListener("dblclick",e=>{if(!e.target.closest(".mk")){seek(frameAt(e.clientX));addMarker()}});
+
+function togglePlay(){
+  playing=!playing;
+  $("#playBtn").innerHTML=playing?'<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>':'<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>';
+  if(playing){if(playhead>=total()-1)playhead=0;last=performance.now();acc=0;requestAnimationFrame(tick)}else video.pause();
+  updatePlayhead();
+}
+function tick(t){if(!playing)return;acc+=(t-last)/1000*fps;last=t;const n=Math.floor(acc);
+  if(n>0){acc-=n;const T=total();playhead+=n;if(playhead>=T){playhead=T-1;togglePlay();return}updatePlayhead()}
+  requestAnimationFrame(tick)}
+function transport(a){
+  if(a==="play")return togglePlay();
+  if(playing)togglePlay();
+  if(a==="mark")return addMarker();
+  if(a==="fit"){fit();renderTimeline();return}
+  const p=cutPoints();
+  if(a==="prevcut")return seek([...p].reverse().find(x=>x<playhead)??0);
+  if(a==="nextcut")return seek(p.find(x=>x>playhead)??total()-1);
+  seek(playhead+ +a);
+}
+document.querySelector(".transport").addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(b)transport(b.dataset.t)});
+
+/* zoom: slider 0..100 → 0.25..48 px per frame, log scale */
+const ZMIN=.25,ZMAX=48;
+const z2v=p=>Math.round(Math.log(p/ZMIN)/Math.log(ZMAX/ZMIN)*100),v2z=v=>ZMIN*Math.pow(ZMAX/ZMIN,v/100);
+function fit(){const T=Math.max(1,total());ppf=clamp((scroll.clientWidth-80)/T,ZMIN,ZMAX);$("#zoom").value=z2v(ppf)}
+$("#zoom").addEventListener("input",e=>{ppf=v2z(+e.target.value);renderTimeline();scroll.scrollLeft=playhead*ppf-scroll.clientWidth/2});
+
+addEventListener("keydown",e=>{
+  if(e.target.closest("input,textarea,select"))return;
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="z"){e.preventDefault();return doUndo()}
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const k=e.key;
+  if(k===" "){e.preventDefault();transport("play")}
+  else if(k==="ArrowLeft"){e.preventDefault();transport(e.shiftKey?"-5":"-1")}
+  else if(k==="ArrowRight"){e.preventDefault();transport(e.shiftKey?"+5":"+1")}
+  else if(k==="ArrowUp"){e.preventDefault();transport("prevcut")}
+  else if(k==="ArrowDown"){e.preventDefault();transport("nextcut")}
+  else if(k==="m"||k==="M"){transport("mark")}
+  else if((k==="Delete"||k==="Backspace")&&sel?.kind==="mk"){e.preventDefault();mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null})}
+  else if((k==="["||k==="]")&&sel?.kind==="clip"){
+    const L=layout(doc),e2=L.map[sel.id],c=e2.c,k2=playhead-e2.start;
+    if(k2<0||k2>=c.out-c.in)return toast("播放頭要在選取的鏡頭範圍內");
+    mutate(()=>{if(k==="[")c.in=c.in+k2;else c.out=c.in+k2+1});
+    const e3=layout(doc).map[sel.id];seek(k==="["?e3.start:e3.start+c.out-c.in-1);
+  }
+});
+
+/* ---------- bottom panel ---------- */
+document.querySelector(".tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(!t)return;
+  document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
+  document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==t.dataset.tab)});
+function copy(text,fallbackEl){
+  const fb=()=>{if(fallbackEl){fallbackEl.hidden=false;fallbackEl.value=text;fallbackEl.select();toast("請手動複製選取的文字")}};
+  try{navigator.clipboard.writeText(text).then(()=>toast("已複製，貼回給 Claude 就好"),fb)}catch(err){fb()}
+}
+$("#copyLog").addEventListener("click",()=>copy(logText(),$("#copyFallback")));
+$("#copySnip").addEventListener("click",()=>{const t=$("#askSnip").textContent;try{navigator.clipboard.writeText(t).then(()=>toast("已複製"),()=>toast("請手動選取上面的文字"))}catch(e){toast("請手動選取上面的文字")}});
+$("#resetBtn").addEventListener("click",e=>{const b=e.currentTarget;
+  if(b.dataset.armed){delete b.dataset.armed;b.textContent="全部還原成 Claude 原版";mutate(()=>{doc=clone(orig);sel=null});toast("已還原，可用「復原」找回修改");return}
+  b.dataset.armed=1;b.textContent="確定要還原？再按一次";setTimeout(()=>{if(b.dataset.armed){delete b.dataset.armed;b.textContent="全部還原成 Claude 原版"}},3000)});
+$("#undoBtn").addEventListener("click",doUndo);
+
+function tryLoadJson(text){
+  const msg=$("#jsonMsg");
+  try{const raw=text.trim().replace(/^```(json)?/,"").replace(/```$/,"");const d=JSON.parse(raw);load(d);
+    msg.className="msg ok";msg.textContent=`已載入 ${doc.clips.length} 個鏡頭、${doc.markers.length} 個特效標記。`;checkVideo()}
+  catch(err){msg.className="msg err";msg.textContent="無法載入："+err.message+"。請確認貼上的是完整 JSON。"}
+}
+$("#loadJson").addEventListener("click",()=>tryLoadJson($("#jsonIn").value));
+$("#jsonFile").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$("#jsonIn").value=r.result;tryLoadJson(r.result)};r.readAsText(f)});
+$("#loadSample").addEventListener("click",()=>{load(SAMPLE);$("#jsonMsg").className="msg ok";$("#jsonMsg").textContent="已載入範例。"});
+$("#videoFile").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;if(videoURL)URL.revokeObjectURL(videoURL);
+  videoURL=URL.createObjectURL(f);video.src=videoURL;video.hidden=false;$("#ph").hidden=true;
+  video.onloadedmetadata=()=>{checkVideo();updatePlayhead()}});
+function checkVideo(){const m=$("#videoMsg");if(!videoURL||!video.duration){return}
+  const tl=layout(orig).total/fps,diff=Math.abs(video.duration-tl);
+  m.className="msg "+(diff>.5?"err":"ok");
+  m.textContent=diff>.5?`影片 ${video.duration.toFixed(2)} 秒，時間軸 ${tl.toFixed(2)} 秒，可能不是同一版，畫面會對不準。`:`已載入：${e2s(video.duration)}，與時間軸長度相符。`}
+const e2s=s=>`${Math.floor(s/60)}:${pad(Math.floor(s%60))}`;
+
+let tt;function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,2000)}
+let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderTimeline,120)});
+
+/* boot */
+(function(){let s=null;try{s=JSON.parse(store.get()||"null")}catch(e){}
+  try{if(s&&s.orig&&s.doc)return load(s.orig,s.doc)}catch(e){}
+  load(SAMPLE)})();
+</script>
+
+</body></html>

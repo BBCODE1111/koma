@@ -1,0 +1,78 @@
+# Koma 影格
+
+逐格微調 Claude 剪好的影片：把想改的地方整理成可以直接貼回 Claude 的修改提示詞，或匯出時間軸到剪輯軟體。
+
+> Koma 是獨立的開放工具，非 Anthropic 官方產品。
+
+## 功能
+
+- **逐格修剪**：拖鏡頭兩側的邊，或用 ±1 / ±5 調整入點、出點，後面的鏡頭自動順移
+- **特效標記**：13 種特效，每種都有動畫預覽，可寫下想要的效果
+- **修改提示詞**：自動整理成修改清單，一鍵複製給 Claude
+- **匯入**：Koma JSON、FCPXML、EDL，或用 `#koma=` 連結開啟
+- **匯出**：FCPXML（Final Cut Pro、DaVinci Resolve）、EDL（Premiere Pro、DaVinci、Avid）、Koma JSON
+- **本機處理**：影片只在瀏覽器裡播放，不會上傳；修改暫存在瀏覽器的 localStorage
+
+調色、字卡和動態特效不會帶到剪輯軟體，只有剪接點和標記。
+
+## 使用
+
+直接用瀏覽器打開 `index.html`，或啟動本機伺服器：
+
+```bash
+python3 -m http.server 8000
+```
+
+然後開啟 <http://localhost:8000>。不需要安裝或編譯。介面字型從 Google Fonts 載入，離線時會改用系統字型。
+
+1. 把成片影片和時間軸檔拖進頁面（可先試 `examples/sample.koma.json`）
+2. 修剪鏡頭、按 `M` 加特效
+3. 在「修改清單」按「複製給 Claude」，或到「匯出到剪輯軟體」下載檔案
+
+「匯入」分頁裡有一段給 Claude 的指令，貼到專案指示後，Claude 每次剪片都會附上 Koma 時間軸。
+
+## 時間軸格式
+
+```json
+{
+  "project": "片名",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "clips": [
+    { "id": "c1", "name": "鏡頭描述", "src": "IMG_2041.MOV", "in": 45, "out": 117, "note": "" }
+  ],
+  "markers": [
+    { "id": "m1", "clip": "c1", "at": 0, "type": "flash", "note": "開頭閃白一格" }
+  ]
+}
+```
+
+- 鏡頭依成片順序排列
+- `in`、`out` 是素材格數，`out` 不含該格
+- `at` 是該鏡頭內的第幾格
+- `type` 可用 `glitch`、`flash`、`rgb`、`zoom`、`slow`、`ramp`、`shake`、`scan`、`text`、`trans`、`grade`、`sfx`、`other`
+
+## 快捷鍵
+
+| 按鍵 | 動作 |
+| --- | --- |
+| `空白鍵` | 播放 / 暫停 |
+| `←` `→` | 前後一格（加 `Shift` 一次 5 格） |
+| `↑` `↓` | 上一個 / 下一個剪接點 |
+| `M` | 在播放頭加特效 |
+| `[` `]` | 把選取鏡頭的入點 / 出點設在播放頭 |
+| `Delete` | 刪除選取的特效 |
+| `Ctrl/⌘` + `Z` | 復原 |
+
+## 專案結構
+
+```
+index.html                     主程式（單一檔案）
+examples/sample.koma.json      範例時間軸
+archive/cutdesk-prototype.html 前身「剪輯回饋台」，僅供參考
+```
+
+## 授權
+
+[MIT](LICENSE)
