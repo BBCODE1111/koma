@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Koma 測試</title>
+<style>
+body{font:14px/1.6 ui-monospace,Menlo,monospace;margin:16px;background:#fafaf8;color:#2b2d2f}
+.fail{color:#a33}.pass{color:#3a7}pre{white-space:pre-wrap}iframe{display:none}
+@media (prefers-color-scheme:dark){body{background:#19191a;color:#e0dfdb}}
+</style>
+</head>
+<body>
+<h1 id="sum">執行中…</h1>
+<pre id="out"></pre>
+<iframe id="app" src="../index.html?test"></iframe>
+<script>
+/* Runs the real page in an iframe with ?test, which keeps it away from saved drafts. */
+const frame=document.getElementById("app");
+const results=[];
+frame.onload=async()=>{
+  const w=frame.contentWindow,k=code=>w.eval(code);
+  await new Promise(r=>setTimeout(r,50));
+  const T=(name,fn)=>{let ok=false,info="";try{const r=fn();ok=r===true;if(!ok)info=JSON.stringify(r)}catch(e){info=String(e)}results.push({name,ok,info})};
+  const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b)||{got:a,want:b};
+  const reset=()=>k("load(SAMPLE);prevDrafts=[];savePrevs()");
+  const cuts=()=>k("doc.clips.map(c=>[c.in,c.out])");
+
+  T("修剪入點，後面鏡頭順移",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('in',3)");return eq(k("layout(doc).map.c2.start"),69)});
+  T("裁入點時標記留在同一個素材格",()=>{reset();k("doc.markers[1].at=30;sel={kind:'clip',id:'c3'};nudgeClip('in',10)");return eq(k("doc.markers[1].at"),20)});
+  T("復原修剪，再重做",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('out',-1);doUndo()");const a=k("doc.clips[0].out");k("doRedo()");return eq([a,k("doc.clips[0].out")],[117,116])});
+  T("備註有自己的復原紀錄，不會連帶遺失",()=>{reset();k(`sel={kind:'clip',id:'c1'};nudgeClip('out',-1);
+    sel={kind:'clip',id:'c1'};renderInspector();const a=$('#clipNote');a.value='冷一點';a.dispatchEvent(new Event('input'));a.blur();doUndo()`);
+    return eq(k("[doc.clips[0].note,doc.clips[0].out]"),["",116])});
+  T("清空備註會出現在修改清單",()=>{reset();k("doc.markers[0].note=''");return String(k("changes().map(c=>c.t).join()")).includes("清除原有說明")||"missing"});
+  T("裁短鏡頭：提示詞與 JSON 的標記位置一致",()=>{reset();k("sel={kind:'clip',id:'c3'};nudgeClip('out',-50)");
+    const at=k("exportDoc().markers.find(m=>m.id==='m2').at");const log=k("changes().map(c=>c.t).join()");return (at===21&&log.includes("第 21 格"))||{at,log}});
+  T("載入新時間軸會保留上一份草稿",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('out',-1);loadNew(SAMPLE)");
+    const a=k("doc.clips[0].out");k("restorePrev()");return eq([a,k("doc.clips[0].out")],[117,116])});
+  T("非整數幀率的 FCPXML 時間值都是整數分子",()=>{
+    for(const f of [23.976,29.97,59.94]){k(`load({...SAMPLE,fps:${f}})`);const x=k("buildFCPXML()");
+      const bad=[...x.matchAll(/="([\d.]+)\/\d+s"/g)].filter(m=>m[1].includes("."));if(bad.length)return bad[0][0]}
+    return true});
+  T("靜態圖不宣告音訊",()=>{reset();return /title_card[^>]*hasAudio/.test(k("buildFCPXML()"))?"has audio":true});
+  T("特殊字元檔名會編碼",()=>{reset();k("doc.clips[0].src='a#b?c d.mov'");return k("buildFCPXML()").includes("a%23b%3Fc%20d.mov")||"not encoded"});
+  T("FCPXML 來回：剪接點一致",()=>{reset();k("sel={kind:'clip',id:'c2'};nudgeClip('in',3)");const c=cuts();return eq(k("parseFCPXML(buildFCPXML()).data.clips.map(c=>[c.in,c.out])"),c)});
+  T("EDL 來回：剪接點一致",()=>{reset();k("sel={kind:'clip',id:'c2'};nudgeClip('out',-4)");const c=cuts();return eq(k("parseEDL(buildEDL(),30).clips.map(c=>[c.in,c.out])"),c)});
+  T("EDL 掉格：01:00:00;00 是 107892 格",()=>eq(k("tcToF('01:00:00;00',30)"),107892));
+  T("EDL 掉格：第 10 分鐘不扣格",()=>eq(k("tcToF('00:10:00;00',30)"),17982));
+  T("EDL 掉格但幀率選錯會拒絕",()=>{try{k("parseEDL('TITLE: x\\nFCM: DROP FRAME\\n',30)");return "no error"}catch(e){return e.message.includes("29.97")||e.message}});
+  T("EDL 空白會提出警告",()=>{const r=k(`parseEDL('001 AX V C 00:00:00:00 00:00:01:00 01:00:00:00 01:00:01:00\\n002 AX V C 00:00:00:00 00:00:01:00 01:00:02:00 01:00:03:00\\n',30).warn`);return String(r).includes("空白")||r});
+  T("拒絕無限大 fps",()=>{try{k("normalize({fps:1e309,clips:[{in:0,out:9}]})");return "accepted"}catch(e){return true}});
+  T("拒絕超大格數",()=>{try{k("normalize({clips:[{in:0,out:1e300}]})");return "accepted"}catch(e){return true}});
+  T("重複 id 會變成唯一",()=>{const ids=k("normalize({clips:[{id:'a',out:1},{id:'a_1',out:1},{id:'a',out:1},{id:'a',out:1}]}).clips.map(c=>c.id)");return new Set(ids).size===4||ids});
+  T("id 為 __proto__ 不會壞",()=>{k("load({clips:[{id:'__proto__',in:0,out:5}]})");return eq(k("total()"),5)});
+  T("對不到鏡頭的標記會略過並提出",()=>{const n=k("normalize({clips:[{id:'a',out:5}],markers:[{clip:'x'}]}).markers.length");return n===0&&String(k("normWarn")).includes("特效")||{n}});
+  T("標題中的 HTML 不會執行",()=>{k(`load({clips:[{name:'<img src=x onerror=window.pwn=1>',in:0,out:5}]});sel={kind:'clip',id:'c1'};renderAll()`);return !k("document.querySelector('#trV img,#insp img')")});
+  T("連續換三份時間軸，三份草稿都能還原",()=>{reset();
+    for(const n of [116,115,114]){k(`sel={kind:'clip',id:'c1'};doc.clips[0].out=${n};loadNew(SAMPLE)`)}
+    const got=[];for(let i=0;i<3;i++){k("restorePrev()");got.push(k("doc.clips[0].out"))}return eq(got,[114,115,116])});
+  T("超長時間軸會被拒絕，不會卡死",()=>{try{k("normalize({clips:[{in:0,out:1000000000}]})");return "accepted"}catch(e){return true}});
+  T("上限內的長時間軸刻度數有界",()=>{k("load({clips:[{in:0,out:2000000}]});ppf=48;renderTimeline()");return k("document.querySelectorAll('.tick').length")<=1001||k("document.querySelectorAll('.tick').length")});
+  T("修改清單附上鏡頭 id 與素材檔名",()=>{reset();k("sel={kind:'clip',id:'c2'};nudgeClip('in',1)");return k("changes()[0].t").includes("[c2 / IMG_2043.MOV]")||k("changes()[0].t")});
+  T("延長超過 srcDuration 會警告",()=>{k("load({clips:[{id:'a',in:0,out:10,srcDuration:12}]});sel={kind:'clip',id:'a'};nudgeClip('out',5)");return k("changes()[0].t").includes("超出素材長度 3 格")||k("changes()[0].t")});
+  T("手動清單由後往前排，修剪在前特效在後",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('in',2);sel={kind:'clip',id:'c5'};nudgeClip('out',-3)");const x=k("buildManual()");
+    return (x.indexOf("鏡頭 05")<x.indexOf("鏡頭 01")&&x.indexOf("結尾裁掉 3 格")>0&&x.indexOf("開頭裁掉 2 格")>0&&x.indexOf("二、加上特效")>x.indexOf("鏡頭 01"))||x});
+  T("給 Claude 的指令不再要求手算壓縮",()=>{const x=k("$('#askSnip').textContent");return (!x.includes("deflate")&&x.includes("成片幀率"))||x});
+  T("介面沒有日文假名",()=>{const x=k("document.body.textContent");return !/[\u3040-\u30ff]/.test(x)||x.match(/[\u3040-\u30ff]+/)[0]});
+  T("備份失敗時拒絕載入，草稿不被取代",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('out',-1);window.__set=store.set;store.set=(v,key)=>key===PREV?false:window.__set(v,key)");
+    let msg="";try{k("loadNew({clips:[{id:'z',out:9}]})")}catch(e){msg=e.message}k("store.set=window.__set");return (msg.includes("空間不足")&&k("doc.clips[0].out")===116&&k("prevDrafts.length")===0)||{msg}});
+  T("還原時備份失敗，不交換草稿",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('out',-1);loadNew({clips:[{id:'z',out:9}]});sel={kind:'clip',id:'z'};nudgeClip('out',-1);window.__set=store.set;store.set=(v,key)=>key===PREV?false:window.__set(v,key);restorePrev();store.set=window.__set");
+    return (k("doc.clips[0].id")==="z"&&k("doc.clips[0].out")===8&&k("prevDrafts.length")===1)||k("[doc.clips[0].id,prevDrafts.length]")});
+  T("無效草稿不會造成 orig 與 doc 不一致",()=>{reset();const before=k("orig.clips[0].id");try{k("load({clips:[{id:'q',out:9}]},{clips:[{in:0,out:1e300}]})")}catch(e){}return eq(k("[orig.clips[0].id,doc.clips[0].id]"),[before,before])});
+  T("編輯不會超過可重新載入的上限",()=>{k("load({clips:[{id:'a',out:2000000}]});sel={kind:'clip',id:'a'};nudgeClip('out',5)");return eq(k("doc.clips[0].out"),2000000)});
+  T("入點來回調整：標記依規則留在邊界",()=>{k("load({clips:[{id:'a',in:12,out:84}],markers:[{id:'m',clip:'a',at:30}]});sel={kind:'clip',id:'a'};nudgeClip('in',35)");const a=k("doc.markers[0].at");k("nudgeClip('in',-35)");return eq([a,k("doc.markers[0].at")],[0,35])});
+  T("裁短後資料層立即一致，JSON 往返續編結果相同",()=>{k("load({clips:[{id:'a',in:12,out:84}],markers:[{id:'m',clip:'a',at:30}]});sel={kind:'clip',id:'a'};nudgeClip('out',-50)");
+    const live=k("doc.markers[0].at"),json=k("JSON.stringify(exportDoc())");k("nudgeClip('out',50)");const a=k("doc.markers[0].at");
+    k(`load(${json});sel={kind:'clip',id:'a'};nudgeClip('out',50)`);return eq([live,a,k("doc.markers[0].at")],[21,21,21])});
+  T("沒有改到數值的操作不清除重做",()=>{k("load({clips:[{id:'a',in:0,out:50}]});sel={kind:'clip',id:'a'};nudgeClip('out',-1);doUndo();nudgeClip('in',-1)");return eq(k("redo.length"),1)});
+  T("備註裡的分號不會被當成掉格",()=>{const r=k(`parseEDL('FCM: NON-DROP FRAME\\n001 AX V C 00:00:00:00 00:00:01:00 01:00:00:00 01:00:01:00\\n* COMMENT: take 1;23\\n',30).clips.length`);return r===1||r});
+  T("FCM 前有空白也會辨識",()=>{const r=k(`parseEDL(' FCM: DROP FRAME\\n001 AX V C 01:00:00:00 01:00:01:00 01:00:00:00 01:00:01:00\\n',29.97).clips[0].in`);return r===107892||r});
+  T("不存在的掉格標號會被略過並警告",()=>{const r=k(`parseEDL('001 AX V C 00:01:00;00 00:01:01;00 01:00:00;00 01:00:01;00\\n002 AX V C 00:02:00;02 00:02:01;02 01:00:01;00 01:00:02;00\\n',29.97)`);return (r.clips.length===1&&String(r.warn).includes("不合法"))||r});
+  T("EDL 保留檔名中的連續空白",()=>{k("load({clips:[{id:'a',src:'take  01.mov',out:9}]})");return k("buildEDL()").includes("take  01.mov")||"collapsed"});
+  T("文字格數會被拒絕",()=>{try{k("normalize({clips:[{in:'abc',out:9}]})");return "accepted"}catch(e){return true}});
+  T("?test 不寫入瀏覽器儲存",()=>eq(k("store.get()"),null));
+
+  reset();
+  const fail=results.filter(r=>!r.ok);
+  document.getElementById("sum").textContent=`${results.length-fail.length} / ${results.length} 通過`;
+  document.getElementById("sum").className=fail.length?"fail":"pass";
+  document.getElementById("out").innerHTML=results.map(r=>`<span class="${r.ok?"pass":"fail"}">${r.ok?"✓":"✗"} ${r.name.replace(/</g,"&lt;")}${r.ok?"":"\n    "+r.info.replace(/</g,"&lt;")}</span>`).join("\n");
+  window.koma={passed:results.length-fail.length,total:results.length,fail};
+};
+</script>
+</body>
+</html>

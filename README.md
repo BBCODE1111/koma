@@ -10,10 +10,13 @@
 - **特效標記**：13 種特效，每種都有動畫預覽，可寫下想要的效果
 - **修改提示詞**：自動整理成修改清單，一鍵複製給 Claude
 - **匯入**：Koma JSON、FCPXML、EDL，或用 `#koma=` 連結開啟
-- **匯出**：FCPXML（Final Cut Pro、DaVinci Resolve）、EDL（Premiere Pro、DaVinci、Avid）、Koma JSON
+- **匯出**：FCPXML 1.9（Final Cut Pro 10.6 以上、DaVinci Resolve）、EDL（Premiere Pro、DaVinci、Avid）、Koma JSON
+- **手動操作清單**：給不能匯入工程的軟體（例如剪映），照清單由後往前逐項修改
 - **本機處理**：影片只在瀏覽器裡播放，不會上傳；修改暫存在瀏覽器的 localStorage
 
-調色、字卡和動態特效不會帶到剪輯軟體，只有剪接點和標記。
+調色、字卡和動態特效不會帶到剪輯軟體，只有剪接點和標記。匯入支援單軌直切；空白、轉場、變速和連接片段不會保留，匯入時會列出來。
+
+> 匯出格式已用 Apple DTD 與自動測試驗證，但尚未在真實剪輯軟體上完成匯入驗證。
 
 ## 使用
 
@@ -49,8 +52,9 @@ python3 -m http.server 8000
 ```
 
 - 鏡頭依成片順序排列
-- `in`、`out` 是素材格數，`out` 不含該格
-- `at` 是該鏡頭內的第幾格
+- `in`、`out` 是素材時間，一律以成片的 `fps` 計算，`out` 不含該格
+- `srcDuration` 選填，是素材總長（同樣以成片 `fps` 計算），延長超過時 Koma 會警告
+- `at` 是該鏡頭內的第幾格。標記跟著素材格走；如果那一格被裁掉，標記會移到鏡頭邊界，之後再延長也不會回去，按復原才能還原
 - `type` 可用 `glitch`、`flash`、`rgb`、`zoom`、`slow`、`ramp`、`shake`、`scan`、`text`、`trans`、`grade`、`sfx`、`other`
 
 ## 快捷鍵
@@ -63,13 +67,15 @@ python3 -m http.server 8000
 | `M` | 在播放頭加特效 |
 | `[` `]` | 把選取鏡頭的入點 / 出點設在播放頭 |
 | `Delete` | 刪除選取的特效 |
-| `Ctrl/⌘` + `Z` | 復原 |
+| `Ctrl/⌘` + `Z` | 復原（加 `Shift` 重做） |
 
 ## 專案結構
 
 ```
 index.html                     主程式（單一檔案）
 examples/sample.koma.json      範例時間軸
+tests/test.html                瀏覽器測試，開啟即執行，不會動到草稿
+docs/reviews/                  圓桌審核報告
 archive/cutdesk-prototype.html 前身「剪輯回饋台」，僅供參考
 ```
 
