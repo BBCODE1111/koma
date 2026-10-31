@@ -111,7 +111,7 @@ frame.onload=async()=>{
   /* everything needed to edit has to be on screen at once */
   const onScreen=(sels)=>{const bad=[],H=pw.innerHeight;if(pd.documentElement.scrollHeight>H)bad.push("page scrolls");
     if(pd.querySelector(".app").scrollHeight>pd.querySelector(".app").clientHeight+1)bad.push("app overflows");
-    for(const q of sels){const e=pd.querySelector(q),b=e&&e.getBoundingClientRect();if(!b||!b.height||b.top<0||b.bottom>H+.5)bad.push(q)}
+    for(const q of sels){const e=pd.querySelector(q),b=e&&e.getBoundingClientRect();if(!b||!b.height||b.top<0||b.bottom>H+.5||b.left<-.5||b.right>pw.innerWidth+.5)bad.push(q)}
     const pv=pd.querySelector(".preview").getBoundingClientRect().height;if(pv<96)bad.push("preview "+pv);return bad.length?bad:true};
   const BASE=["#frame",".transport",".tl",".tools"];
   for(const [w,h] of [[320,568],[375,667],[390,700],[430,932]]){await size(w,h);preset();
@@ -149,6 +149,9 @@ frame.onload=async()=>{
   T("放開後修剪生效且可復原",()=>{const a=p("doc.clips[0].out");p("doUndo()");return eq([a,p("doc.clips[0].out")],[out0+5,out0])});
   preset();await tick();
   T("打開抽屜不會推動畫面",()=>{p("openSheet('out')");const a=pd.querySelector(".app"),r=[a.scrollTop,pd.body.scrollTop,pd.documentElement.scrollTop];p("closeSheet()");return eq(r,[0,0,0])});
+  T("抽屜開啟時背景不可操作，快捷鍵不會改到時間軸",()=>{p("sel=null;addMarker();openSheet('out')");const n=p("doc.markers.length");pw.dispatchEvent(new pw.KeyboardEvent("keydown",{key:"Delete",bubbles:true}));const r=[p("doc.markers.length")===n,pd.querySelector(".tl").inert];p("closeSheet()");return eq([...r,pd.querySelector(".tl").inert],[true,true,false])});
+  preset();await tick();
+  T("還原上一份草稿的按鈕完整顯示",()=>{p("sel={kind:'clip',id:'c1'};nudgeClip('out',-1);loadNew({clips:[{id:'z',out:9}]})");const b=pd.getElementById("restorePrev"),r=b.getBoundingClientRect(),ok=!b.hidden&&r.left>=0&&r.right<=pw.innerWidth&&r.width>100;p("prevDrafts=[];savePrevs()");return ok||[b.hidden,r.left,r.right]});
   await size(740,360);preset();await tick();
   T("手機橫向也不用捲動",()=>onScreen(BASE));
   p("nudgeEdge='in';sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();

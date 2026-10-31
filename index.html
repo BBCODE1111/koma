@@ -8,11 +8,11 @@
 /* Layout: a quiet editing desk — generous margins, preview + inspector, transport, a film-strip timeline with vertical labels, notebook below. */
 :root{
   --paper:#f1f1ef; --sheet:#fafaf8; --well:#e8e8e5; --ink:#2b2d2f; --sub:#76797c; --line:#d8d8d4; --hair:#e5e5e1;
-  --ac:#4e6470; --ac2:#a3766d; --gold:#a08e62; --onac:#fafaf8; --stage:#2b2c2d;
+  --ac:#4e6470; --ac2:#96655b; --gold:#a08e62; --onac:#fafaf8; --stage:#2b2c2d;
   --f-disp:"Noto Serif TC","Songti TC","PMingLiU",serif;
   --f-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
   --f-mono:"DM Mono",ui-monospace,"SF Mono",Menlo,monospace;
-  --r:6px;
+  --r:8px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --paper:#19191a; --sheet:#202122; --well:#272829; --ink:#e0dfdb; --sub:#8e9093; --line:#333436; --hair:#2a2b2d;
@@ -45,8 +45,8 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .btn:hover{border-color:var(--ac);color:var(--ac)}
 .btn:disabled{opacity:.35;cursor:default}
 .btn:disabled:hover{border-color:var(--line);color:inherit}
-.btn.pri,.btn.shu{background:var(--ac);border-color:var(--ac);color:var(--onac)}
-.btn.pri:hover,.btn.shu:hover{background:color-mix(in srgb,var(--ac) 85%,var(--ink));color:var(--onac)}
+.btn.pri,.btn.shu{background:var(--ac2);border-color:var(--ac2);color:var(--onac)}
+.btn.pri:hover,.btn.shu:hover{background:color-mix(in srgb,var(--ac2) 85%,var(--ink));color:var(--onac)}
 .btn.ghost{color:var(--ac2);border-color:color-mix(in srgb,var(--ac2) 40%,var(--line))}
 .btn.sm{padding:3px 11px;font-size:12px}
 .btn svg{width:14px;height:14px;fill:currentColor}
@@ -246,7 +246,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
 @media (prefers-reduced-motion:reduce){.fxbadge,.toast{animation:none}.sheet-card,.scrim{transition:none!important}}
 
 /* phone: one fixed screen — preview, transport, timeline, a docked trim panel and a tool bar; long content lives in a drawer */
-.only-m{display:none!important}
+.only-m,.only-land{display:none!important}
 @media (max-width:760px),(max-height:500px) and (pointer:coarse){
   :root:root:root{--paper:#141516;--sheet:#1e1f21;--well:#2a2b2e;--ink:#ecebe7;--sub:#9a9c9f;--line:#35363a;--hair:#2a2b2e;--ac:#e8a27c;--ac2:#e8a27c;--gold:#c2ad7c;--onac:#1c130e;--stage:#0c0c0d;color-scheme:dark;padding:0!important}
   .only-m{display:revert!important}
@@ -257,7 +257,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .card{border:0;border-radius:0}
   .stage{display:contents}
   .top{order:0;flex:none;gap:6px;flex-wrap:nowrap;padding:0 8px;min-height:50px;border-bottom:0}
-  .top.wrapped{flex-wrap:wrap}
+  .top:has(#restorePrev:not([hidden])){flex-wrap:wrap}
   .brand p,.brand h1,.foot,#projMeta{display:none}
   .logo{width:26px;height:26px}
   .proj{order:0;flex:1 1 0;display:block;line-height:1.25;overflow:hidden}
@@ -302,7 +302,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .clip{top:2px;bottom:2px;border:0;border-radius:4px;background:color-mix(in srgb,var(--c) 42%,#26272a);overflow:visible;box-shadow:inset -1px 0 0 #141516}
   .clip.mod{border:0;box-shadow:inset 0 -3px 0 var(--ac),inset -1px 0 0 #141516}
   .clip.sel{outline:2px solid #fff;outline-offset:-1px;z-index:4}
-  .clip .body{inset:0 6px;padding-top:6px;overflow:hidden;color:#f2f1ed;font-size:11px}
+  .clip .body{inset:0 6px;padding-top:6px;overflow:hidden;color:#f2f1ed;font-size:12px}
   .clip .body b,.clip .body em{color:rgba(255,255,255,.72)}
   .d{display:none}
   /* handles only exist on the selected clip, so a swipe anywhere else always pans */
@@ -315,7 +315,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .mk{top:3px;touch-action:pan-x;cursor:pointer}
   .mk.sel{touch-action:none;z-index:3}
   .mk i{height:28px}
-  .mk span{background:var(--well);border:0;border-radius:0 4px 4px 0;padding:3px 7px;line-height:1.3;font-size:10.5px}
+  .mk span{background:var(--well);border:0;border-radius:0 4px 4px 0;padding:3px 7px;line-height:1.3;font-size:11.5px}
   .mk.sel span{background:#fff;color:#141516}
   .mk.sel i{background:#fff}
   .phd{display:none}
@@ -327,10 +327,11 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   body.hassel .insp{display:flex}
   .insp .eyebrow,.insp .chip,.insp h3,.insp .src,.insp .help,.insp .delta,.insp .row .lb,.insp .fxhero,.insp .mobhide{display:none!important}
   .segrow.only-m{display:flex!important;align-items:center;justify-content:space-between;gap:8px}
-  .seg{display:inline-flex;background:var(--well);border-radius:8px;padding:2px}
+  .seg{flex:none;display:inline-flex;background:var(--well);border-radius:8px;padding:2px}
   .seg button{background:none;border:0;border-radius:6px;min-width:60px;height:32px;color:var(--sub)}
   .seg button[aria-pressed=true]{background:var(--ink);color:var(--paper);font-weight:500}
-  .len{font-family:var(--f-mono);font-size:11px;color:var(--sub);letter-spacing:0;white-space:nowrap}
+  .len{flex:1;min-width:0;text-align:right;font-family:var(--f-mono);font-size:11px;line-height:1.3;color:var(--sub);letter-spacing:0;white-space:nowrap}
+  .len b{display:block;font-family:var(--f-ui);font-weight:500;font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
   .insp .row{display:block}
   .nudge{flex-wrap:nowrap;gap:4px}
   .insp[data-edge=in] .nudge[data-k=out],.insp[data-edge=out] .nudge[data-k=in]{display:none}
@@ -373,6 +374,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
     .top,.transport,.tl,.insp,.tools{grid-column:2}
     .top{min-height:42px}
     body.hassel .top,body.hassel .tools{display:none!important}
+    .only-land{display:revert!important}
     .tools{align-self:end}
     .tools button{min-height:44px;flex-direction:row;gap:4px}
     .tools .n{position:static}
@@ -446,7 +448,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
     <button data-sheet="keys"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h0"/></svg>說明</button>
   </nav>
   <div class="scrim" id="scrim" hidden></div>
-  <div class="card sheet-card" id="sheetCard">
+  <div class="card sheet-card" id="sheetCard" aria-label="修改清單與檔案">
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" aria-selected="true" data-tab="log">修改清單<span class="n" id="logN" hidden></span></button>
       <button class="tab" role="tab" aria-selected="false" data-tab="in">匯入</button>
@@ -747,13 +749,13 @@ function renderInspector(){
     el.innerHTML=`<div class="eyebrow">鏡頭</div>
       <div><span class="chip" style="--c:${clipColor(c,i)}">鏡頭 ${pad(i+1)}</span></div>
       <h3>${esc(c.name)}</h3><div class="src">${esc(c.src||"（未標示素材）")}</div>
-      <div class="segrow only-m"><div class="seg" role="group" aria-label="要調整的剪接點"><button data-a="edge:in" aria-pressed="${nudgeEdge==="in"}">入點</button><button data-a="edge:out" aria-pressed="${nudgeEdge==="out"}">出點</button></div><span class="len">${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒${dd?` (${sgn(dd)})`:""}</span></div>
+      <div class="segrow only-m"><div class="seg" role="group" aria-label="要調整的剪接點"><button data-a="edge:in" aria-pressed="${nudgeEdge==="in"}">入點</button><button data-a="edge:out" aria-pressed="${nudgeEdge==="out"}">出點</button></div><div class="len"><b>${pad(i+1)} ${esc(c.name)}</b>${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒${dd?` (${sgn(dd)})`:""}</div></div>
       <div class="row">${nudgeRow("入點","in",c.in,o?.in)}${nudgeRow("出點","out",c.out,o?.out)}
         <div class="lb mobhide">長度</div><div class="mono mobhide">${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒${dd?` <span style="color:var(--ac2)">(${sgn(dd)})</span>`:""}</div></div>
       ${overMedia(c)}<p class="help">數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。</p>
       <label class="help" for="clipNote">給 Claude 的備註</label>
       <textarea id="clipNote" placeholder="例：這顆鏡頭調色再冷一點">${esc(c.note)}</textarea>
-      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-m" data-a="note">備註${c.note?" ●":""}</button><button class="btn sm" data-a="go:in">跳到入點</button><button class="btn sm" data-a="go:out">跳到出點</button><button class="btn sm ghost" data-a="delclip">刪除鏡頭</button></div>`;
+      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button><button class="btn sm only-m" data-a="note">備註${c.note?" ●":""}</button><button class="btn sm" data-a="go:in">跳到入點</button><button class="btn sm" data-a="go:out">跳到出點</button><button class="btn sm ghost" data-a="delclip">刪除鏡頭</button></div>`;
     noteEditor($("#clipNote"),v=>{c.note=v});
   }else if(sel?.kind==="mk"){
     const m=doc.markers.find(x=>x.id===sel.id);if(!m){sel=null;return renderInspector()}
@@ -767,7 +769,7 @@ function renderInspector(){
       <div class="fxgrid" role="group" aria-label="特效種類">${FX.map(x=>`<button class="fxt" data-fx="${x.k}" aria-pressed="${x.k===m.type}" style="--fxc:${x.c}">${thumb(x.k)}<span>${x.l}</span></button>`).join("")}</div>
       <label class="help" for="mkNote">想要的效果（越具體越好）</label>
       <textarea id="mkNote" placeholder="例：抖 6 格、強度中等，配合鼓點">${esc(m.note)}</textarea>
-      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-m" data-a="note">備註${m.note?" ●":""}</button><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">刪除特效</button></div>`;
+      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button><button class="btn sm only-m" data-a="note">備註${m.note?" ●":""}</button><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">刪除特效</button></div>`;
     noteEditor($("#mkNote"),v=>{m.note=v});
   }else{
     el.innerHTML=`<div class="eyebrow">使用方式</div><ol class="steps">
@@ -833,6 +835,7 @@ $("#insp").addEventListener("click",e=>{
   const t=e.target.closest(".fxt");
   if(t&&sel?.kind==="mk"){const m=doc.markers.find(x=>x.id===sel.id);if(m.type!==t.dataset.fx){mutate(()=>{m.type=t.dataset.fx});badgeKey="";updatePlayhead()}return}
   const b=e.target.closest("[data-a]");if(!b||!sel)return;const[a,v]=b.dataset.a.split(":");
+  if(a==="undo")return doUndo();
   if(a==="close"){sel=null;renderTimeline();renderInspector();return}
   if(a==="note"){const n=$("#insp").querySelector("textarea");$("#insp").classList.add("noting");n.focus();return}
   if(a==="edge"){nudgeEdge=v;renderInspector();const e2=layout(doc).map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1);return}
@@ -928,7 +931,7 @@ function fit(){if(isM()){ppf=defaultPpf();$("#zoom").value=z2v(ppf);return}const
 $("#zoom").addEventListener("input",e=>{ppf=Math.min(v2z(+e.target.value),maxPpf());renderTimeline();scroll.scrollLeft=playhead*ppf-scroll.clientWidth/2});
 
 addEventListener("keydown",e=>{
-  if(e.target.closest("input,textarea,select"))return;
+  if(document.body.classList.contains("sheet")||e.target.closest("input,textarea,select"))return;
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="z"){e.preventDefault();return e.shiftKey?doRedo():doUndo()}
   if(e.metaKey||e.ctrlKey||e.altKey)return;
   const k=e.key,item=e.target.closest(".clip,.mk");
@@ -1214,8 +1217,9 @@ $("#copyLog").addEventListener("click",()=>copy(logText(),$("#copyFallback")));
 $("#copyTop").addEventListener("click",()=>copy(logText(),$("#copyFallback")));
 /* phone drawer */
 let sheetFrom=null;
-function openSheet(tab){sheetFrom=document.activeElement;document.querySelector(`.tab[data-tab="${tab}"]`).click();$("#scrim").hidden=false;document.body.classList.add("sheet");$("#sheetClose").focus()}
-function closeSheet(){if(!document.body.classList.contains("sheet"))return;document.body.classList.remove("sheet");sheetFrom?.focus?.()}
+const sheetBg=()=>document.querySelectorAll(".top,.stage,.transport,.tl,.tools");
+function openSheet(tab){sheetFrom=document.activeElement;sheetBg().forEach(x=>x.inert=true);const sc=$("#sheetCard");sc.setAttribute("role","dialog");sc.setAttribute("aria-modal","true");document.querySelector(`.tab[data-tab="${tab}"]`).click();$("#scrim").hidden=false;document.body.classList.add("sheet");$("#sheetClose").focus()}
+function closeSheet(){if(!document.body.classList.contains("sheet"))return;document.body.classList.remove("sheet");sheetBg().forEach(x=>x.inert=false);const sc=$("#sheetCard");sc.removeAttribute("role");sc.removeAttribute("aria-modal");sheetFrom?.focus?.()}
 const settleSheet=()=>{if($("#lossyBar").hidden&&!$("#inMsg").classList.contains("err"))closeSheet()};
 document.querySelector(".tools").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.t)transport(b.dataset.t);else openSheet(b.dataset.sheet)});
 $("#scrim").addEventListener("click",closeSheet);$("#sheetClose").addEventListener("click",closeSheet);
