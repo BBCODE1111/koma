@@ -284,8 +284,13 @@ frame.onload=async()=>{
   {const o=p("doc.clips[1].out");pd.querySelector('[data-a="addf"]').click();await tick();
    T("加一格讓鏡頭多一格並停在新格",()=>eq([p("doc.clips[1].out")-o,p("playhead")],[1,p("layout(doc).map.c2.start+doc.clips[1].out-doc.clips[1].in-1")]))}
   preset();p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
-  T("手動清單的字幕有起訖時間",()=>{const x=p("(doc.markers=[{id:'zz',clip:'c1',at:0,type:'text',note:'',text:'甲',dur:30}],buildManual())");return /00:00:00:00 到 00:00:0\d:\d\d 甲/.test(x)||x});
+  T("手動清單的字幕有起訖時間",()=>{const x=p("(doc.markers=[{id:'zz',clip:'c1',at:0,type:'text',note:'',text:'甲',dur:30}],buildManual())");return /00:00:00:00 到 00:00:01:00 字幕：甲/.test(x)||x});
   preset();p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
+  T("分割後的後半段預覽仍對應原鏡頭",()=>{p("videoURL='blob:x';seek(layout(doc).map.c2.start+30);deleteFrame();seek(layout(doc).map[doc.clips[2].id].start+5);renderAll()");const w=p("$('#warn').hidden");p("videoURL=null");return eq(w,true)});
+  preset();p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
+  T("短鏡頭選取後沒有把手，可整塊拖曳",()=>{p("doc.clips[1].out=doc.clips[1].in+Math.ceil(60/ppf);renderTimeline()");const r=pd.defaultView.getComputedStyle(pd.querySelector('.clip.sel .h')).display;return eq(r,"none")});
+  preset();p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
+  T("插入＋觸控區至少 44px",()=>{const b=pd.querySelector(".ins-j"),r=b.getBoundingClientRect(),e=pd.elementFromPoint(r.left+r.width/2+20,r.top+r.height/2);return e===b||e.closest?.(".ins-j")===b||(e&&e.className)});
   T("手機常用鍵排成一列不用左右滑",()=>{const a=pd.querySelector(".acts.main");return a.scrollWidth<=a.clientWidth+1||[a.scrollWidth,a.clientWidth]});
   T("更多預設收起",()=>eq(pd.defaultView.getComputedStyle(pd.querySelector("#moreActs")).display,"none"));
   pd.querySelector('[data-a="more"]').click();await tick();

@@ -449,6 +449,7 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
 .insp.more .moreacts{display:flex!important}
 .morebtn[aria-expanded=true]{background:var(--well);color:var(--ac);border-color:var(--ac)}
 .morebtn .ico{stroke-width:3}
+.ins-j::before{content:"";position:absolute;inset:-9px}
 .prodwrap:not(.empty) .prodadd{display:none!important}
 .prodadd{align-self:flex-start}
 @media (min-width:761px) and (min-height:501px),(min-width:761px) and (pointer:fine){.insp.hasacts{display:flex;flex-direction:column}.insp.hasacts>.acts{order:-1}.insp.hasacts>.eyebrow{order:-2}.insp.hasacts>.acts.main{margin-bottom:-4px}}
@@ -458,7 +459,7 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
 .seg2{display:inline-flex;gap:4px;flex-wrap:wrap}
 .seg2 button{background:var(--well);border:0;border-radius:8px;padding:0 10px;min-height:32px;color:var(--sub)}
 .seg2 button[aria-pressed=true]{background:var(--ac);color:var(--onac)}
-@media (max-width:760px),(max-height:500px) and (pointer:coarse){.clip.sel{touch-action:none}.ins-j{bottom:3px}.seg2 button{min-height:44px}
+@media (max-width:760px),(max-height:500px) and (pointer:coarse){.clip.sel{touch-action:none}.clip.sel.short .h{display:none}.ins-j{bottom:3px}.seg2 button{min-height:44px}
   .insp:not(.noting) .acts.main{overflow:visible;gap:4px;margin:0}
   .insp:not(.noting) .acts.main .btn.only-m:not([data-a=cancelnote]){display:inline-flex!important}
   .insp:not(.noting) .acts.main .btn{display:inline-flex;flex:1 1 0;min-width:0;min-height:44px;padding:2px 0;flex-direction:column;justify-content:center;gap:2px;font-size:11px;line-height:1.2;white-space:nowrap}
@@ -818,7 +819,7 @@ function renderTimeline(){
   const R=$("#ruler");R.innerHTML=h;R.style.backgroundSize=ppf>=5?`${ppf}px 6px`:"0 0";
   $("#trV").innerHTML=doc.clips.map((c,i)=>{
     const e=L.map[c.id],o=OL.map[c.id]?.c,dI=o?c.in-o.in:0,dO=o?c.out-o.out:0,isSel=sel?.kind==="clip"&&sel.id===c.id;
-    return `<div class="clip${isSel?" sel":""}${c.ins?" ins":""}${dI||dO?" mod":""}${(c.out-c.in)*ppf<46?" tiny":""}" data-id="${esc(c.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(tr(`鏡頭 ${pad(i+1)} ${c.name}，${c.out-c.in} 格`,`Clip ${pad(i+1)} ${c.name}, ${c.out-c.in} frames`))}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
+    return `<div class="clip${isSel?" sel":""}${c.ins?" ins":""}${dI||dO?" mod":""}${(c.out-c.in)*ppf<46?" tiny":""}${(c.out-c.in)*ppf<100?" short":""}" data-id="${esc(c.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(tr(`鏡頭 ${pad(i+1)} ${c.name}，${c.out-c.in} 格`,`Clip ${pad(i+1)} ${c.name}, ${c.out-c.in} frames`))}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
       <div class="h l" data-edge="in" title="${tr("拖曳修剪入點","Drag to trim the in point")}"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${c.out-c.in}f · ${esc(c.ins?insKind(c):c.src)}</em></div>${dI<0?`<i class="ext l" style="width:${-dI*ppf}px"></i>`:""}${dO>0?`<i class="ext r" style="width:${dO*ppf}px"></i>`:""}<div class="h r" data-edge="out" title="${tr("拖曳修剪出點","Drag to trim the out point")}"></div>
       ${dI?`<i class="d dl">${tr("入","In ")}${sgn(dI)}</i>`:""}${dO?`<i class="d dr">${tr("出","Out ")}${sgn(dO)}</i>`:""}</div>`}).join("");
   $("#trV").insertAdjacentHTML("beforeend",doc.clips.concat([null]).map((c,i)=>{const prev=doc.clips[i-1],x=(c?L.map[c.id].start:L.total)*ppf;
@@ -863,7 +864,7 @@ function updatePreview(L){
   $("#cutFlag").textContent=k===0?tr("剪接點：入","Cut: in"):tr("剪接點：出","Cut: out");
   if(!videoURL){$("#ph").style.setProperty("--c",clipColor(c,i));$("#phName").textContent=c.ins?`${c.name}｜${insKind(c)}`:c.name;$("#warn").hidden=true;return}
   $("#warn").textContent=c.ins?tr(`這裡要插入新片段（${insKind(c)}）。`,`A new segment goes here (${insKind(c)}).`):tr("這一格不在目前的成片裡（鏡頭被你延長了）。照常標記即可，Claude 會用素材重新輸出。","This frame is not in the current cut because you extended the clip. Mark it as usual; Claude will re-render it from the source.");
-  const o=layout(orig).map[c.id];let ok=false,of=0;
+  const o=layout(orig).map[rootId(c)];let ok=false,of=0;
   if(o&&srcF>=o.c.in&&srcF<o.c.out){ok=true;of=o.start+(srcF-o.c.in)}
   $("#warn").hidden=ok;
   if(!ok){syncClip=null;if(!video.paused)video.pause();return}
