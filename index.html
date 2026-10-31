@@ -417,6 +417,22 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
 :lang(en) .row{grid-template-columns:58px 1fr}
 :lang(en) .steps li::before{content:counter(s)}
 :lang(en) .ph .nm{letter-spacing:.01em}
+.ico{width:14px;height:14px;flex:none;fill:none!important;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.acts .btn{gap:5px}
+.clip.ins{border-style:dashed;border-top-style:dashed;border-color:var(--ac);background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ac) 14%,var(--sheet)) 0 6px,var(--sheet) 6px 12px)}
+.clip.ins .h.l{display:none!important}
+.clip .ext{position:absolute;top:0;bottom:0;pointer-events:none;background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ac2) 32%,transparent) 0 4px,transparent 4px 8px)}
+.clip .ext.l{left:0}.clip .ext.r{right:0}
+.clip.moving{opacity:.45}
+.dropline{position:absolute;top:0;bottom:0;width:3px;margin-left:calc(var(--tlp,10px) - 1.5px);border-radius:2px;background:var(--ac);z-index:7;pointer-events:none}
+.ins-j{position:absolute;bottom:1px;width:26px;height:26px;margin-left:calc(var(--tlp,10px) - 13px);padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--ac);background:var(--sheet);color:var(--ac);z-index:4;font-size:16px;line-height:1}
+.ins-j:hover{background:var(--ac);color:var(--onac)}
+.seg2{display:inline-flex;gap:4px;flex-wrap:wrap}
+.seg2 button{background:var(--well);border:0;border-radius:8px;padding:0 10px;min-height:32px;color:var(--sub)}
+.seg2 button[aria-pressed=true]{background:var(--ac);color:var(--onac)}
+@media (max-width:760px),(max-height:500px) and (pointer:coarse){.clip.sel{touch-action:none}.ins-j{bottom:3px}.seg2 button{min-height:44px}}
+@media (max-width:400px){.tools button{font-size:10.5px}}
 @media (max-width:359px){.brand p{font-size:11px;letter-spacing:-.02em}.logo{display:none}#undoBtn,#redoBtn{width:36px}.ib{width:38px}.transport .tc{width:60px}.seg button{min-width:50px}}
 </style>
 </head><body>
@@ -458,6 +474,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
     </div>
     <button class="btn shu" data-t="mark" title="在播放頭加特效 (M)" data-en-title="Add effect at playhead (M)" data-en="＋ Add effect">＋ 加特效</button>
     <button class="btn" data-t="caption" data-en="＋ Add caption">＋ 加字幕</button>
+    <button class="btn" data-t="insert" title="在最近的剪接點插入新片段" data-en-title="Insert a new segment at the nearest cut" data-en="＋ Insert">＋ 插入片段</button>
     <div class="spacer"></div>
     <div class="zoom"><label for="zoom" data-en="Zoom">縮放</label><input type="range" id="zoom" min="0" max="100" step="1"><button class="btn sm" data-t="fit" data-en="Fit">全覽</button></div>
   </div>
@@ -478,6 +495,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   <nav class="tools only-m" aria-label="工具" data-en-aria-label="Tools">
     <button data-t="mark"><svg viewBox="0 0 24 24"><path d="M12 3l2 5.5L19.5 10 14 12l-2 6-2-6-5.5-2L10 8.5zM19 16v5M16.5 18.5h5"/></svg><span data-en="Effect">特效</span></button>
     <button data-t="caption"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zM7 11h4M13 11h4M7 14.5h7"/></svg><span data-en="Caption">字幕</span></button>
+    <button data-t="insert" aria-label="插入新片段" data-en-aria-label="Insert a new segment"><svg viewBox="0 0 24 24"><path d="M4 5h6v14H4zM14 5h6v14h-6zM12 2v20"/></svg><span data-en="Insert">插入</span></button>
     <button data-sheet="log"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"/></svg><span data-en="Changes">清單</span><span class="n" id="logN2" hidden></span></button>
     <button data-sheet="in"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M4 20h16"/></svg><span data-en="Import">匯入</span></button>
     <button data-sheet="out"><svg viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M4 20h16"/></svg><span data-en="Export">匯出</span></button>
@@ -556,7 +574,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
       </div>
     </div>
     <div class="tp" data-panel="keys" hidden>
-      <ol class="mhelp only-m"><li data-en="Swipe the timeline to move through the video; the center line marks the current frame. Pinch to zoom.">左右滑時間軸移動畫面，中間的線就是目前這一格；雙指開合可以縮放。</li><li data-en="Tap a clip, then drag its handles to trim, or use ±1 and ±5 below to adjust the in and out points frame by frame.">點鏡頭後拖把手修剪，或在下方用 ±1、±5 逐格調入點和出點。</li><li data-en="Stop on the frame you want and tap Effect to pick one, or Caption to type. Tap a caption on the timeline or preview to edit it.">停在想要的格子按「特效」挑效果，或按「字幕」直接打字。點時間軸或畫面上的字幕就能修改。</li><li data-en="Tap Copy at the top right and paste it back into your chat, or use Export to send it to an editor.">按右上「複製給 Claude」，貼回對話就好；也可以到「匯出」輸出給剪輯軟體。</li></ol>
+      <ol class="mhelp only-m"><li data-en="Swipe the timeline to move through the video; the center line marks the current frame. Pinch to zoom.">左右滑時間軸移動畫面，中間的線就是目前這一格；雙指開合可以縮放。</li><li data-en="Tap a clip, then drag its handles to trim, or use ±1 and ±5 below to adjust the in and out points frame by frame.">點鏡頭後拖把手修剪，或在下方用 ±1、±5 逐格調入點和出點。</li><li data-en="Stop on the frame you want and tap Effect to pick one, or Caption to type. Tap a caption on the timeline or preview to edit it.">停在想要的格子按「特效」挑效果，或按「字幕」直接打字。點時間軸或畫面上的字幕就能修改。</li><li data-en="Tap a clip, then drag it to reorder. Use ＋ between clips to insert a segment, and Delete frame, Split or Replace in the panel for frame edits. Press and hold any button to see what it does.">點鏡頭後按住拖曳可調整順序；鏡頭之間的＋可插入片段；面板裡有刪這格、分割和換畫面。按住任何按鈕可看它的功能。</li><li data-en="Tap Copy at the top right and paste it back into your chat, or use Export to send it to an editor.">按右上「複製給 Claude」，貼回對話就好；也可以到「匯出」輸出給剪輯軟體。</li></ol>
       <p class="mnote only-m" data-en="Public beta. FCPXML and EDL have not been verified in real editors, and phone gestures are still being tested on devices. Koma is an independent open tool, not an official Anthropic product.">公開測試版。FCPXML 與 EDL 尚未經真實剪輯軟體驗證，手機觸控手勢尚在實機驗證中。Koma 是獨立的開放工具，非 Anthropic 官方產品。</p>
       <dl class="keys only-d">
         <dt><kbd data-en="Space">空白鍵</kbd></dt><dd data-en="Play / pause">播放 / 暫停</dd>
@@ -565,8 +583,10 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
         <dt><kbd>M</kbd></dt><dd data-en="Add an effect at the playhead">在播放頭加特效</dd>
         <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd data-en="Set the selected clip's in / out point at the playhead">把選取鏡頭的入點 / 出點設在播放頭</dd>
         <dt><kbd>Delete</kbd></dt><dd data-en="Delete the selected effect">刪除選取的特效</dd>
+        <dt><kbd>X</kbd></dt><dd data-en="Delete the frame at the playhead">刪除播放頭這一格</dd>
+        <dt><kbd>S</kbd></dt><dd data-en="Split the clip at the playhead">在播放頭分割鏡頭</dd>
         <dt><kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd></dt><dd data-en="Undo (<kbd>Shift</kbd> to redo)">復原（加 <kbd>Shift</kbd> 重做）</dd>
-        <dt data-en="Drag">拖曳</dt><dd data-en="Clip edges trim in and out (later clips shift along); effect markers move; the time ruler scrubs; double-click the effect track to add an effect.">鏡頭兩側的邊＝修剪入出點（後面鏡頭自動順移）；拖特效標記＝移動位置；拖上方時間列＝快速瀏覽；在特效軌雙擊＝新增特效</dd>
+        <dt data-en="Drag">拖曳</dt><dd data-en="Clip edges trim in and out; drag a clip body to reorder; effect markers move; the time ruler scrubs; ＋ between clips inserts a segment.">鏡頭兩側的邊＝修剪入出點（後面鏡頭自動順移）；拖鏡頭中間＝調整順序；拖特效標記＝移動位置；拖上方時間列＝快速瀏覽；鏡頭之間的＋＝插入片段；在特效軌雙擊＝新增特效</dd>
       </dl>
     </div>
   </div>
@@ -616,6 +636,7 @@ const FX=[
  {k:"trans",lz:"轉場",le:"Transition",c:"#7d9a7e",dz:"切到下一個畫面的方式，例如劃、溶、推。",de:"How to move to the next shot, such as a wipe, dissolve or push."},
  {k:"grade",lz:"調色",le:"Color grade",c:"#a8809d",dz:"這段改變色調或氛圍。",de:"Changes the color or mood of this section."},
  {k:"sfx",lz:"音效點",le:"Sound effect",c:"#9a8768",dz:"這裡要放音效，或讓畫面對準某個聲音。",de:"Place a sound here, or line the picture up with a sound."},
+ {k:"swap",lz:"換畫面",le:"Replace shot",c:"#c0705f",dz:"從這一格起換成別的畫面，其他地方不動。",de:"Replace the picture from this frame on and leave everything else alone."},
  {k:"other",lz:"其他",le:"Other",c:"#8e9096",dz:"其他想法，請在下面寫清楚。",de:"Anything else; describe it clearly below."}].map(f=>({...f,get l(){return tr(f.lz,f.le)},get d(){return tr(f.dz,f.de)}}));
 const PAL=["#93a79e","#a9c6d6","#a7a0b6","#b7ab8c","#b69d9d","#8ea6a6","#a3ac93","#b49f91"];
 const KEY="koma:v1";
@@ -652,7 +673,7 @@ function normalize(d){
   const seen=new Set();
   o.clips=d.clips.map((c,i)=>{let id=String(c.id??("c"+(i+1)));while(seen.has(id))id+="_"+i;seen.add(id);
     const r={id,name:String(c.name||(tr("鏡頭 ","Clip ")+(i+1))),src:String(c.src||""),in:Math.max(0,int(c.in)),out:int(c.out),note:String(c.note||"")};
-    if(int(c.srcDuration)>0)r.srcDuration=int(c.srcDuration);return r}).filter(c=>c.out>c.in);
+    if(int(c.srcDuration)>0)r.srcDuration=int(c.srcDuration);if(c.from)r.from=String(c.from);if(c.ins)r.ins=c.ins==="footage"?"footage":"gen";return r}).filter(c=>c.out>c.in);
   if(!o.clips.length) throw new Error(tr("沒有有效的鏡頭（out 要大於 in）","No valid clips (out must be greater than in)"));
   if(o.clips.reduce((a,c)=>a+c.out-c.in,0)>MAXTOTAL) throw new Error(tr(`時間軸太長，上限是 ${MAXTOTAL} 格`,`Timeline too long; the limit is ${MAXTOTAL} frames`));
   if(o.clips.length<d.clips.length)normWarn.push(tr(`略過 ${d.clips.length-o.clips.length} 個無效鏡頭`,`Skipped ${d.clips.length-o.clips.length} invalid clips`));
@@ -669,7 +690,9 @@ function normalize(d){
 function layout(d){let s=0;const map=Object.create(null);d.clips.forEach((c,i)=>{map[c.id]={c,i,start:s};s+=c.out-c.in});return{map,total:s}}
 function clipAt(f,L){for(const id in L.map){const e=L.map[id];if(f>=e.start&&f<e.start+e.c.out-e.c.in)return e}return null}
 function markerFrame(m,L){const e=L.map[m.clip];if(!e)return null;return e.start+clamp(m.at,0,e.c.out-e.c.in-1)}
-function clipColor(c,i){const oi=orig.clips.findIndex(x=>x.id===c.id);return PAL[(oi<0?i:oi)%PAL.length]}
+const rootId=c=>c.from&&orig.clips.some(x=>x.id===c.from)?c.from:c.id;
+const insKind=c=>c.ins==="footage"?tr("我會提供素材","I will supply footage"):tr("請 Claude 製作","Claude makes it");
+function clipColor(c,i){const oi=orig.clips.findIndex(x=>x.id===rootId(c));return PAL[(oi<0?i:oi)%PAL.length]}
 function total(){return layout(doc).total}
 
 function load(data,draftDoc){
@@ -734,6 +757,7 @@ function thumb(k){
   else if(k==="slow")x='<div class="fo"><i class="ball g2"></i><i class="ball g1"></i><i class="ball"></i></div><span class="tag">×0.5</span>';
   else if(k==="ramp")x='<div class="fo"><i class="ball"></i></div><span class="tag">'+tr("快·慢·快","fast·slow·fast")+'</span>';
   else if(k==="text")x='<div class="fo"><span class="cap">'+tr("夜行","Night")+'</span></div>';
+  else if(k==="swap")x='<span class="tag">⇄</span>';
   else if(k==="sfx")x='<div class="fo">'+[0,1,2,3,4,5,6].map(i=>`<i style="--i:${i}"></i>`).join("")+'</div>';
   else if(k==="other")x='<div class="fo"><i style="left:18%;top:20%">✦</i><i style="left:62%;top:44%;animation-delay:-.6s">✦</i><i style="left:36%;top:58%;animation-delay:-1.1s">✦</i></div>';
   return `<div class="fxv fx-${k}" aria-hidden="true"><div class="sc">${SCN}</div>${x}</div>`;
@@ -757,9 +781,12 @@ function renderTimeline(){
   const R=$("#ruler");R.innerHTML=h;R.style.backgroundSize=ppf>=5?`${ppf}px 6px`:"0 0";
   $("#trV").innerHTML=doc.clips.map((c,i)=>{
     const e=L.map[c.id],o=OL.map[c.id]?.c,dI=o?c.in-o.in:0,dO=o?c.out-o.out:0,isSel=sel?.kind==="clip"&&sel.id===c.id;
-    return `<div class="clip${isSel?" sel":""}${dI||dO?" mod":""}${(c.out-c.in)*ppf<46?" tiny":""}" data-id="${esc(c.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(tr(`鏡頭 ${pad(i+1)} ${c.name}，${c.out-c.in} 格`,`Clip ${pad(i+1)} ${c.name}, ${c.out-c.in} frames`))}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
-      <div class="h l" data-edge="in" title="${tr("拖曳修剪入點","Drag to trim the in point")}"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${c.out-c.in}f · ${esc(c.src)}</em></div><div class="h r" data-edge="out" title="${tr("拖曳修剪出點","Drag to trim the out point")}"></div>
+    return `<div class="clip${isSel?" sel":""}${c.ins?" ins":""}${dI||dO?" mod":""}${(c.out-c.in)*ppf<46?" tiny":""}" data-id="${esc(c.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(tr(`鏡頭 ${pad(i+1)} ${c.name}，${c.out-c.in} 格`,`Clip ${pad(i+1)} ${c.name}, ${c.out-c.in} frames`))}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
+      <div class="h l" data-edge="in" title="${tr("拖曳修剪入點","Drag to trim the in point")}"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${c.out-c.in}f · ${esc(c.ins?insKind(c):c.src)}</em></div>${dI<0?`<i class="ext l" style="width:${-dI*ppf}px"></i>`:""}${dO>0?`<i class="ext r" style="width:${dO*ppf}px"></i>`:""}<div class="h r" data-edge="out" title="${tr("拖曳修剪出點","Drag to trim the out point")}"></div>
       ${dI?`<i class="d dl">${tr("入","In ")}${sgn(dI)}</i>`:""}${dO?`<i class="d dr">${tr("出","Out ")}${sgn(dO)}</i>`:""}</div>`}).join("");
+  $("#trV").insertAdjacentHTML("beforeend",doc.clips.concat([null]).map((c,i)=>{const prev=doc.clips[i-1],x=(c?L.map[c.id].start:L.total)*ppf;
+    if((c&&(c.out-c.in)*ppf<40)||(prev&&(prev.out-prev.in)*ppf<40)||(sel?.kind==="clip"&&(sel.id===c?.id||sel.id===prev?.id)))return"";
+    return `<button class="ins-j" data-at="${i}" style="left:${x}px" aria-label="${tr("在這裡插入新片段","Insert a new segment here")}" title="${tr("在這裡插入新片段","Insert a new segment here")}">＋</button>`}).join(""));
   $("#trF").innerHTML=doc.markers.map(m=>{const f=markerFrame(m,L);if(f==null)return"";const fx=fxOf(m.type),isSel=sel?.kind==="mk"&&sel.id===m.id;
     return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(m.type==="text"?tr(`字幕 ${capText(m)||"未輸入"}，${tc(f)}，點一下編輯`,`Caption ${capText(m)||"empty"}, ${tc(f)}, tap to edit`):tr(`特效 ${fx.l}，${tc(f)}`,`Effect ${fx.l}, ${tc(f)}`))}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?tr("：",": ")+m.note:""))}"><i></i><span>${esc(m.type==="text"&&capText(m)?capText(m).slice(0,14):fx.l)}</span></div>`}).join("");
   updatePlayhead();
@@ -797,7 +824,8 @@ function updatePreview(L){
   $("#ovSrc").textContent=`${c.src||tr("素材","source")} @ ${srcF}`;
   $("#cutFlag").hidden=!(k===0||k===c.out-c.in-1);
   $("#cutFlag").textContent=k===0?tr("剪接點：入","Cut: in"):tr("剪接點：出","Cut: out");
-  if(!videoURL){$("#ph").style.setProperty("--c",clipColor(c,i));$("#phName").textContent=c.name;$("#warn").hidden=true;return}
+  if(!videoURL){$("#ph").style.setProperty("--c",clipColor(c,i));$("#phName").textContent=c.ins?`${c.name}｜${insKind(c)}`:c.name;$("#warn").hidden=true;return}
+  $("#warn").textContent=c.ins?tr(`這裡要插入新片段（${insKind(c)}）。`,`A new segment goes here (${insKind(c)}).`):tr("這一格不在目前的成片裡（鏡頭被你延長了）。照常標記即可，Claude 會用素材重新輸出。","This frame is not in the current cut because you extended the clip. Mark it as usual; Claude will re-render it from the source.");
   const o=layout(orig).map[c.id];let ok=false,of=0;
   if(o&&srcF>=o.c.in&&srcF<o.c.out){ok=true;of=o.start+(srcF-o.c.in)}
   $("#warn").hidden=ok;
@@ -811,12 +839,26 @@ function nudgeRow(lb,key,v,o){const d=o==null?0:v-o;return `<div class="lb">${lb
   <button class="nb" data-a="${key}:-5" aria-label="${tr(`${lb}往前 5 格`,`${lb} 5 frames earlier`)}">−5</button><button class="nb" data-a="${key}:-1" aria-label="${tr(`${lb}往前 1 格`,`${lb} 1 frame earlier`)}">−1</button><span class="v"><span class="only-m vu">${tr("素材第 ","frame ")}</span>${v}<span class="only-m vu">${tr(" 格","")}</span></span><button class="nb" data-a="${key}:1" aria-label="${tr(`${lb}往後 1 格`,`${lb} 1 frame later`)}">+1</button><button class="nb" data-a="${key}:5" aria-label="${tr(`${lb}往後 5 格`,`${lb} 5 frames later`)}">+5</button></div>
   <div class="delta${d?" on":""}">${o==null?tr("新項目","New"):d?tr(`原本 ${o}，${d>0?"晚":"早"} ${Math.abs(d)} 格`,`Was ${o}, ${Math.abs(d)} frames ${d>0?"later":"earlier"}`):tr("未修改","Unchanged")}</div>`}
 function overMedia(c){return c.srcDuration&&c.out>c.srcDuration?`<p class="msg err">${tr(`超出素材長度 ${c.out-c.srcDuration} 格，Claude 可能沒有這段畫面。`,`${c.out-c.srcDuration} frames past the source length; Claude may not have this footage.`)}</p>`:""}
+const ICONS={left:"M15 5l-7 7 7 7",right:"M9 5l7 7-7 7",check:"M5 12l5 5 9-10",x:"M6 6l12 12M18 6L6 18",undo:"M9 7L4 12l5 5M4 12h11a5 5 0 0 1 0 10h-3",trash:"M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13",scissors:"M6 6l12 12M18 6L6 18M6 3v6M18 15v6",split:"M12 3v18M4 7h5v10H4M20 7h-5v10h5",swap:"M4 8h13l-3-3M20 16H7l3 3",plus:"M12 5v14M5 12h14",edit:"M4 20h4L19 9l-4-4L4 16zM13 7l4 4",in:"M6 4v16M10 12h10M15 7l5 5-5 5",out:"M18 4v16M14 12H4M9 7l-5 5 5 5",copy:"M8 8h12v12H8zM4 16V4h12",file:"M6 3h9l4 4v14H6zM14 3v5h5",load:"M12 4v11M7 11l5 4 5-4M4 20h16",reset:"M4 5v6h6M5 11a8 8 0 1 1 1 6",fit:"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"};
+const ic=n=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`;
+const act=(a,icon,label,cls="btn sm")=>`<button class="${cls}" data-a="${a}">${ic(icon)}<span>${label}</span></button>`;
 function renderInspector(){
   const el=$("#insp");
   document.body.classList.toggle("hassel",!!sel);el.classList.remove("noting");const wasTyping=document.body.classList.contains("typing");document.body.classList.remove("typing");if(wasTyping&&isM()){scroll.scrollLeft=playhead*ppf;tlExpect=scroll.scrollLeft}el.dataset.edge=nudgeEdge;
   if(sel?.kind==="clip"){
     const i=doc.clips.findIndex(c=>c.id===sel.id),c=doc.clips[i];if(!c){sel=null;return renderInspector()}
     const o=orig.clips.find(x=>x.id===c.id),dd=o?(c.out-c.in)-(o.out-o.in):0;
+    const moves=`${act("mv:-1","left",tr("往前移","Move earlier"))}${act("mv:1","right",tr("往後移","Move later"))}`;
+    if(c.ins){
+      el.innerHTML=`<div class="eyebrow">${tr("新片段","New segment")}</div><h3>${esc(c.name)}</h3>
+      <div class="notehead only-m">${tr("新片段","New segment")} ${pad(i+1)} · ${tr("說明這一段要放什麼","Describe what goes here")}</div>
+      <div class="capdur"><span class="seg2" role="group" aria-label="${tr("素材來源","Footage source")}"><button data-a="kind:gen" aria-pressed="${c.ins!=="footage"}">${tr("請 Claude 製作","Claude makes it")}</button><button data-a="kind:footage" aria-pressed="${c.ins==="footage"}">${tr("我提供素材","I supply it")}</button></span><span class="cdg"><span>${tr("長度","Length")}</span><button class="nb" data-a="len:-1" aria-label="${tr("短半秒","Half a second shorter")}">−</button><span class="mono">${durText(c.out-c.in)}</span><button class="nb" data-a="len:1" aria-label="${tr("長半秒","Half a second longer")}">＋</button></span></div>
+      <label class="help fieldlab" for="clipNote">${tr("這段要放什麼","What goes here")}</label>
+      <textarea id="clipNote" placeholder="${tr("例：加一段城市空拍，黃昏色調","e.g. An aerial city shot in dusk tones")}">${esc(c.note)}</textarea>
+      <div class="acts">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("note","edit",tr("編輯說明","Edit note"),"btn sm only-m")}${moves}${act("delclip","trash",tr("刪除片段","Delete segment"),"btn sm ghost")}</div>`;
+      noteEditor($("#clipNote"),v=>{c.note=v});
+      return;
+    }
     el.innerHTML=`<div class="eyebrow">${tr("鏡頭","Clip")}</div>
       <div><span class="chip" style="--c:${clipColor(c,i)}">${tr("鏡頭","Clip")} ${pad(i+1)}</span></div>
       <h3>${esc(c.name)}</h3><div class="src">${esc(c.src||tr("（未標示素材）","(no source listed)"))}</div>
@@ -826,7 +868,7 @@ function renderInspector(){
       ${overMedia(c)}<p class="help">${tr("數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。","Numbers are source frames. ＋ moves later, − moves earlier. Later clips shift automatically.")}</p>
       <label class="help" for="clipNote">${tr("給 Claude 的備註","Note for Claude")}</label>
       <textarea id="clipNote" placeholder="${tr("例：這顆鏡頭調色再冷一點","e.g. Make this shot's grade a bit cooler")}">${esc(c.note)}</textarea>
-      <div class="acts"><button class="btn sm only-m" data-a="close">${tr("完成","Done")}</button><button class="btn sm only-land" data-a="undo">${tr("復原","Undo")}</button><button class="btn sm only-m" data-a="cancelnote">${tr("取消","Cancel")}</button><button class="btn sm only-m" data-a="note">${tr("備註","Note")}${c.note?" ●":""}</button><button class="btn sm" data-a="go:in">${tr("跳到入點","Go to in")}</button><button class="btn sm" data-a="go:out">${tr("跳到出點","Go to out")}</button><button class="btn sm ghost" data-a="delclip">${tr("刪除鏡頭","Delete clip")}</button></div>`;
+      <div class="acts">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("undo","undo",tr("復原","Undo"),"btn sm only-land")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${moves}${act("delf","scissors",tr("刪這格","Delete frame"))}${act("split","split",tr("分割","Split"))}${act("swap","swap",tr("換畫面","Replace"))}${act("ins:0","plus",tr("前面插入","Insert before"))}${act("ins:1","plus",tr("後面插入","Insert after"))}${act("note","edit",tr("備註","Note")+(c.note?" ●":""),"btn sm only-m")}${act("go:in","in",tr("跳到入點","Go to in"))}${act("go:out","out",tr("跳到出點","Go to out"))}${act("delclip","trash",tr("刪除鏡頭","Delete clip"),"btn sm ghost")}</div>`;
     noteEditor($("#clipNote"),v=>{c.note=v});
   }else if(sel?.kind==="mk"){
     const m=doc.markers.find(x=>x.id===sel.id);if(!m){sel=null;return renderInspector()}
@@ -838,13 +880,13 @@ function renderInspector(){
       <div class="delta${om?"":" on"}">${om?tr(`Claude 原本放的${kindL}`,`${kindL} placed by Claude`):tr(`你新增的${kindL}`,`${kindL} you added`)}</div></div>
       <div class="eyebrow">${isCap?tr("改成特效","Change to effect"):tr("換一種特效","Change effect")}</div>
       <div class="fxgrid" role="group" aria-label="${tr("特效種類","Effect type")}">${FX.map(x=>`<button class="fxt" data-fx="${x.k}" aria-pressed="${x.k===m.type}" style="--fxc:${x.c}">${thumb(x.k)}<span>${x.l}</span></button>`).join("")}</div>
-      ${isCap?`<div class="capdur"><span class="cdg"><span>${tr("起點","Start")}</span><button class="nb" data-a="mk:-1" aria-label="${tr("字幕早 1 格","Caption 1 frame earlier")}">−1</button><button class="nb" data-a="mk:1" aria-label="${tr("字幕晚 1 格","Caption 1 frame later")}">+1</button></span><span class="cdg"><span>${tr("顯示","Show")}</span><button class="nb" data-a="dur:-1" aria-label="${tr("顯示短半秒","Half a second shorter")}">−</button><span class="mono" id="capDurV">${durText(capDur(m))}</span><button class="nb" data-a="dur:1" aria-label="${tr("顯示長半秒","Half a second longer")}">＋</button></span><span id="capCut" class="msg">${capCutText(m)}</span></div>`:""}
-      <label class="help fieldlab" for="mkNote">${isCap?tr("字幕內容","Caption text"):tr("想要的效果（越具體越好）","What you want (the more specific the better)")}</label>
+      ${m.type==="swap"?`<div class="capdur"><span class="cdg"><span>${tr("要換幾格","Frames to replace")}</span><button class="nb" data-a="dur:-1" aria-label="${tr("少 1 格","1 frame fewer")}">−</button><span class="mono" id="capDurV">${m.dur||1}</span><button class="nb" data-a="dur:1" aria-label="${tr("多 1 格","1 frame more")}">＋</button></span></div>`:""}${isCap?`<div class="capdur"><span class="cdg"><span>${tr("起點","Start")}</span><button class="nb" data-a="mk:-1" aria-label="${tr("字幕早 1 格","Caption 1 frame earlier")}">−1</button><button class="nb" data-a="mk:1" aria-label="${tr("字幕晚 1 格","Caption 1 frame later")}">+1</button></span><span class="cdg"><span>${tr("顯示","Show")}</span><button class="nb" data-a="dur:-1" aria-label="${tr("顯示短半秒","Half a second shorter")}">−</button><span class="mono" id="capDurV">${durText(capDur(m))}</span><button class="nb" data-a="dur:1" aria-label="${tr("顯示長半秒","Half a second longer")}">＋</button></span><span id="capCut" class="msg">${capCutText(m)}</span></div>`:""}
+      <label class="help fieldlab" for="mkNote">${isCap?tr("字幕內容","Caption text"):m.type==="swap"?tr("要換成什麼畫面","What should it show instead"):tr("想要的效果（越具體越好）","What you want (the more specific the better)")}</label>
       <textarea id="mkNote" placeholder="${isCap?tr("輸入要出現的文字","Type the text to show"):tr("例：抖 6 格、強度中等，配合鼓點","e.g. Shake for 6 frames, medium strength, on the drum hit")}">${esc(isCap?m.text||"":m.note)}</textarea>
       ${isCap?`<div class="prodwrap${m.note.trim()?"":" empty"}"><label class="help fieldlab" for="mkProd">${tr("給 Claude 的製作說明（選填）","Production note for Claude (optional)")}</label><input type="text" class="prod" id="mkProd" value="${esc(m.note)}" placeholder="${tr("例：淡入、白字置中","e.g. Fade in, centered white text")}"></div>`:""}
       <div class="acts"><button class="btn sm only-m" data-a="close">${tr("完成","Done")}</button><button class="btn sm only-land" data-a="undo">${tr("復原","Undo")}</button>${isCap&&m.note.trim()&&!capText(m)?`<button class="btn sm" data-a="usenote">${tr("用說明當字幕","Use note as caption")}</button>`:""}<button class="btn sm only-m" data-a="cancelnote">${tr("取消","Cancel")}</button><button class="btn sm only-m" data-a="note">${isCap?tr("編輯字幕","Edit caption"):tr("備註","Note")}${(isCap?capText(m):m.note)?" ●":""}</button><button class="btn sm" data-a="go:mk">${tr("跳到這裡","Go here")}</button><button class="btn sm ghost" data-a="delmk">${isCap?tr("刪除字幕","Delete caption"):tr("刪除特效","Delete effect")}</button></div>`;
     if($("#mkProd"))noteEditor($("#mkProd"),v=>{m.note=v});
-    if(isM()&&m.type==="text"){el.classList.add("noting");document.body.classList.add("typing")}
+    if(isM()&&(m.type==="text"||m.type==="swap")){el.classList.add("noting");document.body.classList.add("typing")}
     noteEditor($("#mkNote"),v=>{if(m.type==="text"){m.text=v;badgeKey="";renderTimeline();$("#capCut").textContent=capCutText(m)}else m.note=v});
   }else{
     el.innerHTML=`<div class="eyebrow">${tr("使用方式","How to use")}</div><ol class="steps">
@@ -854,27 +896,59 @@ function renderInspector(){
       <p class="help">${orig.sample?tr("現在是範例時間軸。把 Claude 給的影片和時間軸檔拖進頁面就能開始。","This is a sample timeline. Drop in the video and timeline file from Claude to begin."):tr("修改會自動暫存在這台裝置的瀏覽器。","Changes are saved automatically in this device's browser.")}</p>`;
   }
 }
+/* frames that were not in the cut: Claude has to fetch them, so say which ones and how they should fit */
+function extendText(o,a,b){const parts=[];if(a<o.in)parts.push(tr(`開頭多 ${o.in-a} 格（素材格 ${a}–${o.in-1}）`,`${o.in-a} frames at the start (source frames ${a}–${o.in-1})`));if(b>o.out)parts.push(tr(`結尾多 ${b-o.out} 格（素材格 ${o.out}–${b-1}）`,`${b-o.out} frames at the end (source frames ${o.out}–${b-1})`));
+  if(!parts.length)return "";const sec=((Math.max(0,o.in-a)+Math.max(0,b-o.out))/fps).toFixed(2),src=o.src||tr("原素材","the source");
+  return tr(`延長提醒：${parts.join("、")}，共 ${sec} 秒，目前成片沒有這段。請從 ${src} 取出，沿用這個鏡頭原本的調色、字幕、音樂節奏與轉場，並和前後鏡頭接順`,`Extension: ${parts.join(" and ")}, ${sec}s total, not in the current cut. Pull it from ${src}, match this shot's existing grade, captions, music timing and transitions, and blend it with the neighboring clips`)}
+function pieceReport(o,pcs){const r=[],gaps=[];let cur=o.in;pcs.forEach(c=>{if(c.in>cur)gaps.push([cur,Math.min(c.in,o.out)]);cur=Math.max(cur,c.out)});if(cur<o.out)gaps.push([cur,o.out]);
+  r.push(tr(`拆成 ${pcs.length} 段，保留素材格 ${pcs.map(c=>`${c.in}–${c.out-1}`).join("、")}`,`keep ${pcs.length} parts, source frames ${pcs.map(c=>`${c.in}–${c.out-1}`).join(", ")}`));
+  if(gaps.length)r.push(tr(`刪除素材格 ${gaps.map(g=>`${g[0]}–${g[1]-1}`).join("、")}（共 ${gaps.reduce((a,g)=>a+g[1]-g[0],0)} 格），前後直接接上`,`delete source frames ${gaps.map(g=>`${g[0]}–${g[1]-1}`).join(", ")} (${gaps.reduce((a,g)=>a+g[1]-g[0],0)} frames) and join what's left`));
+  const ex=extendText(o,pcs[0].in,pcs[pcs.length-1].out);if(ex)r.push(ex);
+  pcs.forEach(c=>{if(c.note.trim())r.push(tr(`素材格 ${c.in}–${c.out-1} 備註：${c.note.trim()}`,`note on source frames ${c.in}–${c.out-1}: ${c.note.trim()}`))});return r}
+function clipLabel(c){if(c.ins)return tr(`「${c.name}」`,`"${c.name}"`);const oi=orig.clips.findIndex(x=>x.id===rootId(c)),split=doc.clips.filter(x=>rootId(x)===rootId(c)).length>1,no=pad(oi+1);
+  return tr(`鏡頭 ${no}「${c.name}」`,`clip ${no} "${c.name}"`)+(split?tr(`（素材格 ${c.in}–${c.out-1}）`,` (source frames ${c.in}–${c.out-1})`):"")}
+/* the smallest set of moved clips: everything on the longest run already in order stays put */
+function movedClips(){const list=doc.clips.filter(c=>!c.ins),rank=c=>[orig.clips.findIndex(x=>x.id===rootId(c)),c.in],lt=(a,b)=>a[0]<b[0]||(a[0]===b[0]&&a[1]<b[1]),r=list.map(rank);
+  const tails=[],prev=new Array(list.length).fill(-1);
+  r.forEach((v,i)=>{let lo=0,hi=tails.length;while(lo<hi){const mid=(lo+hi)>>1;if(lt(r[tails[mid]],v))lo=mid+1;else hi=mid}if(lo)prev[i]=tails[lo-1];tails[lo]=i});
+  const keep=new Set();for(let i=tails.length?tails[tails.length-1]:-1;i>=0;i=prev[i])keep.add(i);return list.filter((c,i)=>!keep.has(i))}
+function moveLine(c){const i=doc.clips.indexOf(c),L=layout(doc),ms=doc.markers.filter(m=>m.clip===c.id),caps=ms.filter(m=>m.type==="text"&&capText(m)).map(m=>tr(`「${capText(m)}」→ ${tc(markerFrame(m,L))}`,`"${capText(m)}" → ${tc(markerFrame(m,L))}`)),fx=ms.length-caps.length;
+  const go=i?tr(`移到${clipLabel(doc.clips[i-1])}後面`,`after ${clipLabel(doc.clips[i-1])}`):tr("移到最前面","to the very start");
+  return tr(`調整順序：把${clipLabel(c)}${go}`,`Reorder: move ${clipLabel(c)} ${go}`)+(ms.length?tr(`，上面的字幕和特效一起移動${caps.length?`（字幕新時間 ${caps.join("、")}）`:""}`,`, with its captions and effects${caps.length?` (new caption times ${caps.join(", ")})`:""}`):"")+tr("。",".")}
+function insertLine(c){const i=doc.clips.indexOf(c),a=doc.clips[i-1],b=doc.clips[i+1],n=c.out-c.in,t=(n/fps).toFixed(2),L=layout(doc),st=tc(L.map[c.id].start),pos=a&&b?tr(`在${clipLabel(a)}和${clipLabel(b)}之間`,`between ${clipLabel(a)} and ${clipLabel(b)}`):a?tr(`在${clipLabel(a)}後面（片尾）`,`after ${clipLabel(a)} (at the end)`):b?tr(`在${clipLabel(b)}前面（片頭）`,`before ${clipLabel(b)} (at the start)`):"";
+  const how=c.ins==="footage"?tr("我會提供這段素材，請先留位置並向我要檔案","I will supply this footage; hold the slot and ask me for the file"):tr("請你製作這段素材，風格要和前後鏡頭一致","please create this footage so it matches the neighboring clips");
+  return tr(`插入新片段：${pos}（成片 ${st}，${n} 格，${t} 秒）。${how}。內容：${c.note.trim()||"（未說明，請先問我）"}`,`Insert a new segment ${pos} (timeline ${st}, ${n} frames, ${t}s): ${how}. Content: ${c.note.trim()||"(not specified, ask me first)"}`)}
+function structureLines(){const mv=movedClips(),ins=doc.clips.filter(c=>c.ins&&!orig.clips.some(x=>x.id===c.id)),split=doc.clips.some(c=>c.from);
+  const out=[...mv.map(moveLine),...ins.map(insertLine)];
+  if(mv.length||ins.length||split)out.push(tr("完成後的順序：","Final order: ")+doc.clips.map(c=>c.ins?c.name:c.from?`${rootId(c)} (${c.in}–${c.out-1})`:doc.clips.some(x=>x.from===c.id)?`${c.id} (${c.in}–${c.out-1})`:c.id).join(" → "));
+  return out}
 const markName=o=>{const q=(o.text||"").trim();return o.type==="text"?tr(`字幕${q?`「${q}」`:""}`,`Caption${q?` "${q}"`:""}`):tr(`特效【${fxOf(o.type).l}】`,`Effect [${fxOf(o.type).l}]`)};
 function changes(){
   const out=[],L=layout(doc),OL=layout(orig);
   orig.clips.forEach((o,i)=>{
+    const pcs=doc.clips.filter(c=>rootId(c)===o.id).sort((a,b)=>a.in-b.in);
+    if(pcs.length>1||(pcs.length&&pcs[0].id!==o.id)){const r=pieceReport(o,pcs),lb=tr(`鏡頭 ${pad(i+1)}「${o.name}」`,`Clip ${pad(i+1)} "${o.name}" `)+`[${o.id}${o.src?" / "+o.src:""}]`;
+      out.push({t:`${lb}${tr("：",": ")}${r.join(tr("；","; "))}`});return}
     const n=doc.clips.find(c=>c.id===o.id),lab=tr(`鏡頭 ${pad(i+1)}「${o.name}」`,`Clip ${pad(i+1)} "${o.name}" `)+`[${o.id}${o.src?" / "+o.src:""}]`;
     if(!n){out.push({t:tr(`${lab}：整段刪除（原長 ${o.out-o.in} 格）`,`${lab}: delete entirely (was ${o.out-o.in} frames)`)});return}
     const p=[];
     if(n.in!==o.in){const d=n.in-o.in;p.push(tr(`入點${d>0?"晚":"早"} ${Math.abs(d)} 格（素材格 ${o.in}→${n.in}）`,`in point ${Math.abs(d)} frames ${d>0?"later":"earlier"} (source frame ${o.in}→${n.in})`))}
     if(n.out!==o.out){const d=n.out-o.out;p.push(tr(`出點${d>0?"晚":"早"} ${Math.abs(d)} 格（素材格 ${o.out}→${n.out}）`,`out point ${Math.abs(d)} frames ${d>0?"later":"earlier"} (source frame ${o.out}→${n.out})`))}
     if(n.srcDuration&&n.out>n.srcDuration)p.push(tr(`注意：超出素材長度 ${n.out-n.srcDuration} 格`,`warning: ${n.out-n.srcDuration} frames past the source length`));
+    const ex=extendText(o,n.in,n.out);if(ex)p.push(ex);
     if(n.note!==o.note)p.push(n.note.trim()?tr(`備註：${n.note.trim()}`,`note: ${n.note.trim()}`):tr("清除原有備註","clear the existing note"));
     if(p.length){const dd=(n.out-n.in)-(o.out-o.in);out.push({t:`${lab}${tr("：",": ")}${p.join(tr("；","; "))}${dd?tr(`。鏡頭長度 ${dd>0?"+":""}${dd} 格`,`. Clip length ${dd>0?"+":""}${dd} frames`):""}`})}
   });
-  const where=(m,LL)=>{const e=LL.map[m.clip];if(!e)return tr("（鏡頭已刪除）","(clip deleted)");const f=markerFrame(m,LL);return tr(`鏡頭 ${pad(e.i+1)}「${e.c.name}」第 ${f-e.start} 格（成片 ${tc(f)}）`,`clip ${pad(e.i+1)} "${e.c.name}" frame ${f-e.start} (timeline ${tc(f)})`)};
+  const where=(m,LL)=>{const e=LL.map[m.clip];if(!e)return tr("（鏡頭已刪除）","(clip deleted)");const f=markerFrame(m,LL);const oi=orig.clips.findIndex(x=>x.id===rootId(e.c)),no=pad((oi<0?e.i:oi)+1);return e.c.ins?tr(`${e.c.name} 第 ${f-e.start} 格（成片 ${tc(f)}）`,`${e.c.name} frame ${f-e.start} (timeline ${tc(f)})`):tr(`鏡頭 ${no}「${e.c.name}」第 ${f-e.start} 格（成片 ${tc(f)}）`,`clip ${no} "${e.c.name}" frame ${f-e.start} (timeline ${tc(f)})`)};
+  out.push(...structureLines().map(t=>({t})));
   doc.markers.forEach(m=>{
     const o=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type).l,note=m.note.trim()?`${tr("：",": ")}${m.note.trim()}`:"";
     if(!L.map[m.clip])return;
     const dl=m.type==="text"&&m.dur?tr(`（顯示 ${m.dur} 格）`,` (shown for ${m.dur} frames)`):"";
+    if(!o&&m.type==="swap"){const c=L.map[m.clip].c,n=m.dur||1,sf=c.in+clamp(m.at,0,c.out-c.in-1);out.push({t:tr(`換畫面：${where(m,L)}起 ${n} 格${c.src?`（${c.src} 素材格 ${sf}–${sf+n-1}）`:""}，只換這段，前後不動。要換成：${m.note.trim()||"（未說明，請先問我）"}`,`Replace shot: ${where(m,L)}, for ${n} frames${c.src?` (${c.src} source frames ${sf}–${sf+n-1})`:""}. Change only this part and leave what surrounds it. Replace with: ${m.note.trim()||"(not specified, ask me first)"}`),fx:1});return}
     if(!o){const q=capText(m);out.push({t:m.type==="text"?tr(`新增字幕${q?`「${q}」`:""}於 ${where(m,L)}${note}${dl}`,`Add caption${q?` "${q}"`:""} at ${where(m,L)}${note}${dl}`):tr(`新增特效【${fx}】於 ${where(m,L)}${note}`,`Add effect [${fx}] at ${where(m,L)}${note}`),fx:1});return}
     const p=[],oE=OL.map[o.clip],at=clamp(m.at,0,L.map[m.clip].c.out-L.map[m.clip].c.in-1);
-    if(o.clip!==m.clip||clamp(o.at,0,oE.c.out-oE.c.in-1)!==at)p.push(tr(`位置移到 ${where(m,L)}`,`move to ${where(m,L)}`));
+    const mc=L.map[m.clip].c;if(rootId(mc)!==o.clip||mc.in+at!==oE.c.in+clamp(o.at,0,oE.c.out-oE.c.in-1))p.push(tr(`位置移到 ${where(m,L)}`,`move to ${where(m,L)}`));
     if(o.type!==m.type)p.push(tr(`改成【${fx}】`,`change to [${fx}]`));
     if(o.note!==m.note)p.push(m.note.trim()?tr(`說明改為：${m.note.trim()}`,`note becomes: ${m.note.trim()}`):tr("清除原有說明","clear the existing note"));
     if((o.text||"")!==(m.text||""))p.push(capText(m)?tr(`字幕文字改為「${capText(m)}」`,`caption text becomes "${capText(m)}"`):tr("清除字幕文字","clear the caption text"));
@@ -907,6 +981,23 @@ function nudgeClip(edge,d){const c=doc.clips.find(x=>x.id===sel.id);const v=edge
   if(v===c[edge])return;
   mutate(()=>{if(edge==="in")setIn(c,v);else setOut(c,v)});
   const e=layout(doc).map[c.id];seek(edge==="in"?e.start:e.start+c.out-c.in-1)}
+const newId=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+function moveClip(id,to){const from=doc.clips.findIndex(c=>c.id===id);to=clamp(to,0,doc.clips.length-1);if(from<0||from===to)return;
+  mutate(()=>{const[c]=doc.clips.splice(from,1);doc.clips.splice(to,0,c);sel={kind:"clip",id}});seek(layout(doc).map[id].start)}
+function insertClip(at){const n=Math.round(2*fps);if(room()<n)return toast(tr("時間軸已達上限","The timeline is at its limit"));
+  const snap={doc:clone(doc),undo:[...undo],redo:[...redo]},id=newId("n"),no=doc.clips.filter(c=>c.ins).length+1;
+  mutate(()=>{doc.clips.splice(at,0,{id,name:tr(`新片段 ${no}`,`New segment ${no}`),src:"",in:0,out:n,note:"",ins:"gen"});sel={kind:"clip",id}});
+  seek(layout(doc).map[id].start);openNote();noteStart=snap}
+/* cutting a clip in two keeps the source link, so the prompt can name the exact source frames that were removed */
+function splitAtFrame(c,k,skip){const i=doc.clips.indexOf(c),tail={id:newId(c.id+"_"),from:rootId(c),name:c.name,src:c.src,in:c.in+k+skip,out:c.out,note:""};if(c.srcDuration)tail.srcDuration=c.srcDuration;
+  clipMarks(c).forEach(m=>{if(m.at>=k){m.clip=tail.id;m.at=Math.max(0,m.at-k-skip)}});c.out=c.in+k;doc.clips.splice(i+1,0,tail);return tail}
+function deleteFrame(){const L=layout(doc),h=clipAt(playhead,L);if(!h)return;const c=h.c,k=playhead-h.start,n=c.out-c.in;
+  if(n===1){if(doc.clips.length<2)return toast(tr("至少要留一個鏡頭","At least one clip must remain"));return mutate(()=>{doc.clips=doc.clips.filter(x=>x!==c);sel=null})}
+  const f=playhead;mutate(()=>{if(c.ins)setOut(c,c.out-1);else if(k===0)setIn(c,c.in+1);else if(k===n-1)setOut(c,c.out-1);else{const t=splitAtFrame(c,k,1);sel={kind:"clip",id:t.id}}if(!sel||sel.kind!=="clip")sel={kind:"clip",id:c.id}});
+  seek(Math.min(f,total()-1));toast(tr("已刪除這一格","Frame deleted"))}
+function splitClip(){const L=layout(doc),h=clipAt(playhead,L);if(!h)return;const k=playhead-h.start;if(h.c.ins)return toast(tr("新片段不用分割","New segments can't be split"));if(k===0)return toast(tr("播放頭已在鏡頭開頭","The playhead is at the clip start"));
+  mutate(()=>{const t=splitAtFrame(h.c,k,0);sel={kind:"clip",id:t.id}});toast(tr("已分割，可以移動或刪除其中一段","Split; move or delete either part"))}
+function nearestCut(){const L=layout(doc),h=clipAt(playhead,L);if(!h)return doc.clips.length;return playhead-h.start<(h.c.out-h.c.in)/2?h.i:h.i+1}
 function placeMarker(m,f){const L=layout(doc);f=clamp(f,0,L.total-1);const h=clipAt(f,L);m.clip=h.c.id;m.at=f-h.start}
 function addMarker(type="glitch"){if(doc.markers.length>=MAXCLIPS*4)return toast(tr(`特效最多 ${MAXCLIPS*4} 個`,`Up to ${MAXCLIPS*4} effects`));const id="m"+Date.now().toString(36);mutate(()=>{const m={id,clip:"",at:0,type,note:""};placeMarker(m,playhead);doc.markers.push(m);sel={kind:"mk",id}})}
 
@@ -921,15 +1012,22 @@ $("#insp").addEventListener("click",e=>{
   if(a==="note")return openNote();
   if(a==="usenote"){const m=doc.markers.find(x=>x.id===sel.id),n=$("#insp textarea");n.value=m.note.trim();n.dispatchEvent(new Event("input",{bubbles:true}));b.hidden=true;return}
   if(a==="cancelnote"){$("#insp textarea").blur();cancelNote();return}
-  if(a==="dur"){const m=doc.markers.find(x=>x.id===sel.id),d=clamp(capDur(m)+ +v*Math.round(fps/2),Math.round(fps/2),Math.round(fps*60));if(d===capDur(m))return;pushUndo();m.dur=d;$("#capDurV").textContent=durText(d);$("#capCut").textContent=capCutText(m);badgeKey="";updatePlayhead();renderLog();save();return}
+  if(a==="dur"){const m=doc.markers.find(x=>x.id===sel.id);if(m.type==="swap"){const d2=clamp((m.dur||1)+ +v,1,MAXF);if(d2===(m.dur||1))return;pushUndo();m.dur=d2;$("#capDurV").textContent=d2;renderLog();save();return}const d=clamp(capDur(m)+ +v*Math.round(fps/2),Math.round(fps/2),Math.round(fps*60));if(d===capDur(m))return;pushUndo();m.dur=d;$("#capDurV").textContent=durText(d);$("#capCut").textContent=capCutText(m);badgeKey="";updatePlayhead();renderLog();save();return}
   if(a==="edge"){nudgeEdge=v;renderInspector();const e2=layout(doc).map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1);return}
+  if(a==="mv"){const i=doc.clips.findIndex(x=>x.id===sel.id);moveClip(sel.id,i+ +v);return}
+  if(a==="delf")return deleteFrame();
+  if(a==="split")return splitClip();
+  if(a==="swap")return transport("swap");
+  if(a==="ins"){insertClip(doc.clips.findIndex(x=>x.id===sel.id)+ +v);return}
+  if(a==="kind"){const c=doc.clips.find(x=>x.id===sel.id),noting=$("#insp").classList.contains("noting"),keep=noteStart;mutate(()=>{c.ins=v});if(noting){openNote();noteStart=keep}return}
+  if(a==="len"){const c=doc.clips.find(x=>x.id===sel.id),o2=clamp(c.out+ +v*Math.round(fps/2),c.in+1,maxOut(c)),noting=$("#insp").classList.contains("noting"),keep=noteStart;if(o2===c.out)return;mutate(()=>setOut(c,o2));if(noting){openNote();noteStart=keep}return}
   if(a==="in"||a==="out")nudgeClip(a,+v);
   else if(a==="mk"){const m=doc.markers.find(x=>x.id===sel.id),f0=markerFrame(m,layout(doc));if(clamp(f0+ +v,0,total()-1)===f0)return;const noting=$("#insp").classList.contains("noting"),keep=noteStart;mutate(()=>placeMarker(m,f0+ +v));seek(markerFrame(m,layout(doc)));if(noting){openNote();noteStart=keep}}
   else if(a==="go"){const L=layout(doc);if(v==="mk")seek(markerFrame(doc.markers.find(x=>x.id===sel.id),L));else{const e2=L.map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1)}}
   else if(a==="delmk")mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null});
   else if(a==="delclip"){
     if(b.dataset.armed){if(doc.clips.length<2)return toast(tr("至少要留一個鏡頭","At least one clip must remain"));mutate(()=>{doc.clips=doc.clips.filter(x=>x.id!==sel.id);sel=null})}
-    else{b.dataset.armed=1;b.textContent=tr("再按一次確認","Press again to confirm");setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent=tr("刪除鏡頭","Delete clip")}},2500)}
+    else{const lab=b.innerHTML;b.dataset.armed=1;b.textContent=tr("再按一次確認","Press again to confirm");setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.innerHTML=lab}},2500)}
   }
 });
 
@@ -945,7 +1043,8 @@ function stopPlay(){if(playing)togglePlay()}
 $("#ruler").addEventListener("pointerdown",e=>{if(isM())return;stopPlay();seek(frameAt(e.clientX));drag(e,ev=>seek(frameAt(ev.clientX)))});
 function freeze(on){tlFreeze=on;document.body.classList.toggle("tlfreeze",on);if(!on)lastDrag=performance.now()}
 $("#trV").addEventListener("pointerdown",e=>{
-  if(isM()&&(!e.isPrimary||!e.target.closest(".h")))return; /* a touch elsewhere pans; the tap is handled on click */
+  if(e.target.closest(".ins-j"))return;
+  if(isM()&&(!e.isPrimary||!e.target.closest(".h,.clip.sel")))return; /* a touch elsewhere pans; the tap is handled on click */
   stopPlay();
   const cl=e.target.closest(".clip");if(!cl){sel=null;renderTimeline();renderInspector();seek(frameAt(e.clientX));return}
   const id=cl.dataset.id,h=e.target.closest(".h");
@@ -958,9 +1057,24 @@ $("#trV").addEventListener("pointerdown",e=>{
       (_,cancelled)=>{if(isM())freeze(false);if(cancelled)doc=JSON.parse(before);if(JSON.stringify(doc)===before)cancelUndo();renderAll()});
     renderTimeline();renderInspector();return;
   }
-  sel={kind:"clip",id};renderTimeline();renderInspector();seek(frameAt(e.clientX));
-  drag(e,ev=>seek(frameAt(ev.clientX)));
+  if(!isM()||sel?.kind!=="clip"||sel.id!==id){sel={kind:"clip",id};renderTimeline();renderInspector();seek(frameAt(e.clientX))}
+  dragMove(e,id);
 });
+$("#trV").addEventListener("click",e=>{const j=e.target.closest(".ins-j");if(!j)return;e.stopPropagation();stopPlay();insertClip(+j.dataset.at)});
+/* drag a clip's body to change the order; its effects and captions travel with it */
+function dragMove(e,id){
+  let line=null,to=-1,lastX=e.clientX,auto=0;
+  const el=()=>document.querySelector(`.clip[data-id="${CSS.escape(id)}"]`);
+  const place=()=>{const L=layout(doc),f=(lastX-inner.getBoundingClientRect().left-tlPad())/ppf,rest=doc.clips.filter(c=>c.id!==id);
+    to=rest.filter(c=>L.map[c.id].start+(c.out-c.in)/2<f).length;
+    const nb=rest[to],x=nb?L.map[nb.id].start:L.total;line.style.left=x*ppf+"px"};
+  drag(e,(ev,dx,moved)=>{if(!moved)return;lastX=ev.clientX;
+    if(!line){line=document.createElement("div");line.className="dropline";$("#trV").append(line);el()?.classList.add("moving");if(isM())freeze(true);
+      auto=setInterval(()=>{const r=scroll.getBoundingClientRect(),d=lastX<r.left+36?-10:lastX>r.right-36?10:0;if(d){scroll.scrollLeft+=d;tlExpect=scroll.scrollLeft;place()}},30)}
+    place()},
+  (moved,cancelled)=>{clearInterval(auto);line?.remove();el()?.classList.remove("moving");if(isM()){freeze(false);if(!moved)lastDrag=0}
+    if(line&&!cancelled&&to>=0)moveClip(id,to);else if(isM())updatePlayhead()});
+}
 $("#trF").addEventListener("pointerdown",e=>{
   if(isM()&&(!e.isPrimary||!e.target.closest(".mk.sel")))return;
   stopPlay();
@@ -974,7 +1088,7 @@ $("#trF").addEventListener("pointerdown",e=>{
 /* phone: a tap selects without moving the playhead; tapping the selected item again lets go of it */
 function tapSelect(kind,sel0){return e=>{if(!isM()||performance.now()-lastDrag<400||e.target.closest(".h"))return;
   const it=e.target.closest(sel0),id=it&&it.dataset.id;
-  if(kind==="mk"&&it&&doc.markers.find(x=>x.id===id)?.type==="text")return editCaption(id);
+  if(kind==="mk"&&it&&["text","swap"].includes(doc.markers.find(x=>x.id===id)?.type))return editCaption(id);
   sel=it&&!(sel?.kind===kind&&sel.id===id)?{kind,id}:null;renderTimeline();renderInspector();
   /* keep the preview on what is being edited */
   if(sel?.kind==="clip"){const e2=layout(doc).map[id],n=e2.c.out-e2.c.in;if(playhead<e2.start||playhead>=e2.start+n)seek(nudgeEdge==="in"?e2.start:e2.start+n-1)}}}
@@ -1008,6 +1122,8 @@ function transport(a){
   if(a==="play")return togglePlay();
   stopPlay();
   if(a==="mark")return addMarker();
+  if(a==="insert")return insertClip(nearestCut());
+  if(a==="swap"){const snap={doc:clone(doc),undo:[...undo],redo:[...redo]};addMarker("swap");openNote();noteStart=snap;return}
   if(a==="caption"){const snap={doc:clone(doc),undo:[...undo],redo:[...redo]};addMarker("text");openNote();noteStart=snap;return}
   if(a==="fit"){if(isM()){const o=overview();ppf=Math.abs(ppf-o)<.01?defaultPpf():o;$("#zoom").value=z2v(ppf)}else fit();renderTimeline();return}
   const p=cutPoints();
@@ -1039,6 +1155,8 @@ addEventListener("keydown",e=>{
   else if(k==="ArrowUp"){e.preventDefault();transport("prevcut")}
   else if(k==="ArrowDown"){e.preventDefault();transport("nextcut")}
   else if(k==="m"||k==="M")transport("mark");
+  else if(k==="x"||k==="X")deleteFrame();
+  else if(k==="s"||k==="S")splitClip();
   else if((k==="Delete"||k==="Backspace")&&sel?.kind==="mk"){e.preventDefault();mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null})}
   else if((k==="["||k==="]")&&sel?.kind==="clip"){
     const e2=layout(doc).map[sel.id],c=e2.c,k2=playhead-e2.start;
@@ -1204,6 +1322,7 @@ $("#loadPaste").addEventListener("click",()=>{try{say($("#inMsg"),true,importTex
 $("#loadSample").addEventListener("click",()=>{try{loadNew(sampleData());say($("#inMsg"),true,tr("已載入範例。","Sample loaded."))}catch(e){say($("#inMsg"),false,e.message);toast(e.message)}});
 
 /* ---------- export ---------- */
+const outNote=c=>c.ins?`[${tr("待補素材","Footage needed")}: ${insKind(c)}] ${c.note}`:c.note;
 function buildFCPXML(){
   const d=exportDoc(),[num,den]=rat(fps),T=n=>n<=0?"0s":`${n*num}/${den}s`,dir=$("#mediaDir").value.trim();
   const enc=p=>p.split("/").map(x=>/^[a-z]:$/i.test(x)?x:encodeURIComponent(x)).join("/");
@@ -1217,7 +1336,7 @@ function buildFCPXML(){
   s+=`  </resources>\n  <library>\n    <event name="Koma">\n      <project name="${xesc(d.project)}">\n        <sequence format="r1" duration="${T(L.total)}" tcStart="0s" tcFormat="NDF">\n          <spine>\n`;
   d.clips.forEach(c=>{const a=assets[c.src||c.name],e=L.map[c.id];
     s+=`            <asset-clip ref="${a.id}" name="${xesc(c.name)}" offset="${T(e.start)}" start="${T(c.in)}" duration="${T(c.out-c.in)}" format="r1" tcFormat="NDF">\n`;
-    if(c.note)s+=`              <note>${xesc(c.note)}</note>\n`;
+    if(c.note||c.ins)s+=`              <note>${xesc(outNote(c))}</note>\n`;
     d.markers.filter(m=>m.clip===c.id).forEach(m=>{const at=clamp(m.at,0,c.out-c.in-1);s+=`              <marker start="${T(c.in+at)}" duration="${T(1)}" value="${xesc(fxOf(m.type).l)}"${mkNote(m)?` note="${xesc(mkNote(m))}"`:""}/>\n`});
     s+=`            </asset-clip>\n`});
   s+=`          </spine>\n        </sequence>\n      </project>\n    </event>\n  </library>\n</fcpxml>\n`;
@@ -1229,7 +1348,11 @@ function buildManual(){
   const out=tr([`Koma 手動操作清單｜${doc.project}｜${+fps.toFixed(3)}fps`,`時間碼是 時:分:秒:格，每秒 ${b} 格，以軟體時間軸從 00:00:00:00 起算（非掉格）。請由上往下做。`,"「到」不含最後那一格。",""],[`Koma manual checklist | ${doc.project} | ${+fps.toFixed(3)}fps`,`Timecode is hh:mm:ss:ff at ${b} frames per second, counted from 00:00:00:00 on your editor's timeline (non-drop). Work from top to bottom.`,`"to" excludes the last frame.`,""]);
   let needSrc=false;
   [...orig.clips].reverse().forEach(o=>{
-    const n=doc.clips.find(c=>c.id===o.id),i=orig.clips.indexOf(o),S=OL.map[o.id].start;
+    const pcs=doc.clips.filter(c=>rootId(c)===o.id).sort((a,b)=>a.in-b.in),i=orig.clips.indexOf(o),S=OL.map[o.id].start;
+    if(pcs.length>1||(pcs.length&&pcs[0].id!==o.id)){const g=[];let cur=o.in;pcs.forEach(c=>{if(c.in>cur)g.push([cur,Math.min(c.in,o.out)]);cur=Math.max(cur,c.out)});if(cur<o.out)g.push([cur,o.out]);
+      if(pcs[0].in<o.in||pcs[pcs.length-1].out>o.out)needSrc=true;
+      const lb=tr(`鏡頭 ${pad(i+1)}「${o.name}」`,`Clip ${pad(i+1)} "${o.name}"`);steps.push(`${lb}${tr("：",": ")}`+g.reverse().map(x=>tr(`刪除 ${T(S+x[0]-o.in)} 到 ${T(S+x[1]-o.in)}`,`delete ${T(S+x[0]-o.in)} to ${T(S+x[1]-o.in)}`)).join(tr("；","; ")));return}
+    const n=doc.clips.find(c=>c.id===o.id);
     let len=o.out-o.in;const lab=tr(`鏡頭 ${pad(i+1)}「${o.name}」`,`Clip ${pad(i+1)} "${o.name}"`);
     if(!n){steps.push(tr(`${lab}：整段刪除，從 ${T(S)} 到 ${T(S+len)}`,`${lab}: delete entirely, from ${T(S)} to ${T(S+len)}`));return}
     const dO=n.out-o.out,dI=n.in-o.in,p=[];
@@ -1243,7 +1366,8 @@ function buildManual(){
   if(needSrc)out.push("",tr("注意：標示「需要原始素材」的步驟，只有成片做不到。請改請 Claude 重新輸出。",'Note: steps marked "needs source media" can\'t be done from the final cut alone. Ask Claude to re-render instead.'));
   out.push("");
   const fx=exportDoc().markers.map(m=>({m,f:markerFrame(m,L)})).sort((a,b)=>a.f-b.f);
-  out.push(tr("二、加上特效與字幕（修剪完成後的時間碼）","2. Add effects and captions (timecode after trimming)"));
+  const st=structureLines();if(st.length){out.push(tr("二、調整順序與插入新片段（由上往下）","2. Reorder and insert segments (top to bottom)"),...st.map((t,i)=>`${i+1}. ${t}`),"")}
+  out.push(st.length?tr("三、加上特效與字幕（前面都完成後的時間碼）","3. Add effects and captions (timecode after the steps above)"):tr("二、加上特效與字幕（修剪完成後的時間碼）","2. Add effects and captions (timecode after trimming)"));
   out.push(...(fx.length?fx.map(({m,f},i)=>`${i+1}. ${T(f)} ${m.type==="text"&&capText(m)?mkNote(m).replace(/\s+/g," "):fxOf(m.type).l+(mkNote(m)?tr("：",": ")+mkNote(m).replace(/\s+/g," "):"")}`):[tr("沒有特效與字幕","No effects or captions")]));
   return out.join("\n")+"\n";
 }
@@ -1254,7 +1378,7 @@ function buildEDL(){
   let s=`TITLE: ${d.project.replace(/[\r\n]/g," ").slice(0,70)}\nFCM: NON-DROP FRAME\n\n`;
   d.clips.forEach((c,i)=>{const e=L.map[c.id],reel=("AX").padEnd(8);
     s+=`${String(i+1).padStart(3,"0")}  ${reel} V     C        ${fToTc(c.in,b)} ${fToTc(c.out,b)} ${fToTc(R0+e.start,b)} ${fToTc(R0+e.start+c.out-c.in,b)}\n`;
-    s+=`* FROM CLIP NAME: ${c.name.replace(/[\r\n]+/g," ")}\n`;if(c.src)s+=`* SOURCE FILE: ${c.src.replace(/[\r\n]+/g," ")}\n`;if(c.note)s+=`* COMMENT: ${c.note.replace(/\s+/g," ")}\n`;
+    s+=`* FROM CLIP NAME: ${c.name.replace(/[\r\n]+/g," ")}\n`;if(c.src)s+=`* SOURCE FILE: ${c.src.replace(/[\r\n]+/g," ")}\n`;if(c.note||c.ins)s+=`* COMMENT: ${outNote(c).replace(/\s+/g," ")}\n`;
     d.markers.filter(m=>m.clip===c.id).forEach(m=>{s+=`* LOC: ${fToTc(R0+e.start+clamp(m.at,0,c.out-c.in-1),b)} YELLOW  [${fxOf(m.type).l}] ${mkNote(m).replace(/\s+/g," ")}\n`});
     s+="\n"});
   return s;
@@ -1357,7 +1481,7 @@ const askText=()=>tr(`每次幫我剪完影片，請另外附上一個 .koma.jso
                  "dur": 字幕顯示格數（選填，只有 text 用） } ] }
 
 鏡頭依成片順序排列。in、out、srcDuration 一律以「成片幀率」計算素材時間，即使素材本身是別的幀率。
-type 只用 glitch, flash, rgb, zoom, slow, ramp, shake, scan, text, trans, grade, sfx, other。
+type 只用 glitch, flash, rgb, zoom, slow, ramp, shake, scan, text, trans, grade, sfx, swap, other。
 
 Koma 在 ${HERE}
 我修改後會貼回「Koma 剪輯回饋」，請照清單重新輸出成片和新的時間軸。`,`Each time you finish editing a video for me, also attach a .koma.json timeline file so I can fine-tune it frame by frame in Koma:
@@ -1372,7 +1496,7 @@ Koma 在 ${HERE}
                  "dur": caption length in frames (optional, for text only) } ] }
 
 List clips in final-cut order. Always express in, out and srcDuration in the final frame rate, even if the source uses another rate.
-Use only these types: glitch, flash, rgb, zoom, slow, ramp, shake, scan, text, trans, grade, sfx, other.
+Use only these types: glitch, flash, rgb, zoom, slow, ramp, shake, scan, text, trans, grade, sfx, swap, other.
 
 Koma is at ${HERE}
 After editing I'll paste back the "Koma edit feedback" list; please re-render the video and a new timeline from it.`);
@@ -1391,7 +1515,14 @@ function applyLang(){
   const b=$("#langBtn");b.textContent=en?"中":"EN";b.title=en?"切換成中文":"Switch to English";b.setAttribute("aria-label",b.title);b.lang=en?"zh-Hant":"en";
   const pb=$("#playBtn");pb.setAttribute("aria-label",playing?tr("暫停","Pause"):tr("播放","Play"));
   $("#askSnip").textContent=askText();setHint();
+  for(const[q,n]of [["#copyLog","copy"],["#copySnip","copy"],["#copyExport","copy"],["#loadPaste","load"],["#loadSample","file"],["#pickFile","file"],["#resetBtn","reset"],["#lossyYes","check"],["#lossyNo","x"],['.transport [data-t=fit]',"fit"]]){const el=document.querySelector(q);if(el&&!el.querySelector(".ico"))el.insertAdjacentHTML("afterbegin",ic(n))}
 }
+/* press and hold any button on a touch screen to hear what it does */
+let tipT=0,tipAt=0;
+addEventListener("pointerdown",e=>{if(e.pointerType==="mouse")return;const b=e.target.closest("button");if(!b)return;const t=b.getAttribute("aria-label")||b.title||b.textContent.trim();if(!t)return;clearTimeout(tipT);tipT=setTimeout(()=>{toast(t);tipAt=performance.now()},450)},true);
+for(const n of ["pointerup","pointercancel","pointermove"])addEventListener(n,e=>{if(n!=="pointermove"||Math.abs(e.movementX)+Math.abs(e.movementY)>4)clearTimeout(tipT)},true);
+addEventListener("click",e=>{if(tipAt&&performance.now()-tipAt<600&&e.target.closest("button")){e.preventDefault();e.stopPropagation();tipAt=0}},true);
+addEventListener("contextmenu",e=>{if(e.target.closest("button"))e.preventDefault()});
 /* the untouched sample follows the language; anything the user made stays as written */
 function matchSample(){if(!orig?.sample||changes().length||orig.project===sampleData().project)return false;const p=playhead,s=sel;load(sampleData());playhead=p;sel=s;renderAll();return true}
 function setLang(l){lang=l;store.set(l,LANGK);

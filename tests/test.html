@@ -228,6 +228,24 @@ frame.onload=async()=>{
   p("nudgeEdge='in';sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
   T("手機橫向修剪面板同屏",()=>onScreen([".transport",".tl",".nudge[data-k=in] .nb"]));
 
+  T("移動鏡頭：提示詞只列真正移動的那段，字幕跟著走",()=>{reset();k("doc.markers.push({id:'cap',clip:'c5',at:2,type:'text',note:'',text:'你好'});moveClip('c5',2);");const x=k("changes().map(c=>c.t).join('\\n')"),at=k("tc(markerFrame(doc.markers.find(m=>m.id==='cap'),layout(doc)))");
+    return (x.includes("把鏡頭 05「捷運月台慢速」移到鏡頭 02「人物走入雨中」後面")&&x.includes(`「你好」→ ${at}`)&&x.includes("c1 → c2 → c5 → c3")&&(x.match(/調整順序/g)||[]).length===1)||x});
+  T("移動後 FCPXML 與 EDL 依新順序",()=>{reset();k("moveClip('c5',2)");const r=k("parseEDL(buildEDL(),30).clips.map(c=>c.in)");return eq(r,[45,210,300,12,90,0])});
+  T("移回原位後提示詞沒有順序變更",()=>{reset();k("moveClip('c5',2);moveClip('c5',4)");return eq(k("changes().length"),0)});
+  T("延長鏡頭：提示詞列出多的素材格並要求接順",()=>{reset();k("sel={kind:'clip',id:'c2'};nudgeClip('out',6);nudgeClip('in',-3)");const x=k("changes()[0].t");return (x.includes("結尾多 6 格（素材格 300–305）")&&x.includes("開頭多 3 格（素材格 207–209）")&&x.includes("沿用這個鏡頭")&&x.includes("0.30 秒"))||x});
+  T("插入片段：提示詞寫明位置、來源與內容",()=>{reset();k("insertClip(2);const c=doc.clips[2];c.note='城市空拍';renderAll()");const x=k("changes().map(c=>c.t).join('\\n')");return (x.includes("在鏡頭 02「人物走入雨中」和鏡頭 03「街道橫搖向右」之間")&&x.includes("請你製作")&&x.includes("城市空拍"))||x});
+  T("插入片段取消後完全還原",()=>{reset();k("insertClip(2);cancelNote()");return eq([k("doc.clips.length"),k("changes().length")],[6,0])});
+  T("插入片段改成自備素材",()=>{reset();k("insertClip(0);$('#insp [data-a=\"kind:footage\"]').click()");const x=k("changes().map(c=>c.t).join()");return x.includes("我會提供這段素材")||x});
+  T("插入片段 JSON 來回保留",()=>{reset();k("insertClip(1);doc.clips[1].note='x'");const c=k("normalize(JSON.parse(JSON.stringify(exportDoc()))).clips[1]");return eq([c.ins,c.note],["gen","x"])});
+  T("刪除中間一格：拆段且提示詞指名素材格",()=>{reset();k("seek(10);deleteFrame()");const x=k("changes()[0].t");return (k("doc.clips.length")===7&&x.includes("刪除素材格 55–55")&&x.includes("保留素材格 45–54、56–116")&&k("total()")===461)||[x,k("total()")]});
+  T("刪除中間一格後特效仍在原素材格，不算移動",()=>{reset();k("seek(5);deleteFrame()");return !k("changes().map(c=>c.t).join()").includes("位置移到")||k("changes().map(c=>c.t).join()")});
+  T("刪除第一格等於入點晚一格",()=>{reset();k("seek(0);deleteFrame()");return eq([k("doc.clips.length"),k("doc.clips[0].in")],[6,46])});
+  T("在新片段裡刪格只會變短，不會拆成未知鏡頭",()=>{reset();k("insertClip(0);cancelNote;noteStart=null;seek(10);deleteFrame()");return eq([k("doc.clips.length"),k("doc.clips[0].ins"),k("doc.clips[0].out"),k("doc.clips.some(c=>c.from)")],[7,"gen",59,false])});
+  T("順序行用素材格區分拆開的片段",()=>{reset();k("seek(10);deleteFrame()");const x=k("changes().at(-1).t");return x.includes("c1 (45–54) → c1 (56–116) → c2")||x});
+  T("分割後移動其中一段",()=>{reset();k("seek(20);splitClip();const t=doc.clips[1].id;moveClip(t,3)");const x=k("changes().map(c=>c.t).join('\\n')");return (x.includes("拆成 2 段")&&x.includes("素材格 65–116")&&x.includes("調整順序"))||x});
+  T("復原可還原刪格與移動",()=>{reset();k("seek(10);deleteFrame();doUndo();moveClip('c3',0);doUndo()");return eq(k("changes().length"),0)});
+  T("換畫面：提示詞有時間點、格數與要換的內容",()=>{reset();k("seek(10);transport('swap');const m=doc.markers.at(-1);m.note='換成海邊';m.dur=4;renderAll()");const x=k("changes().map(c=>c.t).join()");return (x.includes("換畫面")&&x.includes("起 4 格")&&x.includes("素材格 55–58")&&x.includes("換成海邊"))||x});
+  T("手動清單含順序與插入步驟",()=>{reset();k("moveClip('c5',2);insertClip(0)");const x=k("buildManual()");return (x.includes("二、調整順序")&&x.includes("三、加上特效"))||x});
   /* English: every string a person can see or hear must be translated */
   const leftover=(w,root)=>{const d=w.document,hit=[],r=d.querySelector(root),tw=d.createTreeWalker(r,4);
     while(tw.nextNode()){const n=tw.currentNode;if(/[一-鿿]/.test(n.data)&&!n.parentElement.closest(".kaku,#langBtn,#phName,.mk,.body"))hit.push(n.data.trim().slice(0,30))}
@@ -237,6 +255,8 @@ frame.onload=async()=>{
   T("英文範例跟著換語言",()=>eq(k("[doc.project,orig.sample,document.documentElement.lang]"),["Sample | Neon Night Reel",true,"en"]));
   T("英文：鏡頭面板沒有漏翻",()=>{k("sel={kind:'clip',id:'c2'};renderInspector()");return leftover(w,"#insp")});
   T("英文：特效面板沒有漏翻",()=>{k("sel={kind:'mk',id:'m2'};renderInspector()");return leftover(w,"#insp")});
+  T("英文：新片段與換畫面沒有漏翻",()=>{k("insertClip(2);cancelNote();insertClip(2)");const a=leftover(w,"#insp");if(a!==true)return a;k("cancelNote()");return true});
+  T("英文：結構提示詞沒有中文",()=>{k("moveClip('c5',0);insertClip(1);doc.clips[1].note='x';seek(10);deleteFrame();transport('swap');doc.markers.at(-1).note='y';renderAll()");const x=k("changes().map(c=>c.t).join()+buildManual()");k("load(SAMPLE_EN)");return !/[一-鿿]/.test(x)||x});
   T("英文：字幕面板沒有漏翻",()=>{k("sel={kind:'mk',id:'m3'};renderInspector()");return leftover(w,"#insp")});
   T("英文修改清單沒有中文",()=>{k(`sel={kind:'clip',id:'c1'};nudgeClip('in',2);nudgeClip('out',-3);doc.clips=doc.clips.filter(c=>c.id!=='c4');doc.markers[0].note='';doc.markers[1].at=5;doc.markers[2].text='Hi';doc.markers[2].dur=30;doc.markers.splice(0,1);renderAll()`);const x=k("logText()");return !/[一-鿿]/.test(x)||x});
   T("英文手動清單與 SRT 沒有中文",()=>{const x=k("buildManual()+buildSRT()");return !/[一-鿿]/.test(x)||x});
@@ -248,6 +268,17 @@ frame.onload=async()=>{
   T("切換語言不影響剪輯資料與播放頭",()=>{reset();k("seek(50);sel={kind:'clip',id:'c2'};nudgeClip('out',-2);seek(70);setLang('en')");const a=k("[playhead,sel.id,doc.clips[1].out]");k("setLang('zh')");return eq(a,[70,"c2",298])});
   T("標題沒有櫻點，logo 是有齒孔的底片",()=>eq([k("!!$('.brand .dot')"),k("$('.logo path').getAttribute('d').match(/h3v3h-3z/g).length")],[false,14]));
   T("底色不再是純白",()=>{const v=n=>k(`getComputedStyle(document.documentElement).getPropertyValue('${n}').trim()`);return eq([v("--sheet")==="#ffffff",k("getComputedStyle(document.body).backgroundColor")==="rgb(255, 255, 255)"],[false,false])});
+  await size(390,700);preset();
+  const pdrag=async(sel0,tox)=>{const el=pd.querySelector(sel0),r=el.getBoundingClientRect(),x0=r.left+r.width/2,y=r.top+r.height/2,ev=(n,x)=>el.dispatchEvent(new pw.PointerEvent(n,{bubbles:true,cancelable:true,pointerId:7,isPrimary:true,clientX:x,clientY:y}));ev("pointerdown",x0);ev("pointermove",x0+tox);await tick();ev("pointermove",x0+tox+1);ev("pointerup",x0+tox+1);await tick()};
+  p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector();seek(75)");await tick();
+  await pdrag(".clip[data-id=c2]",-230);
+  T("手機拖曳已選取的鏡頭可改順序",()=>eq(p("doc.clips[0].id"),"c2"));
+  preset();await tick();
+  T("手機鏡頭之間有插入按鈕，按下就能輸入說明",()=>{const b=pd.querySelector(".ins-j[data-at='1']");if(!b)return "no button";b.click();return eq([p("doc.clips[1].ins"),p("$('#insp').classList.contains('noting')")],["gen",true])});
+  p("cancelNote()");preset();await tick();
+  p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
+  T("手機鏡頭面板有移動與刪格按鈕，一屏不捲動",()=>onScreen([".transport",".tl",'[data-a="mv:-1"]']));
+  preset();
   p("setLang('en')");
   for(const [W,H] of [[320,568],[360,640],[390,700],[430,932]]){await size(W,H);p("sel=null;load(SAMPLE_EN);renderInspector();renderTimeline();closeSheet();seek(0)");await tick();
     T(`英文手機 ${W}×${H} 同屏且標題列不溢出`,()=>{const o=onScreen([...BASE,"#langBtn","#undoBtn","#redoBtn","#copyTop"]);if(o!==true)return o;const b=pd.querySelector(".top").getBoundingClientRect();return (pd.documentElement.scrollWidth<=W&&b.right<=W+.5)||[pd.documentElement.scrollWidth,b.right]});
