@@ -619,7 +619,7 @@ function normalize(d){
   const ms=Array.isArray(d.markers)?d.markers:[],mids=new Set();
   if(ms.length>MAXCLIPS*4) throw new Error(`特效超過 ${MAXCLIPS*4} 個`);
   o.markers=ms.map((m,i)=>{let id=String(m.id??("m"+(i+1)));while(mids.has(id))id+="_"+i;mids.add(id);
-    return {id,clip:String(m.clip),at:Math.max(0,int(m.at)),type:FX.some(f=>f.k===m.type)?m.type:"other",note:String(m.note||""),...(m.dur>0&&m.dur<=MAXF?{dur:Math.round(m.dur)}:{})}}).filter(m=>o.clips.some(c=>c.id===m.clip));
+    return {id,clip:String(m.clip),at:Math.max(0,int(m.at)),type:FX.some(f=>f.k===m.type)?m.type:"other",note:String(m.note||""),...(m.dur>0&&m.dur<=MAXF?{dur:Math.round(m.dur)}:{}),...(typeof m.text==="string"&&m.text?{text:m.text}:{})}}).filter(m=>o.clips.some(c=>c.id===m.clip));
   o.markers.forEach(m=>{const c=o.clips.find(x=>x.id===m.clip);m.at=Math.min(m.at,c.out-c.in-1)});
   if(o.markers.length<ms.length)normWarn.push(`略過 ${ms.length-o.markers.length} 個對不到鏡頭的特效`);
   return o;
@@ -719,7 +719,7 @@ function renderTimeline(){
       <div class="h l" data-edge="in" title="拖曳修剪入點"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${c.out-c.in}f · ${esc(c.src)}</em></div><div class="h r" data-edge="out" title="拖曳修剪出點"></div>
       ${dI?`<i class="d dl">入${sgn(dI)}</i>`:""}${dO?`<i class="d dr">出${sgn(dO)}</i>`:""}</div>`}).join("");
   $("#trF").innerHTML=doc.markers.map(m=>{const f=markerFrame(m,L);if(f==null)return"";const fx=fxOf(m.type),isSel=sel?.kind==="mk"&&sel.id===m.id;
-    return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(`特效 ${fx.l}，${tc(f)}`)}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?"："+m.note:""))}"><i></i><span>${esc(m.type==="text"&&m.note.trim()?m.note.trim().slice(0,14):fx.l)}</span></div>`}).join("");
+    return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(`特效 ${fx.l}，${tc(f)}`)}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?"："+m.note:""))}"><i></i><span>${esc(m.type==="text"&&capText(m)?capText(m).slice(0,14):fx.l)}</span></div>`}).join("");
   updatePlayhead();
 }
 let badgeKey="";
@@ -732,14 +732,18 @@ function updatePlayhead(){
   const near=doc.markers.find(m=>{const f=markerFrame(m,L);return f!=null&&playhead>=f&&playhead<f+Math.max(6,Math.round(fps/3))});
   const bk=near?near.id+near.type:"";
   badgeId=near?near.id:null;
-  if(bk!==badgeKey){badgeKey=bk;const b=$("#fxBadge");b.hidden=!near||near.type==="text"&&!!near.note.trim();if(near)b.innerHTML=thumb(near.type)+`<span>${esc(fxOf(near.type).l)}</span>`}
+  if(bk!==badgeKey){badgeKey=bk;const b=$("#fxBadge");b.hidden=!near||near.type==="text"&&!!capText(near);if(near)b.innerHTML=thumb(near.type)+`<span>${esc(fxOf(near.type).l)}</span>`}
   updateCaption(L);
   updatePreview(L);
 }
 /* captions show for their duration in the preview; they are not burned into the video */
-const capDur=m=>m.dur||Math.round(2*fps);
-function captionAt(L){let hit=null,bf=-1;for(const m of doc.markers){if(m.type!=="text"||!m.note.trim())continue;const f=markerFrame(m,L);if(f!=null&&f<=playhead&&playhead<f+capDur(m)&&f>bf){hit=m;bf=f}}return hit}
-function updateCaption(L){const m=captionAt(L),el=$("#capOv");el.hidden=!m;el.dataset.id=m?m.id:"";if(m&&el.textContent!==m.note.trim())el.textContent=m.note.trim()}
+const mkNote=m=>m.type==="text"&&capText(m)?`字幕：${capText(m)}${m.note.trim()?`；${m.note.trim()}`:""}`:m.note;
+const capDur=m=>m.dur||Math.round(2*fps),capText=m=>(m.text||"").trim();
+/* one rule for preview and SRT: a caption ends at its duration or the next caption, and of two at the same frame the later one wins */
+function captionSpans(L){const c=doc.markers.filter(m=>m.type==="text"&&capText(m)&&L.map[m.clip]).map(m=>({m,f:markerFrame(m,L)})).sort((a,b)=>a.f-b.f).filter((x,i,a)=>!a[i+1]||a[i+1].f!==x.f);
+  return c.map((x,i)=>({m:x.m,f:x.f,end:Math.min(x.f+capDur(x.m),i+1<c.length?c[i+1].f:Infinity,L.total)}))}
+function captionAt(L){return captionSpans(L).find(x=>x.f<=playhead&&playhead<x.end)?.m||null}
+function updateCaption(L){const m=captionAt(L),el=$("#capOv");el.hidden=!m;el.dataset.id=m?m.id:"";if(m&&el.textContent!==capText(m))el.textContent=capText(m)}
 function editCaption(id){stopPlay();sel={kind:"mk",id};const m=doc.markers.find(x=>x.id===id),L=layout(doc);renderTimeline();renderInspector();seek(markerFrame(m,L));openNote()}
 function openNote(){const n=$("#insp textarea");if(!n)return;noteStart=clone(doc);noteUndo=undo.length;$("#insp").classList.add("noting");n.focus()}
 function updatePreview(L){
@@ -792,9 +796,9 @@ function renderInspector(){
       <div class="fxgrid" role="group" aria-label="特效種類">${FX.map(x=>`<button class="fxt" data-fx="${x.k}" aria-pressed="${x.k===m.type}" style="--fxc:${x.c}">${thumb(x.k)}<span>${x.l}</span></button>`).join("")}</div>
       ${m.type==="text"?`<div class="capdur"><span>顯示</span><button class="nb" data-a="dur:-1" aria-label="顯示短半秒">−</button><span class="mono" id="capDurV">${(capDur(m)/fps).toFixed(1)} 秒</span><button class="nb" data-a="dur:1" aria-label="顯示長半秒">＋</button></div>`:""}
       <label class="help" for="mkNote">${m.type==="text"?"字幕內容":"想要的效果（越具體越好）"}</label>
-      <textarea id="mkNote" placeholder="${m.type==="text"?"輸入要出現的文字":"例：抖 6 格、強度中等，配合鼓點"}">${esc(m.note)}</textarea>
-      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button><button class="btn sm only-m" data-a="cancelnote">取消</button><button class="btn sm only-m" data-a="note">${m.type==="text"?"編輯字幕":"備註"}${m.note?" ●":""}</button><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">刪除特效</button></div>`;
-    noteEditor($("#mkNote"),v=>{m.note=v;if(m.type==="text"){badgeKey="";renderTimeline()}});
+      <textarea id="mkNote" placeholder="${m.type==="text"?esc(m.note.trim()?`Claude 的說明：${m.note.trim()}。在這裡輸入要出現的文字`:"輸入要出現的文字"):"例：抖 6 格、強度中等，配合鼓點"}">${esc(m.type==="text"?m.text||"":m.note)}</textarea>
+      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button><button class="btn sm only-m" data-a="cancelnote">取消</button><button class="btn sm only-m" data-a="note">${m.type==="text"?"編輯字幕":"備註"}${(m.type==="text"?capText(m):m.note)?" ●":""}</button><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">刪除特效</button></div>`;
+    noteEditor($("#mkNote"),v=>{if(m.type==="text"){m.text=v;badgeKey="";renderTimeline()}else m.note=v});
   }else{
     el.innerHTML=`<div class="eyebrow">使用方式</div><ol class="steps">
       <li><span><b>點時間軸上的鏡頭</b>，在這裡用 ±1 / ±5 逐格調入點、出點，也可以直接拖鏡頭兩側的邊。</span></li>
@@ -819,12 +823,13 @@ function changes(){
   doc.markers.forEach(m=>{
     const o=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type).l,note=m.note.trim()?`：${m.note.trim()}`:"";
     if(!L.map[m.clip])return;
-    const dl=m.type==="text"&&m.dur?`（顯示 ${m.dur} 格）`:"";
-    if(!o){out.push({t:`新增特效【${fx}】於 ${where(m,L)}${note}${dl}`,fx:1});return}
+    const dl=m.type==="text"&&m.dur?`（顯示 ${m.dur} 格）`:"",cap=m.type==="text"&&capText(m)?`，字幕文字「${capText(m)}」`:"";
+    if(!o){out.push({t:`新增特效【${fx}】於 ${where(m,L)}${note}${cap}${dl}`,fx:1});return}
     const p=[],oE=OL.map[o.clip],at=clamp(m.at,0,L.map[m.clip].c.out-L.map[m.clip].c.in-1);
     if(o.clip!==m.clip||clamp(o.at,0,oE.c.out-oE.c.in-1)!==at)p.push(`位置移到 ${where(m,L)}`);
     if(o.type!==m.type)p.push(`改成【${fx}】`);
     if(o.note!==m.note)p.push(m.note.trim()?`說明改為：${m.note.trim()}`:"清除原有說明");
+    if((o.text||"")!==(m.text||""))p.push(capText(m)?`字幕文字改為「${capText(m)}」`:"清除字幕文字");
     if((o.dur||0)!==(m.dur||0))p.push(`顯示改為 ${capDur(m)} 格`);
     if(p.length)out.push({t:`特效【${fxOf(o.type).l}】原在 ${where(o,OL)}：${p.join("；")}`,fx:1});
   });
@@ -1162,7 +1167,7 @@ function buildFCPXML(){
   d.clips.forEach(c=>{const a=assets[c.src||c.name],e=L.map[c.id];
     s+=`            <asset-clip ref="${a.id}" name="${xesc(c.name)}" offset="${T(e.start)}" start="${T(c.in)}" duration="${T(c.out-c.in)}" format="r1" tcFormat="NDF">\n`;
     if(c.note)s+=`              <note>${xesc(c.note)}</note>\n`;
-    d.markers.filter(m=>m.clip===c.id).forEach(m=>{const at=clamp(m.at,0,c.out-c.in-1);s+=`              <marker start="${T(c.in+at)}" duration="${T(1)}" value="${xesc(fxOf(m.type).l)}"${m.note?` note="${xesc(m.note)}"`:""}/>\n`});
+    d.markers.filter(m=>m.clip===c.id).forEach(m=>{const at=clamp(m.at,0,c.out-c.in-1);s+=`              <marker start="${T(c.in+at)}" duration="${T(1)}" value="${xesc(fxOf(m.type).l)}"${mkNote(m)?` note="${xesc(mkNote(m))}"`:""}/>\n`});
     s+=`            </asset-clip>\n`});
   s+=`          </spine>\n        </sequence>\n      </project>\n    </event>\n  </library>\n</fcpxml>\n`;
   return s;
@@ -1188,19 +1193,18 @@ function buildManual(){
   out.push("");
   const fx=exportDoc().markers.map(m=>({m,f:markerFrame(m,L)})).sort((a,b)=>a.f-b.f);
   out.push("二、加上特效（修剪完成後的時間碼）");
-  out.push(...(fx.length?fx.map(({m,f},i)=>`${i+1}. ${T(f)} ${fxOf(m.type).l}${m.note?"："+m.note.replace(/\s+/g," "):""}`):["沒有特效"]));
+  out.push(...(fx.length?fx.map(({m,f},i)=>`${i+1}. ${T(f)} ${fxOf(m.type).l}${mkNote(m)?"："+mkNote(m).replace(/\s+/g," "):""}`):["沒有特效"]));
   return out.join("\n")+"\n";
 }
 function srtTime(f){const ms=Math.round(f/fps*1000),z=(n,w=2)=>String(n).padStart(w,"0");return `${z(Math.floor(ms/3600000))}:${z(Math.floor(ms/60000)%60)}:${z(Math.floor(ms/1000)%60)},${z(ms%1000,3)}`}
-function buildSRT(){const L=layout(doc),c=doc.markers.filter(m=>m.type==="text"&&m.note.trim()&&L.map[m.clip]).map(m=>({m,f:markerFrame(m,L)})).sort((a,b)=>a.f-b.f);
-  return c.map(({m,f},i)=>{const end=Math.min(f+capDur(m),i+1<c.length?c[i+1].f:Infinity,L.total);return `${i+1}\n${srtTime(f)} --> ${srtTime(Math.max(end,f+1))}\n${m.note.trim()}\n`}).join("\n")}
+function buildSRT(){return captionSpans(layout(doc)).map(({m,f,end},i)=>`${i+1}\n${srtTime(f)} --> ${srtTime(end)}\n${capText(m)}\n`).join("\n")}
 function buildEDL(){
   const d=exportDoc(),b=Math.round(fps),L=layout(d),R0=3600*b;
   let s=`TITLE: ${d.project.replace(/[\r\n]/g," ").slice(0,70)}\nFCM: NON-DROP FRAME\n\n`;
   d.clips.forEach((c,i)=>{const e=L.map[c.id],reel=("AX").padEnd(8);
     s+=`${String(i+1).padStart(3,"0")}  ${reel} V     C        ${fToTc(c.in,b)} ${fToTc(c.out,b)} ${fToTc(R0+e.start,b)} ${fToTc(R0+e.start+c.out-c.in,b)}\n`;
     s+=`* FROM CLIP NAME: ${c.name.replace(/[\r\n]+/g," ")}\n`;if(c.src)s+=`* SOURCE FILE: ${c.src.replace(/[\r\n]+/g," ")}\n`;if(c.note)s+=`* COMMENT: ${c.note.replace(/\s+/g," ")}\n`;
-    d.markers.filter(m=>m.clip===c.id).forEach(m=>{s+=`* LOC: ${fToTc(R0+e.start+clamp(m.at,0,c.out-c.in-1),b)} YELLOW  [${fxOf(m.type).l}] ${m.note.replace(/\s+/g," ")}\n`});
+    d.markers.filter(m=>m.clip===c.id).forEach(m=>{s+=`* LOC: ${fToTc(R0+e.start+clamp(m.at,0,c.out-c.in-1),b)} YELLOW  [${fxOf(m.type).l}] ${mkNote(m).replace(/\s+/g," ")}\n`});
     s+="\n"});
   return s;
 }
@@ -1296,7 +1300,8 @@ $("#askSnip").textContent=`每次幫我剪完影片，請另外附上一個 .kom
                "in": 入點, "out": 出點（不含）,
                "srcDuration": 素材總長（選填） } ],
   "markers": [ { "id": "m1", "clip": 鏡頭 id, "at": 鏡頭內第幾格,
-                 "type": 特效種類, "note": 說明,
+                 "type": 特效種類, "note": 製作說明,
+                 "text": 畫面上要出現的字（選填，只有 text 用）,
                  "dur": 字幕顯示格數（選填，只有 text 用） } ] }
 
 鏡頭依成片順序排列。in、out、srcDuration 一律以「成片幀率」計算素材時間，即使素材本身是別的幀率。

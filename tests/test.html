@@ -167,7 +167,7 @@ frame.onload=async()=>{
   T("點時間軸字幕直接跳出編輯",()=>eq([p("sel.id"),pd.activeElement.id,pd.getElementById("insp").classList.contains("noting")],[cid,"mkNote",true]));
   ta().value="第一句改";ta().dispatchEvent(new pw.Event("input",{bubbles:true}));
   pd.querySelector('#insp [data-a="cancelnote"]').click();await tick();
-  T("取消會還原字幕",()=>eq(p(`doc.markers.find(m=>m.id==="${cid}").note`),"第一句"));
+  T("取消會還原字幕",()=>eq(p(`doc.markers.find(m=>m.id==="${cid}").text`),"第一句"));
   p("sel=null;renderInspector();renderTimeline()");await tick();
   pd.getElementById("capOv").click();
   T("點畫面上的字幕也能編輯",()=>eq([p("sel&&sel.id"),pd.activeElement.id,p("playing")],[cid,"mkNote",false]));
@@ -176,6 +176,11 @@ frame.onload=async()=>{
   T("調整字幕時間不關閉鍵盤",()=>eq([pd.activeElement.id,p(`doc.markers.find(m=>m.id==="${cid}").dur`)],["mkNote",75]));
   T("SRT 用字幕文字與起訖時間",()=>{const x=p("buildSRT()");return (x.startsWith("1\n")&&x.includes("第一句")&&/\d\d:\d\d:\d\d,\d{3} --> /.test(x))||x});
   T("字幕時間存進時間軸並能重開",()=>eq(p(`normalize(exportDoc()).markers.find(m=>m.id==="${cid}").dur`),75));
+  T("預覽與 SRT 的重疊規則一致",()=>{p("doc.markers=[{id:'a',clip:'c1',at:0,type:'text',note:'',text:'甲',dur:150},{id:'b',clip:'c1',at:30,type:'text',note:'',text:'乙',dur:30}];seek(90)");const none=pd.getElementById("capOv").hidden,x=p("buildSRT()");return (none&&x.includes("00:00:00,000 --> 00:00:01,000\n甲"))||[none,x]});
+  T("同一格兩個字幕只留後者",()=>{p("doc.markers=[{id:'a',clip:'c1',at:0,type:'text',note:'',text:'甲'},{id:'b',clip:'c1',at:0,type:'text',note:'',text:'乙'}];seek(0)");const x=p("buildSRT()");return (!x.includes("甲")&&pd.getElementById("capOv").textContent==="乙")||x});
+  T("製作說明不會變成字幕",()=>{p("load(SAMPLE)");return eq(p("buildSRT()"),"")});
+  T("字幕文字重開後保留",()=>eq(p("normalize({clips:[{id:'a',out:9}],markers:[{clip:'a',at:0,type:'text',text:'字'}]}).markers[0].text"),"字"));
+  T("字幕文字帶進三種匯出",()=>{p("doc.markers=[{id:'a',clip:'c1',at:0,type:'text',note:'',text:'甲句'}]");return (p("buildFCPXML()").includes("字幕：甲句")&&p("buildEDL()").includes("字幕：甲句")&&p("buildManual()").includes("字幕：甲句"))||"missing"});
   T("不合理的字幕時間會被略過",()=>eq(p("normalize({clips:[{id:'a',out:9}],markers:[{clip:'a',at:0,type:'text',dur:-5}]}).markers[0].dur===undefined"),true));
   p("document.activeElement.blur()");
   preset();await tick();
