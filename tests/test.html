@@ -121,7 +121,7 @@ frame.onload=async()=>{
     p("addMarker()");await tick();
     T(`${w}×${h} 特效面板同屏`,()=>onScreen([...BASE,".fxgrid",".insp .acts"]))}
   for(const w of [320,375,390]){await size(w,667);preset();await tick();
-    T(`${w} 寬標題與副標不被截斷`,()=>{const h=pd.querySelector(".brand h1"),q=pd.querySelector(".brand p"),d=pd.querySelector(".dot").getBoundingClientRect();return (h.scrollWidth<=h.clientWidth+1&&q.scrollWidth<=q.clientWidth+1&&d.width>=3)||[h.scrollWidth,h.clientWidth,q.scrollWidth,q.clientWidth,d.width]});
+    T(`${w} 寬標題與副標不被截斷`,()=>{const h=pd.querySelector(".brand h1"),q=pd.querySelector(".brand p");return (h.scrollWidth<=h.clientWidth+1&&q.scrollWidth<=q.clientWidth+1)||[h.scrollWidth,h.clientWidth,q.scrollWidth,q.clientWidth]});
     T(`${w} 寬手機字級至少 10.5px`,()=>{const bad=[...pd.querySelectorAll(".app *")].filter(e=>e.children.length===0&&e.textContent.trim()&&e.getBoundingClientRect().width&&!e.closest(".fxv")&&parseFloat(pw.getComputedStyle(e).fontSize)<10.5).map(e=>e.className+":"+pw.getComputedStyle(e).fontSize);return bad.length?bad.slice(0,5):true})}
   await size(390,700);preset();await tick();
   T("主要按鈕觸控區夠大",()=>{p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");const bad=[...pd.querySelectorAll(".transport .ib,.nudge[data-k=in] .nb,.tools button")].filter(b=>{const r=b.getBoundingClientRect();return r.height<44||r.width<38}).map(b=>b.outerHTML.slice(0,50));return bad.length?bad:true});
@@ -227,6 +227,33 @@ frame.onload=async()=>{
   T("手機橫向也不用捲動",()=>onScreen(BASE));
   p("nudgeEdge='in';sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
   T("手機橫向修剪面板同屏",()=>onScreen([".transport",".tl",".nudge[data-k=in] .nb"]));
+
+  /* English: every string a person can see or hear must be translated */
+  const leftover=(w,root)=>{const d=w.document,hit=[],r=d.querySelector(root),tw=d.createTreeWalker(r,4);
+    while(tw.nextNode()){const n=tw.currentNode;if(/[一-鿿]/.test(n.data)&&!n.parentElement.closest(".kaku,#langBtn,#phName,.mk,.body"))hit.push(n.data.trim().slice(0,30))}
+    r.querySelectorAll("[title],[aria-label],[placeholder]").forEach(el=>{if(el.id==="langBtn")return;for(const a of ["title","aria-label","placeholder"])if(/[一-鿿]/.test(el.getAttribute(a)||""))hit.push(a+":"+el.getAttribute(a).slice(0,30))});
+    return hit.length?hit:true};
+  T("英文介面沒有漏翻的中文",()=>{reset();k("setLang('en')");return leftover(w,".app")});
+  T("英文範例跟著換語言",()=>eq(k("[doc.project,orig.sample,document.documentElement.lang]"),["Sample | Neon Night Reel",true,"en"]));
+  T("英文：鏡頭面板沒有漏翻",()=>{k("sel={kind:'clip',id:'c2'};renderInspector()");return leftover(w,"#insp")});
+  T("英文：特效面板沒有漏翻",()=>{k("sel={kind:'mk',id:'m2'};renderInspector()");return leftover(w,"#insp")});
+  T("英文：字幕面板沒有漏翻",()=>{k("sel={kind:'mk',id:'m3'};renderInspector()");return leftover(w,"#insp")});
+  T("英文修改清單沒有中文",()=>{k(`sel={kind:'clip',id:'c1'};nudgeClip('in',2);nudgeClip('out',-3);doc.clips=doc.clips.filter(c=>c.id!=='c4');doc.markers[0].note='';doc.markers[1].at=5;doc.markers[2].text='Hi';doc.markers[2].dur=30;doc.markers.splice(0,1);renderAll()`);const x=k("logText()");return !/[一-鿿]/.test(x)||x});
+  T("英文手動清單與 SRT 沒有中文",()=>{const x=k("buildManual()+buildSRT()");return !/[一-鿿]/.test(x)||x});
+  T("改過的範例切語言不會被覆蓋",()=>{const a=k("doc.clips[0].in");k("setLang('zh');setLang('en')");return eq(k("doc.clips[0].in"),a)});
+  T("英文 FCPXML 來回保留特效種類",()=>{k("load(SAMPLE_EN)");return eq(k("parseFCPXML(buildFCPXML()).data.markers.map(m=>m.type)"),["flash","rgb","text"])});
+  T("中文匯出的 FCPXML 在英文介面也認得",()=>{k("setLang('zh');load(SAMPLE);window.__x=buildFCPXML();setLang('en')");return eq(k("parseFCPXML(window.__x).data.markers.map(m=>m.type)"),["flash","rgb","text"])});
+  T("匯入錯誤訊息也是英文",()=>{try{k("normalize({})");return "no error"}catch(e){return e.message==="No clips list found"||e.message}});
+  T("切回中文會還原介面",()=>{k("setLang('zh')");return eq([k("document.documentElement.lang"),k("$('.tab[data-tab=in]').textContent"),k("$('#pasteIn').placeholder.slice(0,2)"),k("doc.project")],["zh-Hant","匯入","貼上","範例｜霓虹夜行 Reel"])});
+  T("切換語言不影響剪輯資料與播放頭",()=>{reset();k("seek(50);sel={kind:'clip',id:'c2'};nudgeClip('out',-2);seek(70);setLang('en')");const a=k("[playhead,sel.id,doc.clips[1].out]");k("setLang('zh')");return eq(a,[70,"c2",298])});
+  T("標題沒有櫻點，logo 是有齒孔的底片",()=>eq([k("!!$('.brand .dot')"),k("$('.logo path').getAttribute('d').match(/h3v3h-3z/g).length")],[false,14]));
+  T("底色不再是純白",()=>{const v=n=>k(`getComputedStyle(document.documentElement).getPropertyValue('${n}').trim()`);return eq([v("--sheet")==="#ffffff",k("getComputedStyle(document.body).backgroundColor")==="rgb(255, 255, 255)"],[false,false])});
+  p("setLang('en')");
+  for(const [W,H] of [[320,568],[360,640],[390,700],[430,932]]){await size(W,H);p("sel=null;load(SAMPLE_EN);renderInspector();renderTimeline();closeSheet();seek(0)");await tick();
+    T(`英文手機 ${W}×${H} 同屏且標題列不溢出`,()=>{const o=onScreen([...BASE,"#langBtn","#undoBtn","#redoBtn","#copyTop"]);if(o!==true)return o;const b=pd.querySelector(".top").getBoundingClientRect();return (pd.documentElement.scrollWidth<=W&&b.right<=W+.5)||[pd.documentElement.scrollWidth,b.right]});
+    p("nudgeEdge='in';sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
+    T(`英文手機 ${W}×${H} 修剪面板同屏`,()=>onScreen([".transport",".tl",".nudge[data-k=in] .nb"]))}
+  p("setLang('zh')");await size(390,700);preset();
 
   reset();
   const fail=results.filter(r=>!r.ok);

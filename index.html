@@ -1,15 +1,16 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#ecebe0;color:#293c35}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <title>KOMA 影格｜逐格修改 Claude 剪好的影片</title>
+<meta name="theme-color" content="#f4f2e9">
 <meta name="description" content="在瀏覽器裡逐格修剪 Claude 剪好的影片、標記特效，產生可貼回 Claude 的修改提示詞，或匯出 FCPXML、EDL 到剪輯軟體。影片不會上傳。">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='2' y='8' width='36' height='24' rx='2' fill='%232b2d2f'/%3E%3Crect x='15' y='12' width='10' height='16' fill='%23a3766d'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 44 32%22%3E%3Cpath fill=%22%23293c35%22 fill-rule=%22evenodd%22 d=%22M0 3h44v26H0zM2 5.2h3v3h-3zM2 23.8h3v3h-3zM8 5.2h3v3h-3zM8 23.8h3v3h-3zM14 5.2h3v3h-3zM14 23.8h3v3h-3zM20 5.2h3v3h-3zM20 23.8h3v3h-3zM26 5.2h3v3h-3zM26 23.8h3v3h-3zM32 5.2h3v3h-3zM32 23.8h3v3h-3zM38 5.2h3v3h-3zM38 23.8h3v3h-3z%22/%3E%3Crect x=%223%22 y=%2210%22 width=%2211%22 height=%2212%22 rx=%221%22 fill=%22%23e7dcc0%22/%3E%3Crect x=%2216.5%22 y=%2210%22 width=%2211%22 height=%2212%22 rx=%221%22 fill=%22%238dbda3%22/%3E%3Crect x=%2230%22 y=%2210%22 width=%2211%22 height=%2212%22 rx=%221%22 fill=%22%23e7dcc0%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Outfit:wght@300;400&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&text=%E5%BD%B1%E6%A0%BC&display=swap">
 <style>
 /* Layout: a quiet editing desk — generous margins, preview + inspector, transport, a film-strip timeline with vertical labels, notebook below. */
 :root{
-  --paper:#f6f5ef; --sheet:#ffffff; --well:#e5eee6; --ink:#293c35; --sub:#52635b; --line:#d9ddd3; --hair:#e8eae2;
-  --ac:#3b7560; --ac2:#805544; --warn:#985036; --shu:#c8574a; --gold:#7d6a3a; --onac:#ffffff; --stage:#ecebe3;
+  --paper:#ecebe0; --sheet:#f4f2e9; --well:#dfe7dc; --ink:#293c35; --sub:#52635b; --line:#d0d3c6; --hair:#e0e0d3;
+  --ac:#366f5a; --ac2:#805544; --warn:#985036; --shu:#c8574a; --gold:#7d6a3a; --onac:#faf9f3; --stage:#e4e3d7;
   --f-disp:"PingFang TC","Noto Sans CJK TC","Microsoft JhengHei",sans-serif;
   --f-ui:"PingFang TC","Noto Sans CJK TC","Microsoft JhengHei",sans-serif;
   --f-mono:"DM Mono",ui-monospace,"SF Mono",Menlo,monospace;
@@ -28,11 +29,10 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 /* header */
 .top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px}
-.logo{width:40px;height:40px;flex:none}
-.brand h1{margin:0;font-weight:500;line-height:1.1;white-space:nowrap;display:flex;align-items:baseline;gap:0;word-spacing:-1em}
-.dot{width:5px;height:5px;margin:0 9px;border-radius:50%;background:#e6a79a;align-self:center;flex:none}
-.ko{font-family:"Outfit",var(--f-ui);font-weight:400;font-size:26px;letter-spacing:.08em;margin-right:-.08em;word-spacing:0}
-.kaku{font-family:"Huninn",var(--f-ui);font-weight:400;font-size:23px;letter-spacing:.02em;color:var(--ac);word-spacing:0}
+.logo{width:44px;height:32px;flex:none}
+.brand h1{margin:0;font-weight:500;line-height:1.1;white-space:nowrap;display:flex;align-items:baseline;gap:8px}
+.ko{font-family:"Outfit",var(--f-ui);font-weight:400;font-size:26px;letter-spacing:.08em;margin-right:-.08em}
+.kaku{font-family:"Huninn",var(--f-ui);font-weight:400;font-size:23px;letter-spacing:.02em;color:var(--ac)}
 .brand p{margin:3px 0 0;font-family:"Outfit",var(--f-ui);font-weight:400;font-size:12px;line-height:1.3;color:var(--sub);letter-spacing:0}
 .proj{display:flex;gap:10px;align-items:baseline;flex:1;min-width:0;flex-wrap:wrap}
 .proj b{font-family:var(--f-disp);font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
@@ -55,17 +55,17 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .stage{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px}
 @media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr)}.insp{max-height:none}}
 .preview{display:flex;align-items:center;justify-content:center;padding:8px;min-height:240px;background:var(--stage);border-color:var(--hair)}
-.frame{position:relative;height:min(54vh,600px);max-width:100%;aspect-ratio:9/16;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 8px 28px rgba(47,74,64,.1)}
+.frame{position:relative;height:min(54vh,600px);max-width:100%;aspect-ratio:9/16;background:var(--sheet);border-radius:8px;overflow:hidden;box-shadow:0 8px 28px rgba(47,74,64,.1)}
 .frame video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
 .ph{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:22px 20px 46px;color:var(--ink);
-  background:linear-gradient(180deg,color-mix(in srgb,var(--c,#9aaba3) 22%,#fff) 0%,color-mix(in srgb,var(--c,#9aaba3) 7%,#fff) 100%)}
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c,#9aaba3) 22%,var(--sheet)) 0%,color-mix(in srgb,var(--c,#9aaba3) 7%,var(--sheet)) 100%)}
 .frame{container-type:inline-size}
 .ph .nm{font-family:var(--f-disp);font-weight:500;font-size:clamp(13px,8cqw,22px);line-height:1.45;letter-spacing:.08em;text-wrap:balance}
 .ph .hint{color:var(--sub);font-size:11.5px;margin-top:8px}
 .ov{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;gap:6px;pointer-events:none;font-variant-numeric:tabular-nums;font-size:11px;color:var(--ink)}
-.ov span{background:rgba(255,255,255,.86);padding:1px 7px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
-.cutflag{position:absolute;left:10px;bottom:10px;color:var(--ac);font-size:11px;padding:0 8px;border-radius:6px;background:rgba(255,255,255,.9)}
-.fxbadge{position:absolute;right:10px;top:38px;width:42%;display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.92);padding:5px;border-radius:8px;color:var(--ink);font-size:11px;text-align:center;cursor:pointer;animation:fade .3s ease}
+.ov span{background:rgba(244,242,233,.88);padding:1px 7px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
+.cutflag{position:absolute;left:10px;bottom:10px;color:var(--ac);font-size:11px;padding:0 8px;border-radius:6px;background:rgba(244,242,233,.92)}
+.fxbadge{position:absolute;right:10px;top:38px;width:42%;display:flex;flex-direction:column;gap:4px;background:rgba(244,242,233,.94);padding:5px;border-radius:8px;color:var(--ink);font-size:11px;text-align:center;cursor:pointer;animation:fade .3s ease}
 .frame:has(.capov:not([hidden])) .nm,.frame:has(.capov:not([hidden])) .hint{visibility:hidden}
 .capov{position:absolute;left:8%;right:8%;bottom:11%;margin:auto;width:fit-content;max-width:84%;padding:3px 10px;border-radius:6px;background:rgba(24,36,31,.78);color:#fff;font-size:clamp(12px,6.5cqw,20px);line-height:1.4;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text}
 @keyframes fade{from{opacity:0}}
@@ -165,8 +165,8 @@ textarea{resize:vertical;min-height:64px}
 .ib{width:36px;height:36px;display:grid;place-items:center;background:transparent;border:0;border-radius:3px;color:var(--sub)}
 .ib svg{width:14px;height:14px;fill:currentColor}
 .ib:hover{color:var(--ac);background:var(--well)}
-.ib.play{width:44px;height:44px;border-radius:50%;border:0;background:var(--ac);color:#fff;margin:0 4px}
-.ib.play:hover{background:color-mix(in srgb,var(--ac) 85%,var(--ink));color:#fff}
+.ib.play{width:44px;height:44px;border-radius:50%;border:0;background:var(--ac);color:var(--onac);margin:0 4px}
+.ib.play:hover{background:color-mix(in srgb,var(--ac) 85%,var(--ink));color:var(--onac)}
 .spacer{flex:1}
 .zoom{display:flex;align-items:center;gap:8px;color:var(--sub);font-size:12px}
 .zoom input{width:110px;accent-color:var(--ac)}
@@ -262,10 +262,10 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .top{order:0;flex:none;gap:2px 6px;flex-wrap:wrap;padding:4px 10px 3px;border-bottom:0;background:var(--sheet)}
   .foot,#projMeta{display:none}
   .brand{gap:7px;flex:1 1 0;min-width:0}
-  .ko{font-size:20px;letter-spacing:.06em;margin-right:-.06em}.kaku{font-size:18px}.dot{width:4px;height:4px;margin:0 6px}
+  .ko{font-size:20px;letter-spacing:.06em;margin-right:-.06em}.kaku{font-size:18px}.brand h1{gap:6px}
   .brand p{margin:1px 0 0;font-size:11px;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .brand>div{min-width:0}
-  .logo{width:30px;height:30px}
+  .logo{width:36px;height:26px}
   .proj{order:8;flex:1 1 100%;display:flex;gap:8px;align-items:baseline;flex-wrap:nowrap;line-height:1.4;overflow:hidden;white-space:nowrap}
   .proj b{font-family:var(--f-ui);font-weight:400;font-size:11px;color:var(--sub);flex:0 1 auto;min-width:0}
   .proj .pill{font-size:11px;flex:none}
@@ -296,7 +296,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .ib{width:44px;height:44px;color:var(--ink)}
   .ib svg{width:17px;height:17px}
   .ib{color:var(--ac)}
-  .ib.play{width:44px;height:44px;margin:0 2px;color:#fff}
+  .ib.play{width:44px;height:44px;margin:0 2px;color:var(--onac)}
   .ib.play svg{width:20px;height:20px}
   .zoom .btn{min-height:40px;padding:0 8px;border-color:transparent;color:var(--sub)}
   .tl{order:3;flex:none;display:block;position:relative;background:var(--sheet);box-shadow:none}
@@ -309,7 +309,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .track{border:0}
   .track.v{height:clamp(62px,10dvh,92px);background:none}
   .track.f{height:44px}
-  .clip{top:2px;bottom:2px;border:0;border-radius:6px;background:color-mix(in srgb,var(--c) 38%,#fff);overflow:visible;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,#6f8478)}
+  .clip{top:2px;bottom:2px;border:0;border-radius:6px;background:color-mix(in srgb,var(--c) 38%,var(--sheet));overflow:visible;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,#6f8478)}
   .clip.mod{border:0;box-shadow:inset 0 -3px 0 var(--ac2),inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,#6f8478)}
   .clip.sel{outline:1px solid var(--ac);outline-offset:0;z-index:4}
   .clip.sel .body{left:12px;right:12px}
@@ -324,13 +324,13 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .clip.sel .h::after{top:4px;bottom:4px;left:auto;right:0;width:5px;border-radius:3px 0 0 3px;background:var(--ac);opacity:1}
   .clip.sel .h.r::after{right:auto;left:0;border-radius:0 3px 3px 0}
   .nb[data-a$=":5"],.nb[data-a$=":-5"]{background:none;box-shadow:inset 0 0 0 1px var(--line);color:var(--sub)}
-  .insp .acts [data-a=close]{background:var(--ac);border-color:var(--ac);color:#fff}
+  .insp .acts [data-a=close]{background:var(--ac);border-color:var(--ac);color:var(--onac)}
   .mk{top:7px;touch-action:pan-x;cursor:pointer;min-width:44px}
   .mk::before{content:"";position:absolute;inset:-7px 0}
   .mk.sel{touch-action:none;z-index:3}
   .mk i{height:28px}
   .mk span{box-shadow:inset 0 0 0 1px #c5d3c8;background:var(--well);color:var(--ink);max-width:150px;overflow:hidden;text-overflow:ellipsis;border:0;border-radius:999px;padding:3px 7px;line-height:1.3;font-size:11.5px}
-  .mk.sel span{background:var(--ac);color:#fff}
+  .mk.sel span{background:var(--ac);color:var(--onac)}
   .mk.sel i{background:var(--ac)}
   .phd{display:none}
   body.tlfreeze .phd{display:block;border-left-color:var(--warn)}
@@ -344,7 +344,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .dirhint{white-space:nowrap}
   .seg{flex:none;display:inline-flex;background:var(--well);border-radius:8px;padding:2px}
   .seg button{background:none;border:0;border-radius:6px;min-width:60px;height:40px;color:var(--sub)}
-  .seg button[aria-pressed=true]{background:var(--ac);color:#fff;font-weight:500}
+  .seg button[aria-pressed=true]{background:var(--ac);color:var(--onac);font-weight:500}
   .len{flex:1;min-width:0;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;line-height:1.3;color:var(--sub);letter-spacing:0;white-space:nowrap}
   .len b{display:block;font-family:var(--f-ui);font-weight:500;font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
   .insp .row{display:block}
@@ -408,18 +408,28 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   }
 }
 @media (max-width:400px){#copyTop .long{display:none}}
+.lang{min-width:34px;justify-content:center;padding:6px 8px;font-size:12px;letter-spacing:0}
+@media (max-width:760px),(max-height:500px) and (pointer:coarse){.top .lang{width:40px;min-width:0;padding:0;border-color:transparent;color:var(--sub)}}
+@media (max-width:400px){#undoBtn,#redoBtn{width:36px!important}.top .lang{width:32px}}
+:root:lang(en){--f-disp:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--f-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+:lang(en) body{letter-spacing:0}
+:lang(en) .eyebrow,:lang(en) .insp h3,:lang(en) .fxhero b,:lang(en) .blk h4,:lang(en) .foot,:lang(en) .labs{letter-spacing:.02em}
+:lang(en) .row{grid-template-columns:58px 1fr}
+:lang(en) .steps li::before{content:counter(s)}
+:lang(en) .ph .nm{letter-spacing:.01em}
 @media (max-width:359px){.brand p{font-size:11px;letter-spacing:-.02em}.logo{display:none}#undoBtn,#redoBtn{width:36px}.ib{width:38px}.transport .tc{width:60px}.seg button{min-width:50px}}
 </style>
 </head><body>
 
 <div class="app">
   <header class="top">
-    <div class="brand"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x="3.8" y="7" width="24.4" height="19" rx="6" fill="#fff" stroke="var(--ac)" stroke-width="1.4"/><rect x="12" y="10.5" width="8" height="12" rx="1.5" fill="#7fb39a"/><path d="M8 11v0M8 16.5v0M8 22v0M24 11v0M24 16.5v0M24 22v0" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" opacity=".45"/></svg><div><h1><span class="ko">KOMA</span> <i class="dot" aria-hidden="true"></i><span class="kaku">影格</span></h1><p>(editor for claude video)</p></div></div>
-    <div class="proj"><b id="projName"></b><span class="pill" id="projMeta"></span><span class="pill warn" id="sampleTag" hidden>範例資料</span><span class="pill" id="saveState"></span><span class="pill warn" id="vidWarn" hidden></span></div>
+    <div class="brand"><svg class="logo" viewBox="0 0 44 32" aria-hidden="true"><path fill="var(--ink)" fill-rule="evenodd" d="M0 3h44v26H0zM2 5.2h3v3h-3zM2 23.8h3v3h-3zM8 5.2h3v3h-3zM8 23.8h3v3h-3zM14 5.2h3v3h-3zM14 23.8h3v3h-3zM20 5.2h3v3h-3zM20 23.8h3v3h-3zM26 5.2h3v3h-3zM26 23.8h3v3h-3zM32 5.2h3v3h-3zM32 23.8h3v3h-3zM38 5.2h3v3h-3zM38 23.8h3v3h-3z"/><rect x="3" y="10" width="11" height="12" rx="1" fill="#e7dcc0"/><rect x="16.5" y="10" width="11" height="12" rx="1" fill="#8dbda3"/><rect x="30" y="10" width="11" height="12" rx="1" fill="#e7dcc0"/></svg><div><h1><span class="ko">KOMA</span> <span class="kaku">影格</span></h1><p>(editor for claude video)</p></div></div>
+    <div class="proj"><b id="projName"></b><span class="pill" id="projMeta"></span><span class="pill warn" id="sampleTag" hidden data-en="Sample data">範例資料</span><span class="pill" id="saveState"></span><span class="pill warn" id="vidWarn" hidden></span></div>
     <button class="btn ghost" id="restorePrev" hidden>還原上一份草稿</button>
-    <button class="btn" id="undoBtn" title="復原 (Ctrl/⌘+Z)" aria-label="復原"><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62A7.95 7.95 0 0 1 20.4 16l2.37-.78A10.5 10.5 0 0 0 12.5 8z"/></svg><span class="t">復原</span></button>
-    <button class="btn" id="redoBtn" title="重做 (Ctrl/⌘+Shift+Z)" aria-label="重做"><svg viewBox="0 0 24 24" style="transform:scaleX(-1)"><path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62A7.95 7.95 0 0 1 20.4 16l2.37-.78A10.5 10.5 0 0 0 12.5 8z"/></svg><span class="t">重做</span></button>
-    <button class="btn pri only-m" id="copyTop" aria-label="複製給 Claude">複製<span class="long">給 Claude</span></button>
+    <button class="btn lang" id="langBtn" type="button"></button>
+    <button class="btn" id="undoBtn" title="復原 (Ctrl/⌘+Z)" aria-label="復原" data-en-title="Undo (Ctrl/⌘+Z)" data-en-aria-label="Undo"><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62A7.95 7.95 0 0 1 20.4 16l2.37-.78A10.5 10.5 0 0 0 12.5 8z"/></svg><span class="t" data-en="Undo">復原</span></button>
+    <button class="btn" id="redoBtn" title="重做 (Ctrl/⌘+Shift+Z)" aria-label="重做" data-en-title="Redo (Ctrl/⌘+Shift+Z)" data-en-aria-label="Redo"><svg viewBox="0 0 24 24" style="transform:scaleX(-1)"><path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62A7.95 7.95 0 0 1 20.4 16l2.37-.78A10.5 10.5 0 0 0 12.5 8z"/></svg><span class="t" data-en="Redo">重做</span></button>
+    <button class="btn pri only-m" id="copyTop" aria-label="複製給 Claude" data-en-aria-label="Copy for Claude" data-en='Copy<span class="long"> for Claude</span>'>複製<span class="long">給 Claude</span></button>
   </header>
 
   <section class="stage">
@@ -428,7 +438,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
         <video id="video" playsinline preload="auto" hidden></video>
         <div class="ph" id="ph"><div class="nm" id="phName"></div><div class="hint"></div></div>
         <div class="ov"><span id="ovClip"></span><span id="ovSrc"></span></div>
-        <div class="warnbox" id="warn" hidden>這一格不在目前的成片裡（鏡頭被你延長了）。照常標記即可，Claude 會用素材重新輸出。</div>
+        <div class="warnbox" id="warn" hidden data-en="This frame is not in the current cut because you extended the clip. Mark it as usual; Claude will re-render it from the source.">這一格不在目前的成片裡（鏡頭被你延長了）。照常標記即可，Claude 會用素材重新輸出。</div>
         <div class="cutflag" id="cutFlag" hidden>剪接點</div>
         <div class="fxbadge" id="fxBadge" hidden></div>
         <div class="capov" id="capOv" hidden></div>
@@ -440,20 +450,20 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   <div class="card transport">
     <div class="tc" id="tc">00:00:00 <small>/ 00:00:00</small></div>
     <div class="tgroup">
-      <button class="ib" data-t="prevcut" title="上一個剪接點 (↑)" aria-label="上一個剪接點"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9.5 12z"/></svg></button>
-      <button class="ib" data-t="-1" title="上一格 (←)" aria-label="上一格"><svg viewBox="0 0 24 24"><path d="M16 5v14L6 12z"/></svg></button>
-      <button class="ib play" id="playBtn" data-t="play" title="播放 / 暫停 (空白鍵)" aria-label="播放"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></button>
-      <button class="ib" data-t="+1" title="下一格 (→)" aria-label="下一格"><svg viewBox="0 0 24 24"><path d="M8 5v14l10-7z"/></svg></button>
-      <button class="ib" data-t="nextcut" title="下一個剪接點 (↓)" aria-label="下一個剪接點"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l10.5-7z"/></svg></button>
+      <button class="ib" data-t="prevcut" title="上一個剪接點 (↑)" aria-label="上一個剪接點" data-en-title="Previous cut (↑)" data-en-aria-label="Previous cut"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9.5 12z"/></svg></button>
+      <button class="ib" data-t="-1" title="上一格 (←)" aria-label="上一格" data-en-title="Previous frame (←)" data-en-aria-label="Previous frame"><svg viewBox="0 0 24 24"><path d="M16 5v14L6 12z"/></svg></button>
+      <button class="ib play" id="playBtn" data-t="play" title="播放 / 暫停 (空白鍵)" data-en-title="Play / pause (Space)" aria-label="播放"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></button>
+      <button class="ib" data-t="+1" title="下一格 (→)" aria-label="下一格" data-en-title="Next frame (→)" data-en-aria-label="Next frame"><svg viewBox="0 0 24 24"><path d="M8 5v14l10-7z"/></svg></button>
+      <button class="ib" data-t="nextcut" title="下一個剪接點 (↓)" aria-label="下一個剪接點" data-en-title="Next cut (↓)" data-en-aria-label="Next cut"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l10.5-7z"/></svg></button>
     </div>
-    <button class="btn shu" data-t="mark" title="在播放頭加特效 (M)">＋ 加特效</button>
-    <button class="btn" data-t="caption">＋ 加字幕</button>
+    <button class="btn shu" data-t="mark" title="在播放頭加特效 (M)" data-en-title="Add effect at playhead (M)" data-en="＋ Add effect">＋ 加特效</button>
+    <button class="btn" data-t="caption" data-en="＋ Add caption">＋ 加字幕</button>
     <div class="spacer"></div>
-    <div class="zoom"><label for="zoom">縮放</label><input type="range" id="zoom" min="0" max="100" step="1"><button class="btn sm" data-t="fit">全覽</button></div>
+    <div class="zoom"><label for="zoom" data-en="Zoom">縮放</label><input type="range" id="zoom" min="0" max="100" step="1"><button class="btn sm" data-t="fit" data-en="Fit">全覽</button></div>
   </div>
 
   <div class="card tl">
-    <div class="labs"><div class="l0">時間</div><div class="l1">鏡頭</div><div class="l2">特效字幕</div></div>
+    <div class="labs"><div class="l0" data-en="Time">時間</div><div class="l1" data-en="Clips">鏡頭</div><div class="l2" data-en="FX · Text">特效字幕</div></div>
     <div class="scroll" id="scroll">
       <div class="inner" id="inner">
         <div class="ruler" id="ruler"></div>
@@ -465,106 +475,107 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
     <div class="cline only-m" aria-hidden="true"></div>
   </div>
 
-  <nav class="tools only-m" aria-label="工具">
-    <button data-t="mark"><svg viewBox="0 0 24 24"><path d="M12 3l2 5.5L19.5 10 14 12l-2 6-2-6-5.5-2L10 8.5zM19 16v5M16.5 18.5h5"/></svg>特效</button>
-    <button data-t="caption"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zM7 11h4M13 11h4M7 14.5h7"/></svg>字幕</button>
-    <button data-sheet="log"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"/></svg>清單<span class="n" id="logN2" hidden></span></button>
-    <button data-sheet="in"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M4 20h16"/></svg>匯入</button>
-    <button data-sheet="out"><svg viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M4 20h16"/></svg>匯出</button>
-    <button data-sheet="keys"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h0"/></svg>說明</button>
+  <nav class="tools only-m" aria-label="工具" data-en-aria-label="Tools">
+    <button data-t="mark"><svg viewBox="0 0 24 24"><path d="M12 3l2 5.5L19.5 10 14 12l-2 6-2-6-5.5-2L10 8.5zM19 16v5M16.5 18.5h5"/></svg><span data-en="Effect">特效</span></button>
+    <button data-t="caption"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zM7 11h4M13 11h4M7 14.5h7"/></svg><span data-en="Caption">字幕</span></button>
+    <button data-sheet="log"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"/></svg><span data-en="Changes">清單</span><span class="n" id="logN2" hidden></span></button>
+    <button data-sheet="in"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M4 20h16"/></svg><span data-en="Import">匯入</span></button>
+    <button data-sheet="out"><svg viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M4 20h16"/></svg><span data-en="Export">匯出</span></button>
+    <button data-sheet="keys"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h0"/></svg><span data-en="Help">說明</span></button>
   </nav>
   <div class="scrim" id="scrim" hidden></div>
-  <div class="card sheet-card" id="sheetCard" aria-label="修改清單與檔案">
+  <div class="card sheet-card" id="sheetCard" aria-label="修改清單與檔案" data-en-aria-label="Changes and files">
     <div class="tabs" role="tablist">
-      <button class="tab" role="tab" aria-selected="true" data-tab="log">修改清單<span class="n" id="logN" hidden></span></button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="in">匯入</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="out">匯出到剪輯軟體</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="keys"><span class="only-d">快捷鍵</span><span class="only-m">說明</span></button>
-      <button class="sheet-close only-m" id="sheetClose" aria-label="關閉">✕</button>
+      <button class="tab" role="tab" aria-selected="true" data-tab="log"><span data-en="Changes">修改清單</span><span class="n" id="logN" hidden></span></button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="in" data-en="Import">匯入</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="out" data-en="Export to editor">匯出到剪輯軟體</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="keys"><span class="only-d" data-en="Shortcuts">快捷鍵</span><span class="only-m" data-en="Help">說明</span></button>
+      <button class="sheet-close only-m" id="sheetClose" aria-label="關閉" data-en-aria-label="Close">✕</button>
     </div>
     <div class="tp" data-panel="log">
       <div class="logbar">
-        <button class="btn pri" id="copyLog">複製給 Claude</button>
-        <label><input type="checkbox" id="withJson"> 附上完整時間軸</label>
+        <button class="btn pri" id="copyLog" data-en="Copy for Claude">複製給 Claude</button>
+        <label><input type="checkbox" id="withJson"> <span data-en="Include full timeline">附上完整時間軸</span></label>
         <span class="spacer"></span>
-        <button class="btn sm ghost" id="resetBtn">全部還原</button>
+        <button class="btn sm ghost" id="resetBtn" data-en="Reset all">全部還原</button>
       </div>
       <ol class="log" id="log"></ol>
-      <p class="help" id="logEmpty"><span class="only-d">還沒有修改。拖鏡頭兩側的邊、或在右側逐格微調，按 <kbd>M</kbd> 在播放頭加特效，這裡會自動整理成可以直接貼給 Claude 的文字。</span><span class="only-m">還沒有修改。點時間軸上的鏡頭逐格修剪，或用「加特效」標記，這裡會自動整理成可以直接貼給 Claude 的文字。</span></p>
-      <textarea id="copyFallback" rows="8" hidden readonly aria-label="修改清單文字"></textarea>
+      <p class="help" id="logEmpty"><span class="only-d" data-en="No changes yet. Drag either edge of a clip or nudge frame by frame on the right, press <kbd>M</kbd> to add an effect at the playhead, and this list becomes text you can paste straight to Claude.">還沒有修改。拖鏡頭兩側的邊、或在右側逐格微調，按 <kbd>M</kbd> 在播放頭加特效，這裡會自動整理成可以直接貼給 Claude 的文字。</span><span class="only-m" data-en="No changes yet. Tap a clip to trim it frame by frame or use Effect to mark a spot, and this list becomes text you can paste straight to Claude.">還沒有修改。點時間軸上的鏡頭逐格修剪，或用「加特效」標記，這裡會自動整理成可以直接貼給 Claude 的文字。</span></p>
+      <textarea id="copyFallback" rows="8" hidden readonly aria-label="修改清單文字" data-en-aria-label="Change list text"></textarea>
     </div>
     <div class="tp" data-panel="in" hidden>
       <div class="grid2">
         <div class="blk">
-          <h4><span class="only-d">拖進來就好</span><span class="only-m">選擇檔案</span></h4>
+          <h4><span class="only-d" data-en="Just drop it in">拖進來就好</span><span class="only-m" data-en="Choose files">選擇檔案</span></h4>
           <div class="drop">
-            <b class="only-d">把影片和時間軸檔一起拖進頁面任何地方</b><b class="only-m">選成片影片和時間軸檔，可以一次選多個</b>
-            <span class="types"><span class="pill">.mp4 .mov 成片</span><span class="pill">.json Claude</span><span class="pill">.fcpxml</span><span class="pill">.edl</span></span>
-            <button class="btn sm" id="pickFile" type="button"><span class="only-d">或選擇檔案</span><span class="only-m">選擇檔案</span></button>
+            <b class="only-d" data-en="Drop the video and timeline file anywhere on the page">把影片和時間軸檔一起拖進頁面任何地方</b><b class="only-m" data-en="Choose the final video and timeline file; you can pick several at once">選成片影片和時間軸檔，可以一次選多個</b>
+            <span class="types"><span class="pill" data-en=".mp4 .mov final cut">.mp4 .mov 成片</span><span class="pill">.json Claude</span><span class="pill">.fcpxml</span><span class="pill">.edl</span></span>
+            <button class="btn sm" id="pickFile" type="button"><span class="only-d" data-en="Or choose files">或選擇檔案</span><span class="only-m" data-en="Choose files">選擇檔案</span></button>
           </div>
-          <input type="file" id="anyFile" multiple hidden aria-label="選擇影片或時間軸檔" accept="video/*,.json,.fcpxml,.xml,.edl,.txt">
-          <div class="row" style="grid-template-columns:auto 1fr"><label class="lb" for="edlFps">EDL 幀率</label>
+          <input type="file" id="anyFile" multiple hidden aria-label="選擇影片或時間軸檔" data-en-aria-label="Choose a video or timeline file" accept="video/*,.json,.fcpxml,.xml,.edl,.txt">
+          <div class="row" style="grid-template-columns:auto 1fr"><label class="lb" for="edlFps" data-en="EDL frame rate">EDL 幀率</label>
             <select id="edlFps"><option>23.976</option><option>24</option><option>25</option><option>29.97</option><option selected>30</option><option>50</option><option>59.94</option><option>60</option></select></div>
-          <p class="help">EDL 檔案本身沒有記錄幀率，匯入前請先選好。影片只在你的瀏覽器裡播放，不會上傳。</p>
+          <p class="help" data-en="EDL files don't record a frame rate, so choose it before importing. Your video only plays in this browser and is never uploaded.">EDL 檔案本身沒有記錄幀率，匯入前請先選好。影片只在你的瀏覽器裡播放，不會上傳。</p>
           <p class="msg" id="inMsg"></p>
-          <div class="acts" id="lossyBar" hidden><button class="btn pri" id="lossyYes">仍要匯入</button><button class="btn" id="lossyNo">取消</button></div>
+          <div class="acts" id="lossyBar" hidden><button class="btn pri" id="lossyYes" data-en="Import anyway">仍要匯入</button><button class="btn" id="lossyNo" data-en="Cancel">取消</button></div>
         </div>
         <div class="blk">
-          <h4>或貼上文字</h4>
-          <textarea id="pasteIn" rows="6" placeholder="貼上 Claude 給的時間軸 JSON、FCPXML 或 EDL 內容"></textarea>
-          <div class="acts"><button class="btn pri" id="loadPaste">載入</button><button class="btn" id="loadSample">載入範例</button></div>
+          <h4 data-en="Or paste text">或貼上文字</h4>
+          <textarea id="pasteIn" rows="6" data-en-placeholder="Paste the timeline JSON, FCPXML or EDL from Claude" placeholder="貼上 Claude 給的時間軸 JSON、FCPXML 或 EDL 內容"></textarea>
+          <div class="acts"><button class="btn pri" id="loadPaste" data-en="Load">載入</button><button class="btn" id="loadSample" data-en="Load sample">載入範例</button></div>
         </div>
         <div class="blk">
-          <h4>給 Claude 的指令</h4>
-          <p class="help">貼到 Claude 的專案指示裡一次，之後每次剪片都會附上 Koma 時間軸。</p>
+          <h4 data-en="Instructions for Claude">給 Claude 的指令</h4>
+          <p class="help" data-en="Paste this into your Claude project instructions once, and every edit will come with a Koma timeline.">貼到 Claude 的專案指示裡一次，之後每次剪片都會附上 Koma 時間軸。</p>
           <pre class="snip" id="askSnip"></pre>
-          <div class="acts"><button class="btn" id="copySnip">複製指令</button></div>
+          <div class="acts"><button class="btn" id="copySnip" data-en="Copy instructions">複製指令</button></div>
         </div>
       </div>
     </div>
     <div class="tp" data-panel="out" hidden>
       <div class="grid2">
         <div class="blk">
-          <h4>匯出修改後的時間軸</h4>
+          <h4 data-en="Export the edited timeline">匯出修改後的時間軸</h4>
           <div class="exp">
-            <button class="expbtn" data-exp="fcpxml"><span class="ext">.fcpxml</span><b>Final Cut Pro · DaVinci Resolve</b><span>剪接點、鏡頭名稱、特效標記（變成 marker）</span></button>
-            <button class="expbtn" data-exp="edl"><span class="ext">.edl</span><b>Premiere Pro · DaVinci · Avid</b><span>剪接點與鏡頭名稱；特效寫成註解</span></button>
-            <button class="expbtn" data-exp="manual"><span class="ext">.txt</span><b>剪映 · CapCut · 其他軟體</b><span>手動操作清單：照著逐項修改，不需要匯入工程</span></button>
-            <button class="expbtn" data-exp="srt"><span class="ext">.srt</span><b>字幕檔</b><span>字幕文字與起訖時間，從 00:00:00 起算；幾乎所有剪輯軟體都能讀</span></button>
-            <button class="expbtn" data-exp="json"><span class="ext">.json</span><b>Koma 時間軸</b><span>給 Claude 或下次再用 Koma 打開</span></button>
+            <button class="expbtn" data-exp="fcpxml"><span class="ext">.fcpxml</span><b>Final Cut Pro · DaVinci Resolve</b><span data-en="Cuts, clip names and effect markers">剪接點、鏡頭名稱、特效標記（變成 marker）</span></button>
+            <button class="expbtn" data-exp="edl"><span class="ext">.edl</span><b>Premiere Pro · DaVinci · Avid</b><span data-en="Cuts and clip names; effects as comments">剪接點與鏡頭名稱；特效寫成註解</span></button>
+            <button class="expbtn" data-exp="manual"><span class="ext">.txt</span><b data-en="CapCut · other editors">剪映 · CapCut · 其他軟體</b><span data-en="A manual checklist to follow step by step, with no project import">手動操作清單：照著逐項修改，不需要匯入工程</span></button>
+            <button class="expbtn" data-exp="srt"><span class="ext">.srt</span><b data-en="Subtitles">字幕檔</b><span data-en="Caption text and timing from 00:00:00; nearly every editor can read it">字幕文字與起訖時間，從 00:00:00 起算；幾乎所有剪輯軟體都能讀</span></button>
+            <button class="expbtn" data-exp="json"><span class="ext">.json</span><b data-en="Koma timeline">Koma 時間軸</b><span data-en="For Claude, or to reopen in Koma later">給 Claude 或下次再用 Koma 打開</span></button>
           </div>
           <p class="msg" id="outMsg"></p>
         </div>
         <div class="blk">
-          <h4>素材在哪裡？</h4>
-          <label class="help" for="mediaDir">素材資料夾路徑（選填）。填了以後，剪輯軟體開啟時就能自動連結素材；沒填的話開啟後再手動「重新連結」即可。</label>
-          <input type="text" id="mediaDir" placeholder="例：/Users/you/Movies/素材/">
-          <p class="help">調色、字卡和動態特效不會跟著過去，只有剪接點和標記。特效會以 marker 出現在時間軸上，提醒你在那裡做什麼。</p>
-          <textarea id="exportOut" rows="6" hidden readonly aria-label="匯出內容"></textarea>
-          <div class="acts" id="exportOutActs" hidden><button class="btn sm" id="copyExport">複製內容</button><span class="help" id="exportOutHint"></span></div>
+          <h4 data-en="Where is the source media?">素材在哪裡？</h4>
+          <label class="help" for="mediaDir" data-en="Media folder path (optional). With it, your editor can link media automatically; without it, relink manually after opening.">素材資料夾路徑（選填）。填了以後，剪輯軟體開啟時就能自動連結素材；沒填的話開啟後再手動「重新連結」即可。</label>
+          <input type="text" id="mediaDir" data-en-placeholder="e.g. /Users/you/Movies/footage/" placeholder="例：/Users/you/Movies/素材/">
+          <p class="help" data-en="Grades, title cards and motion effects don't carry over, only cuts and markers. Effects appear as markers on the timeline to remind you what to do there.">調色、字卡和動態特效不會跟著過去，只有剪接點和標記。特效會以 marker 出現在時間軸上，提醒你在那裡做什麼。</p>
+          <textarea id="exportOut" rows="6" hidden readonly aria-label="匯出內容" data-en-aria-label="Export contents"></textarea>
+          <div class="acts" id="exportOutActs" hidden><button class="btn sm" id="copyExport" data-en="Copy contents">複製內容</button><span class="help" id="exportOutHint"></span></div>
         </div>
       </div>
     </div>
     <div class="tp" data-panel="keys" hidden>
-      <ol class="mhelp only-m"><li>左右滑時間軸移動畫面，白線就是目前這一格；雙指開合可以縮放。</li><li>點鏡頭後拖白色把手修剪，或在下方用 ±1、±5 逐格調入點和出點。</li><li>停在想要的格子按「特效」挑效果，或按「字幕」直接打字。點時間軸或畫面上的字幕就能修改。</li><li>按右上「複製給 Claude」，貼回對話就好；也可以到「匯出」輸出給剪輯軟體。</li></ol>
-      <p class="mnote only-m">公開測試版。FCPXML 與 EDL 尚未經真實剪輯軟體驗證，手機觸控手勢尚在實機驗證中。Koma 是獨立的開放工具，非 Anthropic 官方產品。</p>
+      <ol class="mhelp only-m"><li data-en="Swipe the timeline to move through the video; the center line marks the current frame. Pinch to zoom.">左右滑時間軸移動畫面，中間的線就是目前這一格；雙指開合可以縮放。</li><li data-en="Tap a clip, then drag its handles to trim, or use ±1 and ±5 below to adjust the in and out points frame by frame.">點鏡頭後拖把手修剪，或在下方用 ±1、±5 逐格調入點和出點。</li><li data-en="Stop on the frame you want and tap Effect to pick one, or Caption to type. Tap a caption on the timeline or preview to edit it.">停在想要的格子按「特效」挑效果，或按「字幕」直接打字。點時間軸或畫面上的字幕就能修改。</li><li data-en="Tap Copy at the top right and paste it back into your chat, or use Export to send it to an editor.">按右上「複製給 Claude」，貼回對話就好；也可以到「匯出」輸出給剪輯軟體。</li></ol>
+      <p class="mnote only-m" data-en="Public beta. FCPXML and EDL have not been verified in real editors, and phone gestures are still being tested on devices. Koma is an independent open tool, not an official Anthropic product.">公開測試版。FCPXML 與 EDL 尚未經真實剪輯軟體驗證，手機觸控手勢尚在實機驗證中。Koma 是獨立的開放工具，非 Anthropic 官方產品。</p>
       <dl class="keys only-d">
-        <dt><kbd>空白鍵</kbd></dt><dd>播放 / 暫停</dd>
-        <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>前後一格（加 <kbd>Shift</kbd> 一次 5 格）</dd>
-        <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>跳到上一個 / 下一個剪接點</dd>
-        <dt><kbd>M</kbd></dt><dd>在播放頭加特效</dd>
-        <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>把選取鏡頭的入點 / 出點設在播放頭</dd>
-        <dt><kbd>Delete</kbd></dt><dd>刪除選取的特效</dd>
-        <dt><kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd></dt><dd>復原（加 <kbd>Shift</kbd> 重做）</dd>
-        <dt>拖曳</dt><dd>鏡頭兩側的邊＝修剪入出點（後面鏡頭自動順移）；拖特效標記＝移動位置；拖上方時間列＝快速瀏覽；在特效軌雙擊＝新增特效</dd>
+        <dt><kbd data-en="Space">空白鍵</kbd></dt><dd data-en="Play / pause">播放 / 暫停</dd>
+        <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd data-en="Step one frame (<kbd>Shift</kbd> for 5)">前後一格（加 <kbd>Shift</kbd> 一次 5 格）</dd>
+        <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd data-en="Jump to previous / next cut">跳到上一個 / 下一個剪接點</dd>
+        <dt><kbd>M</kbd></dt><dd data-en="Add an effect at the playhead">在播放頭加特效</dd>
+        <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd data-en="Set the selected clip's in / out point at the playhead">把選取鏡頭的入點 / 出點設在播放頭</dd>
+        <dt><kbd>Delete</kbd></dt><dd data-en="Delete the selected effect">刪除選取的特效</dd>
+        <dt><kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd></dt><dd data-en="Undo (<kbd>Shift</kbd> to redo)">復原（加 <kbd>Shift</kbd> 重做）</dd>
+        <dt data-en="Drag">拖曳</dt><dd data-en="Clip edges trim in and out (later clips shift along); effect markers move; the time ruler scrubs; double-click the effect track to add an effect.">鏡頭兩側的邊＝修剪入出點（後面鏡頭自動順移）；拖特效標記＝移動位置；拖上方時間列＝快速瀏覽；在特效軌雙擊＝新增特效</dd>
       </dl>
     </div>
   </div>
-  <p class="foot">公開測試版。FCPXML 與 EDL 尚未經真實剪輯軟體驗證，手機觸控手勢尚在實機驗證中。<br>Koma 是獨立的開放工具，非 Anthropic 官方產品。</p>
+  <p class="foot" data-en="Public beta. FCPXML and EDL have not been verified in real editors, and phone gestures are still being tested on devices.<br>Koma is an independent open tool, not an official Anthropic product.">公開測試版。FCPXML 與 EDL 尚未經真實剪輯軟體驗證，手機觸控手勢尚在實機驗證中。<br>Koma 是獨立的開放工具，非 Anthropic 官方產品。</p>
 </div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
+let lang="zh";const tr=(zh,en)=>lang==="en"?en:zh;
 const SAMPLE={project:"範例｜霓虹夜行 Reel",fps:30,width:1080,height:1920,sample:true,
  clips:[
   {id:"c1",name:"開場｜霓虹招牌閃爍",src:"IMG_2041.MOV",in:45,out:117},
@@ -578,20 +589,34 @@ const SAMPLE={project:"範例｜霓虹夜行 Reel",fps:30,width:1080,height:1920
   {id:"m2",clip:"c3",at:30,type:"rgb",note:""},
   {id:"m3",clip:"c6",at:8,type:"text",note:"字卡淡入"}]};
 
+const SAMPLE_EN={project:"Sample | Neon Night Reel",fps:30,width:1080,height:1920,sample:true,
+ clips:[
+  {id:"c1",name:"Opening | neon sign flicker",src:"IMG_2041.MOV",in:45,out:117},
+  {id:"c2",name:"Figure walks into the rain",src:"IMG_2043.MOV",in:210,out:300},
+  {id:"c3",name:"Street pan to the right",src:"IMG_2050.MOV",in:12,out:84},
+  {id:"c4",name:"Close-up | light in the eyes",src:"IMG_2052.MOV",in:90,out:138},
+  {id:"c5",name:"Subway platform, slow",src:"IMG_2060.MOV",in:300,out:420},
+  {id:"c6",name:"Closing title card",src:"title_card.png",in:0,out:60}],
+ markers:[
+  {id:"m1",clip:"c1",at:0,type:"flash",note:"One-frame white flash at the top"},
+  {id:"m2",clip:"c3",at:30,type:"rgb",note:""},
+  {id:"m3",clip:"c6",at:8,type:"text",note:"Title card fades in"}]};
+const sampleData=()=>lang==="en"?SAMPLE_EN:SAMPLE;
+
 const FX=[
- {k:"glitch",l:"Glitch 抖動",c:"#b07085",d:"畫面瞬間錯位、撕裂。適合放在重拍或轉場前。"},
- {k:"flash",l:"閃白",c:"#b5a26a",d:"一兩格全白閃一下，強調重音或開場。"},
- {k:"rgb",l:"RGB 分離",c:"#8f80a8",d:"紅藍色版錯開，帶出迷幻、賽博的質感。"},
- {k:"zoom",l:"推近",c:"#6f98a8",d:"畫面放大推進，製造張力或聚焦主體。"},
- {k:"slow",l:"慢動作",c:"#7889aa",d:"放慢速度，讓情緒或動作細節停留久一點。"},
- {k:"ramp",l:"速度坡道",c:"#6f9a88",d:"快→慢→快，動作帶有呼吸般的節奏感。"},
- {k:"shake",l:"畫面震動",c:"#b08670",d:"鏡頭晃動，配合撞擊、低頻或鼓點。"},
- {k:"scan",l:"掃描線",c:"#8a93a0",d:"老電視、監視器般的線條與雜訊。"},
- {k:"text",l:"字卡 / 字幕",c:"#b39a5c",d:"這裡要出現文字、標題或字幕。"},
- {k:"trans",l:"轉場",c:"#7d9a7e",d:"切到下一個畫面的方式，例如劃、溶、推。"},
- {k:"grade",l:"調色",c:"#a8809d",d:"這段改變色調或氛圍。"},
- {k:"sfx",l:"音效點",c:"#9a8768",d:"這裡要放音效，或讓畫面對準某個聲音。"},
- {k:"other",l:"其他",c:"#8e9096",d:"其他想法，請在下面寫清楚。"}];
+ {k:"glitch",lz:"Glitch 抖動",le:"Glitch",c:"#b07085",dz:"畫面瞬間錯位、撕裂。適合放在重拍或轉場前。",de:"Frame tears and jumps for an instant. Good on a hit or before a transition."},
+ {k:"flash",lz:"閃白",le:"Flash",c:"#b5a26a",dz:"一兩格全白閃一下，強調重音或開場。",de:"One or two frames of pure white to punch a beat or an opening."},
+ {k:"rgb",lz:"RGB 分離",le:"RGB split",c:"#8f80a8",dz:"紅藍色版錯開，帶出迷幻、賽博的質感。",de:"Red and blue channels drift apart for a psychedelic, cyber feel."},
+ {k:"zoom",lz:"推近",le:"Push in",c:"#6f98a8",dz:"畫面放大推進，製造張力或聚焦主體。",de:"The frame scales in to build tension or focus on the subject."},
+ {k:"slow",lz:"慢動作",le:"Slow motion",c:"#7889aa",dz:"放慢速度，讓情緒或動作細節停留久一點。",de:"Slows things down so an emotion or detail lingers."},
+ {k:"ramp",lz:"速度坡道",le:"Speed ramp",c:"#6f9a88",dz:"快→慢→快，動作帶有呼吸般的節奏感。",de:"Fast, slow, fast: motion with a breathing rhythm."},
+ {k:"shake",lz:"畫面震動",le:"Shake",c:"#b08670",dz:"鏡頭晃動，配合撞擊、低頻或鼓點。",de:"Camera shake to match an impact, low end or a drum hit."},
+ {k:"scan",lz:"掃描線",le:"Scan lines",c:"#8a93a0",dz:"老電視、監視器般的線條與雜訊。",de:"Lines and noise like an old TV or security monitor."},
+ {k:"text",lz:"字卡 / 字幕",le:"Title / caption",c:"#b39a5c",dz:"這裡要出現文字、標題或字幕。",de:"Text, a title or a caption appears here."},
+ {k:"trans",lz:"轉場",le:"Transition",c:"#7d9a7e",dz:"切到下一個畫面的方式，例如劃、溶、推。",de:"How to move to the next shot, such as a wipe, dissolve or push."},
+ {k:"grade",lz:"調色",le:"Color grade",c:"#a8809d",dz:"這段改變色調或氛圍。",de:"Changes the color or mood of this section."},
+ {k:"sfx",lz:"音效點",le:"Sound effect",c:"#9a8768",dz:"這裡要放音效，或讓畫面對準某個聲音。",de:"Place a sound here, or line the picture up with a sound."},
+ {k:"other",lz:"其他",le:"Other",c:"#8e9096",dz:"其他想法，請在下面寫清楚。",de:"Anything else; describe it clearly below."}].map(f=>({...f,get l(){return tr(f.lz,f.le)},get d(){return tr(f.dz,f.de)}}));
 const PAL=["#93a79e","#a9c6d6","#a7a0b6","#b7ab8c","#b69d9d","#8ea6a6","#a3ac93","#b49f91"];
 const KEY="koma:v1";
 const $=s=>document.querySelector(s);
@@ -605,6 +630,8 @@ const TEST=/[?&]test\b/.test(location.search); /* tests must never touch a real 
 const store={get(k=KEY){if(TEST)return null;try{return localStorage.getItem(k)}catch(e){return null}},set(v,k=KEY){if(TEST)return true;try{localStorage.setItem(k,v);return true}catch(e){return false}},del(k){if(TEST)return;try{localStorage.removeItem(k)}catch(e){}}};
 const PREV=KEY+":prev",MAXF=1e8,MAXTOTAL=2e6,MAXCLIPS=5000,MAXLINK=5e6,MAXPX=2e7,MAXPREV=5;
 const IN_CLAUDE=!!window.claude;
+const LANGK="koma:lang",langQ=new URLSearchParams(location.search).get("lang");
+lang=langQ==="en"||langQ==="zh"?langQ:store.get(LANGK)||(TEST||/^zh/i.test(navigator.language||"")?"zh":"en");
 
 const MQ=matchMedia("(max-width:760px),(max-height:500px) and (pointer:coarse)"),isM=()=>MQ.matches;
 let noteStart=null,badgeId=null;
@@ -615,28 +642,28 @@ const video=$("#video"),scroll=$("#scroll"),inner=$("#inner");
 function tcBase(){return Math.round(fps)}
 function tc(f){f=Math.max(0,Math.round(f));const b=tcBase(),ff=f%b,s=Math.floor(f/b);return `${pad(Math.floor(s/60))}:${pad(s%60)}:${pad(ff)}`}
 function normalize(d){
-  if(!d||!Array.isArray(d.clips)) throw new Error("找不到 clips 鏡頭清單");
-  if(d.clips.length>MAXCLIPS) throw new Error(`鏡頭超過 ${MAXCLIPS} 個`);
-  if(d.fps!=null&&!(Number.isFinite(+d.fps)&&+d.fps>0&&+d.fps<=240)) throw new Error("fps 必須是 0 到 240 之間的數字");
-  const int=v=>{if(v!=null&&v!==""&&!Number.isFinite(+v))throw new Error(`「${v}」不是有效的格數`);const n=Math.round(+v||0);if(!Number.isSafeInteger(n)||Math.abs(n)>MAXF)throw new Error("格數超出可處理的範圍");return n};
+  if(!d||!Array.isArray(d.clips)) throw new Error(tr("找不到 clips 鏡頭清單","No clips list found"));
+  if(d.clips.length>MAXCLIPS) throw new Error(tr(`鏡頭超過 ${MAXCLIPS} 個`,`More than ${MAXCLIPS} clips`));
+  if(d.fps!=null&&!(Number.isFinite(+d.fps)&&+d.fps>0&&+d.fps<=240)) throw new Error(tr("fps 必須是 0 到 240 之間的數字","fps must be a number between 0 and 240"));
+  const int=v=>{if(v!=null&&v!==""&&!Number.isFinite(+v))throw new Error(tr(`「${v}」不是有效的格數`,`"${v}" is not a valid frame count`));const n=Math.round(+v||0);if(!Number.isSafeInteger(n)||Math.abs(n)>MAXF)throw new Error(tr("格數超出可處理的範圍","Frame count is out of range"));return n};
   const dim=v=>{const n=+v;return Number.isFinite(n)&&n>0&&n<=16384?Math.round(n):0};
   normWarn=[];
-  const o={project:String(d.project||"未命名專案"),fps:+d.fps||30,width:dim(d.width)||1080,height:dim(d.height)||1920,sample:!!d.sample};
+  const o={project:String(d.project||tr("未命名專案","Untitled project")),fps:+d.fps||30,width:dim(d.width)||1080,height:dim(d.height)||1920,sample:!!d.sample};
   const seen=new Set();
   o.clips=d.clips.map((c,i)=>{let id=String(c.id??("c"+(i+1)));while(seen.has(id))id+="_"+i;seen.add(id);
-    const r={id,name:String(c.name||("鏡頭 "+(i+1))),src:String(c.src||""),in:Math.max(0,int(c.in)),out:int(c.out),note:String(c.note||"")};
+    const r={id,name:String(c.name||(tr("鏡頭 ","Clip ")+(i+1))),src:String(c.src||""),in:Math.max(0,int(c.in)),out:int(c.out),note:String(c.note||"")};
     if(int(c.srcDuration)>0)r.srcDuration=int(c.srcDuration);return r}).filter(c=>c.out>c.in);
-  if(!o.clips.length) throw new Error("沒有有效的鏡頭（out 要大於 in）");
-  if(o.clips.reduce((a,c)=>a+c.out-c.in,0)>MAXTOTAL) throw new Error(`時間軸太長，上限是 ${MAXTOTAL} 格`);
-  if(o.clips.length<d.clips.length)normWarn.push(`略過 ${d.clips.length-o.clips.length} 個無效鏡頭`);
+  if(!o.clips.length) throw new Error(tr("沒有有效的鏡頭（out 要大於 in）","No valid clips (out must be greater than in)"));
+  if(o.clips.reduce((a,c)=>a+c.out-c.in,0)>MAXTOTAL) throw new Error(tr(`時間軸太長，上限是 ${MAXTOTAL} 格`,`Timeline too long; the limit is ${MAXTOTAL} frames`));
+  if(o.clips.length<d.clips.length)normWarn.push(tr(`略過 ${d.clips.length-o.clips.length} 個無效鏡頭`,`Skipped ${d.clips.length-o.clips.length} invalid clips`));
   const ms=Array.isArray(d.markers)?d.markers:[],mids=new Set();
-  if(ms.length>MAXCLIPS*4) throw new Error(`特效超過 ${MAXCLIPS*4} 個`);
+  if(ms.length>MAXCLIPS*4) throw new Error(tr(`特效超過 ${MAXCLIPS*4} 個`,`More than ${MAXCLIPS*4} effects`));
   o.markers=ms.map((m,i)=>{let id=String(m.id??("m"+(i+1)));while(mids.has(id))id+="_"+i;mids.add(id);
     return {id,clip:String(m.clip),at:Math.max(0,int(m.at)),type:FX.some(f=>f.k===m.type)?m.type:"other",note:String(m.note||""),...(m.dur>0&&m.dur<=MAXF?{dur:Math.round(m.dur)}:{}),...(typeof m.text==="string"&&m.text?{text:m.text}:{})}}).filter(m=>o.clips.some(c=>c.id===m.clip));
   o.markers.forEach(m=>{const c=o.clips.find(x=>x.id===m.clip);m.at=Math.min(m.at,c.out-c.in-1)});
   const legacy=o.markers.filter(m=>m.type==="text"&&!(m.text||"").trim()&&m.note.trim()).length;
-  if(legacy&&!d.sample)normWarn.push(`${legacy} 個字幕標記只有說明、沒有字幕文字，SRT 不會輸出。點該標記後可按「用說明當字幕」`);
-  if(o.markers.length<ms.length)normWarn.push(`略過 ${ms.length-o.markers.length} 個對不到鏡頭的特效`);
+  if(legacy&&!d.sample)normWarn.push(tr(`${legacy} 個字幕標記只有說明、沒有字幕文字，SRT 不會輸出。點該標記後可按「用說明當字幕」`,`${legacy} caption markers have notes but no caption text and won't be in the SRT. Select one and use "Use note as caption"`));
+  if(o.markers.length<ms.length)normWarn.push(tr(`略過 ${ms.length-o.markers.length} 個對不到鏡頭的特效`,`Skipped ${ms.length-o.markers.length} effects with no matching clip`));
   return o;
 }
 function layout(d){let s=0;const map=Object.create(null);d.clips.forEach((c,i)=>{map[c.id]={c,i,start:s};s+=c.out-c.in});return{map,total:s}}
@@ -654,7 +681,7 @@ function load(data,draftDoc){
 }
 let saveBlocked=false;
 function save(){const el=$("#saveState"),ok=!saveBlocked&&store.set(JSON.stringify({orig,doc}));
-  el.textContent=ok?"已自動暫存":saveBlocked?"已停止自動暫存，以保護無法讀取的舊草稿":"無法暫存，請匯出 JSON 備份";el.classList.toggle("warn",!ok)}
+  el.textContent=ok?tr("已自動暫存","Saved"):saveBlocked?tr("已停止自動暫存，以保護無法讀取的舊草稿","Autosave stopped to protect an unreadable draft"):tr("無法暫存，請匯出 JSON 備份","Can't save; export a JSON backup");el.classList.toggle("warn",!ok)}
 /* a new timeline never silently replaces edits: the old draft stays one click away */
 function loadNew(data){
   normalize(data); /* reject bad input before touching anything */
@@ -663,29 +690,29 @@ function loadNew(data){
 }
 let prevDrafts=[];
 function savePrevs(){const ok=prevDrafts.length?store.set(JSON.stringify(prevDrafts),PREV):(store.del(PREV),true);
-  const b=$("#restorePrev");b.hidden=!prevDrafts.length;b.textContent=`還原上一份草稿（${prevDrafts.length}）`;return ok}
+  const b=$("#restorePrev");b.hidden=!prevDrafts.length;b.textContent=tr(`還原上一份草稿（${prevDrafts.length}）`,`Restore previous draft (${prevDrafts.length})`);return ok}
 function keepPrev(d){const before=prevDrafts;prevDrafts=[...prevDrafts,d].slice(-MAXPREV);
-  if(!savePrevs()){prevDrafts=before;savePrevs();throw new Error("瀏覽器空間不足，無法備份目前的草稿。請先匯出 JSON，再載入新的時間軸")}}
+  if(!savePrevs()){prevDrafts=before;savePrevs();const er=new Error(tr("瀏覽器空間不足，無法備份目前的草稿。請先匯出 JSON，再載入新的時間軸","Not enough browser storage to back up this draft. Export JSON first, then load the new timeline"));er.space=true;throw er}}
 function restorePrev(){
   if(!prevDrafts.length)return;
-  if(saveBlocked)return toast("正在保護無法讀取的舊草稿，暫時不能還原。請先釋放瀏覽器空間");
+  if(saveBlocked)return toast(tr("正在保護無法讀取的舊草稿，暫時不能還原。請先釋放瀏覽器空間","Protecting an unreadable draft, so restore is unavailable. Free up browser storage first"));
   const before=prevDrafts,p=before[before.length-1],cur=changes().length?{orig,doc}:null,rest=before.slice(0,-1);
   const fail=t=>{prevDrafts=before;savePrevs();toast(t)};
-  try{normalize(p.orig);normalize(p.doc)}catch(e){prevDrafts=rest;savePrevs();return toast("這份草稿已損毀，無法還原")}
+  try{normalize(p.orig);normalize(p.doc)}catch(e){prevDrafts=rest;savePrevs();return toast(tr("這份草稿已損毀，無法還原","This draft is damaged and can't be restored"))}
   /* three writes, in the only order where a failure at any step loses nothing */
   prevDrafts=[...(cur?[cur]:[]),...before];
-  if(!savePrevs())return fail("瀏覽器空間不足，無法交換草稿。請先匯出 JSON");
-  if(!store.set(JSON.stringify({orig:p.orig,doc:p.doc})))return fail("瀏覽器空間不足，無法還原草稿。請先匯出 JSON");
+  if(!savePrevs())return fail(tr("瀏覽器空間不足，無法交換草稿。請先匯出 JSON","Not enough browser storage to swap drafts. Export JSON first"));
+  if(!store.set(JSON.stringify({orig:p.orig,doc:p.doc})))return fail(tr("瀏覽器空間不足，無法還原草稿。請先匯出 JSON","Not enough browser storage to restore the draft. Export JSON first"));
   prevDrafts=[...(cur?[cur]:[]),...rest].slice(-MAXPREV);
   savePrevs();
-  load(p.orig,p.doc);toast("已還原上一份草稿");
+  load(p.orig,p.doc);toast(tr("已還原上一份草稿","Previous draft restored"));
 }
 function syncUndo(){$("#undoBtn").disabled=!undo.length;$("#redoBtn").disabled=!redo.length}
 function pushUndo(){undo.push(JSON.stringify(doc));if(undo.length>300)undo.shift();redoStash=redo;redo=[];syncUndo()}
 function cancelUndo(){undo.pop();redo=redoStash;syncUndo()}
 function stepHistory(from,to,msg){if(!from.length)return;to.push(JSON.stringify(doc));doc=JSON.parse(from.pop());if(sel&&!(sel.kind==="clip"?doc.clips:doc.markers).some(x=>x.id===sel.id))sel=null;renderAll();toast(msg)}
-function doUndo(){stepHistory(undo,redo,"已復原")}
-function doRedo(){stepHistory(redo,undo,"已重做")}
+function doUndo(){stepHistory(undo,redo,tr("已復原","Undone"))}
+function doRedo(){stepHistory(redo,undo,tr("已重做","Redone"))}
 /* A marker stays on its source frame. If that frame is trimmed away it moves to the clip's edge for good; undo brings it back. */
 const clipMarks=c=>doc.markers.filter(m=>m.clip===c.id);
 const room=()=>MAXTOTAL-total();
@@ -705,8 +732,8 @@ function thumb(k){
   if(k==="glitch"||k==="trans")x=`<div class="sc b">${SCN}</div>`;
   else if(k==="flash"||k==="scan")x='<div class="fo"></div>';
   else if(k==="slow")x='<div class="fo"><i class="ball g2"></i><i class="ball g1"></i><i class="ball"></i></div><span class="tag">×0.5</span>';
-  else if(k==="ramp")x='<div class="fo"><i class="ball"></i></div><span class="tag">快·慢·快</span>';
-  else if(k==="text")x='<div class="fo"><span class="cap">夜行</span></div>';
+  else if(k==="ramp")x='<div class="fo"><i class="ball"></i></div><span class="tag">'+tr("快·慢·快","fast·slow·fast")+'</span>';
+  else if(k==="text")x='<div class="fo"><span class="cap">'+tr("夜行","Night")+'</span></div>';
   else if(k==="sfx")x='<div class="fo">'+[0,1,2,3,4,5,6].map(i=>`<i style="--i:${i}"></i>`).join("")+'</div>';
   else if(k==="other")x='<div class="fo"><i style="left:18%;top:20%">✦</i><i style="left:62%;top:44%;animation-delay:-.6s">✦</i><i style="left:36%;top:58%;animation-delay:-1.1s">✦</i></div>';
   return `<div class="fxv fx-${k}" aria-hidden="true"><div class="sc">${SCN}</div>${x}</div>`;
@@ -730,11 +757,11 @@ function renderTimeline(){
   const R=$("#ruler");R.innerHTML=h;R.style.backgroundSize=ppf>=5?`${ppf}px 6px`:"0 0";
   $("#trV").innerHTML=doc.clips.map((c,i)=>{
     const e=L.map[c.id],o=OL.map[c.id]?.c,dI=o?c.in-o.in:0,dO=o?c.out-o.out:0,isSel=sel?.kind==="clip"&&sel.id===c.id;
-    return `<div class="clip${isSel?" sel":""}${dI||dO?" mod":""}${(c.out-c.in)*ppf<46?" tiny":""}" data-id="${esc(c.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(`鏡頭 ${pad(i+1)} ${c.name}，${c.out-c.in} 格`)}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
-      <div class="h l" data-edge="in" title="拖曳修剪入點"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${c.out-c.in}f · ${esc(c.src)}</em></div><div class="h r" data-edge="out" title="拖曳修剪出點"></div>
-      ${dI?`<i class="d dl">入${sgn(dI)}</i>`:""}${dO?`<i class="d dr">出${sgn(dO)}</i>`:""}</div>`}).join("");
+    return `<div class="clip${isSel?" sel":""}${dI||dO?" mod":""}${(c.out-c.in)*ppf<46?" tiny":""}" data-id="${esc(c.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(tr(`鏡頭 ${pad(i+1)} ${c.name}，${c.out-c.in} 格`,`Clip ${pad(i+1)} ${c.name}, ${c.out-c.in} frames`))}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
+      <div class="h l" data-edge="in" title="${tr("拖曳修剪入點","Drag to trim the in point")}"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${c.out-c.in}f · ${esc(c.src)}</em></div><div class="h r" data-edge="out" title="${tr("拖曳修剪出點","Drag to trim the out point")}"></div>
+      ${dI?`<i class="d dl">${tr("入","In ")}${sgn(dI)}</i>`:""}${dO?`<i class="d dr">${tr("出","Out ")}${sgn(dO)}</i>`:""}</div>`}).join("");
   $("#trF").innerHTML=doc.markers.map(m=>{const f=markerFrame(m,L);if(f==null)return"";const fx=fxOf(m.type),isSel=sel?.kind==="mk"&&sel.id===m.id;
-    return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(m.type==="text"?`字幕 ${capText(m)||"未輸入"}，${tc(f)}，點一下編輯`:`特效 ${fx.l}，${tc(f)}`)}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?"："+m.note:""))}"><i></i><span>${esc(m.type==="text"&&capText(m)?capText(m).slice(0,14):fx.l)}</span></div>`}).join("");
+    return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(m.type==="text"?tr(`字幕 ${capText(m)||"未輸入"}，${tc(f)}，點一下編輯`,`Caption ${capText(m)||"empty"}, ${tc(f)}, tap to edit`):tr(`特效 ${fx.l}，${tc(f)}`,`Effect ${fx.l}, ${tc(f)}`))}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?tr("：",": ")+m.note:""))}"><i></i><span>${esc(m.type==="text"&&capText(m)?capText(m).slice(0,14):fx.l)}</span></div>`}).join("");
   updatePlayhead();
 }
 let badgeKey="";
@@ -752,12 +779,12 @@ function updatePlayhead(){
   updatePreview(L);
 }
 /* captions show for their duration in the preview; they are not burned into the video */
-const mkNote=m=>m.type==="text"&&capText(m)?`字幕：${capText(m)}${m.note.trim()&&m.note.trim()!==capText(m)?`；${m.note.trim()}`:""}`:m.note;
-const capDur=m=>m.dur||Math.round(2*fps),capText=m=>(m.text||"").trim();
+const mkNote=m=>m.type==="text"&&capText(m)?`${tr("字幕：","Caption: ")}${capText(m)}${m.note.trim()&&m.note.trim()!==capText(m)?`${tr("；","; ")}${m.note.trim()}`:""}`:m.note;
+const durText=d=>tr(`${(d/fps).toFixed(1)} 秒`,`${(d/fps).toFixed(1)}s`),capDur=m=>m.dur||Math.round(2*fps),capText=m=>(m.text||"").trim();
 /* one rule for preview and SRT: a caption ends at its duration or the next caption, and of two at the same frame the later one wins */
 function captionSpans(L){const c=doc.markers.filter(m=>m.type==="text"&&capText(m)&&L.map[m.clip]).map(m=>({m,f:markerFrame(m,L)})).sort((a,b)=>a.f-b.f).filter((x,i,a)=>!a[i+1]||a[i+1].f!==x.f);
   return c.map((x,i)=>({m:x.m,f:x.f,end:Math.min(x.f+capDur(x.m),i+1<c.length?c[i+1].f:Infinity,L.total)}))}
-function capCutText(m){const x=captionSpans(layout(doc)).find(y=>y.m===m);if(!capText(m))return "";if(!x)return "被同一格的字幕蓋過";return x.end-x.f<capDur(m)?`實際 ${x.end-x.f} 格（${((x.end-x.f)/fps).toFixed(2)} 秒），被下一句或片尾截斷`:""}
+function capCutText(m){const x=captionSpans(layout(doc)).find(y=>y.m===m);if(!capText(m))return "";if(!x)return tr("被同一格的字幕蓋過","Hidden by another caption on the same frame");return x.end-x.f<capDur(m)?tr(`實際 ${x.end-x.f} 格（${((x.end-x.f)/fps).toFixed(2)} 秒），被下一句或片尾截斷`,`Actually ${x.end-x.f} frames (${((x.end-x.f)/fps).toFixed(2)}s), cut short by the next caption or the end`):""}
 function captionAt(L){return captionSpans(L).find(x=>x.f<=playhead&&playhead<x.end)?.m||null}
 function updateCaption(L){const m=captionAt(L),el=$("#capOv");el.hidden=!m;el.dataset.id=m?m.id:"";if(m&&el.textContent!==capText(m))el.textContent=capText(m)}
 function editCaption(id){stopPlay();sel={kind:"mk",id};const m=doc.markers.find(x=>x.id===id),L=layout(doc);renderTimeline();renderInspector();seek(markerFrame(m,L));openNote()}
@@ -766,10 +793,10 @@ function openNote(){const n=$("#insp textarea");if(!n)return;noteStart={doc:clon
 function updatePreview(L){
   const hit=clipAt(playhead,L);if(!hit)return;
   const{c,i,start}=hit,k=playhead-start,srcF=c.in+k;
-  $("#ovClip").textContent=`鏡頭 ${pad(i+1)} · 第 ${k} 格`;
-  $("#ovSrc").textContent=`${c.src||"素材"} @ ${srcF}`;
+  $("#ovClip").textContent=tr(`鏡頭 ${pad(i+1)} · 第 ${k} 格`,`Clip ${pad(i+1)} · frame ${k}`);
+  $("#ovSrc").textContent=`${c.src||tr("素材","source")} @ ${srcF}`;
   $("#cutFlag").hidden=!(k===0||k===c.out-c.in-1);
-  $("#cutFlag").textContent=k===0?"剪接點：入":"剪接點：出";
+  $("#cutFlag").textContent=k===0?tr("剪接點：入","Cut: in"):tr("剪接點：出","Cut: out");
   if(!videoURL){$("#ph").style.setProperty("--c",clipColor(c,i));$("#phName").textContent=c.name;$("#warn").hidden=true;return}
   const o=layout(orig).map[c.id];let ok=false,of=0;
   if(o&&srcF>=o.c.in&&srcF<o.c.out){ok=true;of=o.start+(srcF-o.c.in)}
@@ -781,87 +808,88 @@ function updatePreview(L){
   else{if(!video.paused)video.pause();if(Math.abs(video.currentTime-t)>.4/fps)video.currentTime=t}
 }
 function nudgeRow(lb,key,v,o){const d=o==null?0:v-o;return `<div class="lb">${lb}</div><div class="nudge" data-k="${key}">
-  <button class="nb" data-a="${key}:-5" aria-label="${lb}往前 5 格">−5</button><button class="nb" data-a="${key}:-1" aria-label="${lb}往前 1 格">−1</button><span class="v"><span class="only-m vu">素材第 </span>${v}<span class="only-m vu"> 格</span></span><button class="nb" data-a="${key}:1" aria-label="${lb}往後 1 格">+1</button><button class="nb" data-a="${key}:5" aria-label="${lb}往後 5 格">+5</button></div>
-  <div class="delta${d?" on":""}">${o==null?"新項目":d?`原本 ${o}，${d>0?"晚":"早"} ${Math.abs(d)} 格`:"未修改"}</div>`}
-function overMedia(c){return c.srcDuration&&c.out>c.srcDuration?`<p class="msg err">超出素材長度 ${c.out-c.srcDuration} 格，Claude 可能沒有這段畫面。</p>`:""}
+  <button class="nb" data-a="${key}:-5" aria-label="${tr(`${lb}往前 5 格`,`${lb} 5 frames earlier`)}">−5</button><button class="nb" data-a="${key}:-1" aria-label="${tr(`${lb}往前 1 格`,`${lb} 1 frame earlier`)}">−1</button><span class="v"><span class="only-m vu">${tr("素材第 ","frame ")}</span>${v}<span class="only-m vu">${tr(" 格","")}</span></span><button class="nb" data-a="${key}:1" aria-label="${tr(`${lb}往後 1 格`,`${lb} 1 frame later`)}">+1</button><button class="nb" data-a="${key}:5" aria-label="${tr(`${lb}往後 5 格`,`${lb} 5 frames later`)}">+5</button></div>
+  <div class="delta${d?" on":""}">${o==null?tr("新項目","New"):d?tr(`原本 ${o}，${d>0?"晚":"早"} ${Math.abs(d)} 格`,`Was ${o}, ${Math.abs(d)} frames ${d>0?"later":"earlier"}`):tr("未修改","Unchanged")}</div>`}
+function overMedia(c){return c.srcDuration&&c.out>c.srcDuration?`<p class="msg err">${tr(`超出素材長度 ${c.out-c.srcDuration} 格，Claude 可能沒有這段畫面。`,`${c.out-c.srcDuration} frames past the source length; Claude may not have this footage.`)}</p>`:""}
 function renderInspector(){
   const el=$("#insp");
   document.body.classList.toggle("hassel",!!sel);el.classList.remove("noting");const wasTyping=document.body.classList.contains("typing");document.body.classList.remove("typing");if(wasTyping&&isM()){scroll.scrollLeft=playhead*ppf;tlExpect=scroll.scrollLeft}el.dataset.edge=nudgeEdge;
   if(sel?.kind==="clip"){
     const i=doc.clips.findIndex(c=>c.id===sel.id),c=doc.clips[i];if(!c){sel=null;return renderInspector()}
     const o=orig.clips.find(x=>x.id===c.id),dd=o?(c.out-c.in)-(o.out-o.in):0;
-    el.innerHTML=`<div class="eyebrow">鏡頭</div>
-      <div><span class="chip" style="--c:${clipColor(c,i)}">鏡頭 ${pad(i+1)}</span></div>
-      <h3>${esc(c.name)}</h3><div class="src">${esc(c.src||"（未標示素材）")}</div>
-      <div class="segrow only-m"><div class="seg" role="group" aria-label="要調整的剪接點"><button data-a="edge:in" aria-pressed="${nudgeEdge==="in"}">入點</button><button data-a="edge:out" aria-pressed="${nudgeEdge==="out"}">出點</button></div><div class="len"><b>${pad(i+1)} ${esc(c.name)}</b><span class="dirhint">＋往後 −往前 · </span>${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒${dd?` (${sgn(dd)})`:""}</div></div>
-      <div class="row">${nudgeRow("入點","in",c.in,o?.in)}${nudgeRow("出點","out",c.out,o?.out)}
-        <div class="lb mobhide">長度</div><div class="mono mobhide">${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒${dd?` <span style="color:var(--ac2)">(${sgn(dd)})</span>`:""}</div></div>
-      ${overMedia(c)}<p class="help">數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。</p>
-      <label class="help" for="clipNote">給 Claude 的備註</label>
-      <textarea id="clipNote" placeholder="例：這顆鏡頭調色再冷一點">${esc(c.note)}</textarea>
-      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button><button class="btn sm only-m" data-a="cancelnote">取消</button><button class="btn sm only-m" data-a="note">備註${c.note?" ●":""}</button><button class="btn sm" data-a="go:in">跳到入點</button><button class="btn sm" data-a="go:out">跳到出點</button><button class="btn sm ghost" data-a="delclip">刪除鏡頭</button></div>`;
+    el.innerHTML=`<div class="eyebrow">${tr("鏡頭","Clip")}</div>
+      <div><span class="chip" style="--c:${clipColor(c,i)}">${tr("鏡頭","Clip")} ${pad(i+1)}</span></div>
+      <h3>${esc(c.name)}</h3><div class="src">${esc(c.src||tr("（未標示素材）","(no source listed)"))}</div>
+      <div class="segrow only-m"><div class="seg" role="group" aria-label="${tr("要調整的剪接點","Cut point to adjust")}"><button data-a="edge:in" aria-pressed="${nudgeEdge==="in"}">${tr("入點","In")}</button><button data-a="edge:out" aria-pressed="${nudgeEdge==="out"}">${tr("出點","Out")}</button></div><div class="len"><b>${pad(i+1)} ${esc(c.name)}</b><span class="dirhint">${tr("＋往後 −往前 · ","＋later −earlier · ")}</span>${tr(`${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒`,`${c.out-c.in}f · ${((c.out-c.in)/fps).toFixed(2)}s`)}${dd?` (${sgn(dd)})`:""}</div></div>
+      <div class="row">${nudgeRow(tr("入點","In"),"in",c.in,o?.in)}${nudgeRow(tr("出點","Out"),"out",c.out,o?.out)}
+        <div class="lb mobhide">${tr("長度","Length")}</div><div class="mono mobhide">${tr(`${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒`,`${c.out-c.in} frames · ${((c.out-c.in)/fps).toFixed(2)}s`)}${dd?` <span style="color:var(--ac2)">(${sgn(dd)})</span>`:""}</div></div>
+      ${overMedia(c)}<p class="help">${tr("數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。","Numbers are source frames. ＋ moves later, − moves earlier. Later clips shift automatically.")}</p>
+      <label class="help" for="clipNote">${tr("給 Claude 的備註","Note for Claude")}</label>
+      <textarea id="clipNote" placeholder="${tr("例：這顆鏡頭調色再冷一點","e.g. Make this shot's grade a bit cooler")}">${esc(c.note)}</textarea>
+      <div class="acts"><button class="btn sm only-m" data-a="close">${tr("完成","Done")}</button><button class="btn sm only-land" data-a="undo">${tr("復原","Undo")}</button><button class="btn sm only-m" data-a="cancelnote">${tr("取消","Cancel")}</button><button class="btn sm only-m" data-a="note">${tr("備註","Note")}${c.note?" ●":""}</button><button class="btn sm" data-a="go:in">${tr("跳到入點","Go to in")}</button><button class="btn sm" data-a="go:out">${tr("跳到出點","Go to out")}</button><button class="btn sm ghost" data-a="delclip">${tr("刪除鏡頭","Delete clip")}</button></div>`;
     noteEditor($("#clipNote"),v=>{c.note=v});
   }else if(sel?.kind==="mk"){
     const m=doc.markers.find(x=>x.id===sel.id);if(!m){sel=null;return renderInspector()}
-    const L=layout(doc),e=L.map[m.clip],f=markerFrame(m,L),om=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type),kindL=m.type==="text"?"字幕":"特效";
-    el.innerHTML=`<div class="eyebrow">${m.type==="text"?"字幕":"特效"}</div>
-      <div class="notehead only-m">${m.type==="text"?"編輯字幕":"備註"} · <span class="mono">${tc(f)}</span>，預覽只供對照，不會燒進影片</div><div class="fxhero">${thumb(m.type)}<div><b>${esc(fx.l)}</b><p>${esc(fx.d)}</p></div></div>
-      <div class="help">鏡頭 ${pad(e.i+1)}「${esc(e.c.name)}」第 ${f-e.start} 格 · <span class="mono">${tc(f)}</span></div>
-      <div class="row"><div class="lb">位置</div><div class="nudge"><button class="nb" data-a="mk:-5" aria-label="${kindL}往前 5 格">−5</button><button class="nb" data-a="mk:-1" aria-label="${kindL}往前 1 格">−1</button><span class="v">${tc(f)}</span><button class="nb" data-a="mk:1" aria-label="${kindL}往後 1 格">+1</button><button class="nb" data-a="mk:5" aria-label="${kindL}往後 5 格">+5</button></div>
-      <div class="delta${om?"":" on"}">${om?`Claude 原本放的${m.type==="text"?"字幕":"特效"}`:`你新增的${m.type==="text"?"字幕":"特效"}`}</div></div>
-      <div class="eyebrow">${m.type==="text"?"改成特效":"換一種特效"}</div>
-      <div class="fxgrid" role="group" aria-label="特效種類">${FX.map(x=>`<button class="fxt" data-fx="${x.k}" aria-pressed="${x.k===m.type}" style="--fxc:${x.c}">${thumb(x.k)}<span>${x.l}</span></button>`).join("")}</div>
-      ${m.type==="text"?`<div class="capdur"><span class="cdg"><span>起點</span><button class="nb" data-a="mk:-1" aria-label="字幕早 1 格">−1</button><button class="nb" data-a="mk:1" aria-label="字幕晚 1 格">+1</button></span><span class="cdg"><span>顯示</span><button class="nb" data-a="dur:-1" aria-label="顯示短半秒">−</button><span class="mono" id="capDurV">${(capDur(m)/fps).toFixed(1)} 秒</span><button class="nb" data-a="dur:1" aria-label="顯示長半秒">＋</button></span><span id="capCut" class="msg">${capCutText(m)}</span></div>`:""}
-      <label class="help fieldlab" for="mkNote">${m.type==="text"?"字幕內容":"想要的效果（越具體越好）"}</label>
-      <textarea id="mkNote" placeholder="${m.type==="text"?esc("輸入要出現的文字"):"例：抖 6 格、強度中等，配合鼓點"}">${esc(m.type==="text"?m.text||"":m.note)}</textarea>
-      ${m.type==="text"?`<div class="prodwrap${m.note.trim()?"":" empty"}"><label class="help fieldlab" for="mkProd">給 Claude 的製作說明（選填）</label><input type="text" class="prod" id="mkProd" value="${esc(m.note)}" placeholder="例：淡入、白字置中"></div>`:""}
-      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button>${m.type==="text"&&m.note.trim()&&!capText(m)?'<button class="btn sm" data-a="usenote">用說明當字幕</button>':""}<button class="btn sm only-m" data-a="cancelnote">取消</button><button class="btn sm only-m" data-a="note">${m.type==="text"?"編輯字幕":"備註"}${(m.type==="text"?capText(m):m.note)?" ●":""}</button><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">${m.type==="text"?"刪除字幕":"刪除特效"}</button></div>`;
+    const L=layout(doc),e=L.map[m.clip],f=markerFrame(m,L),om=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type),isCap=m.type==="text",kindL=isCap?tr("字幕","Caption"):tr("特效","Effect");
+    el.innerHTML=`<div class="eyebrow">${kindL}</div>
+      <div class="notehead only-m">${isCap?tr("編輯字幕","Edit caption"):tr("備註","Note")} · <span class="mono">${tc(f)}</span>${tr("，預覽只供對照，不會燒進影片",", preview only, not burned into the video")}</div><div class="fxhero">${thumb(m.type)}<div><b>${esc(fx.l)}</b><p>${esc(fx.d)}</p></div></div>
+      <div class="help">${tr(`鏡頭 ${pad(e.i+1)}「${esc(e.c.name)}」第 ${f-e.start} 格`,`Clip ${pad(e.i+1)} "${esc(e.c.name)}", frame ${f-e.start}`)} · <span class="mono">${tc(f)}</span></div>
+      <div class="row"><div class="lb">${tr("位置","Position")}</div><div class="nudge"><button class="nb" data-a="mk:-5" aria-label="${tr(`${kindL}往前 5 格`,`${kindL} 5 frames earlier`)}">−5</button><button class="nb" data-a="mk:-1" aria-label="${tr(`${kindL}往前 1 格`,`${kindL} 1 frame earlier`)}">−1</button><span class="v">${tc(f)}</span><button class="nb" data-a="mk:1" aria-label="${tr(`${kindL}往後 1 格`,`${kindL} 1 frame later`)}">+1</button><button class="nb" data-a="mk:5" aria-label="${tr(`${kindL}往後 5 格`,`${kindL} 5 frames later`)}">+5</button></div>
+      <div class="delta${om?"":" on"}">${om?tr(`Claude 原本放的${kindL}`,`${kindL} placed by Claude`):tr(`你新增的${kindL}`,`${kindL} you added`)}</div></div>
+      <div class="eyebrow">${isCap?tr("改成特效","Change to effect"):tr("換一種特效","Change effect")}</div>
+      <div class="fxgrid" role="group" aria-label="${tr("特效種類","Effect type")}">${FX.map(x=>`<button class="fxt" data-fx="${x.k}" aria-pressed="${x.k===m.type}" style="--fxc:${x.c}">${thumb(x.k)}<span>${x.l}</span></button>`).join("")}</div>
+      ${isCap?`<div class="capdur"><span class="cdg"><span>${tr("起點","Start")}</span><button class="nb" data-a="mk:-1" aria-label="${tr("字幕早 1 格","Caption 1 frame earlier")}">−1</button><button class="nb" data-a="mk:1" aria-label="${tr("字幕晚 1 格","Caption 1 frame later")}">+1</button></span><span class="cdg"><span>${tr("顯示","Show")}</span><button class="nb" data-a="dur:-1" aria-label="${tr("顯示短半秒","Half a second shorter")}">−</button><span class="mono" id="capDurV">${durText(capDur(m))}</span><button class="nb" data-a="dur:1" aria-label="${tr("顯示長半秒","Half a second longer")}">＋</button></span><span id="capCut" class="msg">${capCutText(m)}</span></div>`:""}
+      <label class="help fieldlab" for="mkNote">${isCap?tr("字幕內容","Caption text"):tr("想要的效果（越具體越好）","What you want (the more specific the better)")}</label>
+      <textarea id="mkNote" placeholder="${isCap?tr("輸入要出現的文字","Type the text to show"):tr("例：抖 6 格、強度中等，配合鼓點","e.g. Shake for 6 frames, medium strength, on the drum hit")}">${esc(isCap?m.text||"":m.note)}</textarea>
+      ${isCap?`<div class="prodwrap${m.note.trim()?"":" empty"}"><label class="help fieldlab" for="mkProd">${tr("給 Claude 的製作說明（選填）","Production note for Claude (optional)")}</label><input type="text" class="prod" id="mkProd" value="${esc(m.note)}" placeholder="${tr("例：淡入、白字置中","e.g. Fade in, centered white text")}"></div>`:""}
+      <div class="acts"><button class="btn sm only-m" data-a="close">${tr("完成","Done")}</button><button class="btn sm only-land" data-a="undo">${tr("復原","Undo")}</button>${isCap&&m.note.trim()&&!capText(m)?`<button class="btn sm" data-a="usenote">${tr("用說明當字幕","Use note as caption")}</button>`:""}<button class="btn sm only-m" data-a="cancelnote">${tr("取消","Cancel")}</button><button class="btn sm only-m" data-a="note">${isCap?tr("編輯字幕","Edit caption"):tr("備註","Note")}${(isCap?capText(m):m.note)?" ●":""}</button><button class="btn sm" data-a="go:mk">${tr("跳到這裡","Go here")}</button><button class="btn sm ghost" data-a="delmk">${isCap?tr("刪除字幕","Delete caption"):tr("刪除特效","Delete effect")}</button></div>`;
     if($("#mkProd"))noteEditor($("#mkProd"),v=>{m.note=v});
     if(isM()&&m.type==="text"){el.classList.add("noting");document.body.classList.add("typing")}
     noteEditor($("#mkNote"),v=>{if(m.type==="text"){m.text=v;badgeKey="";renderTimeline();$("#capCut").textContent=capCutText(m)}else m.note=v});
   }else{
-    el.innerHTML=`<div class="eyebrow">使用方式</div><ol class="steps">
-      <li><span><b>點時間軸上的鏡頭</b>，在這裡用 ±1 / ±5 逐格調入點、出點，也可以直接拖鏡頭兩側的邊。</span></li>
-      <li><span><b>把播放頭停在想加特效的格子</b>，按「＋ 加特效」或 <kbd>M</kbd>，從小動畫裡挑效果，再寫一句想要的感覺。</span></li>
-      <li><span>到下方<b>修改清單</b>按「複製給 Claude」，貼回對話就好；也可以匯出到剪輯軟體。</span></li></ol>
-      <p class="help">${orig.sample?"現在是範例時間軸。把 Claude 給的影片和時間軸檔拖進頁面就能開始。":"修改會自動暫存在這台裝置的瀏覽器。"}</p>`;
+    el.innerHTML=`<div class="eyebrow">${tr("使用方式","How to use")}</div><ol class="steps">
+      <li><span>${tr("<b>點時間軸上的鏡頭</b>，在這裡用 ±1 / ±5 逐格調入點、出點，也可以直接拖鏡頭兩側的邊。","<b>Click a clip on the timeline</b> and adjust its in and out points here with ±1 / ±5, or drag either edge of the clip.")}</span></li>
+      <li><span>${tr("<b>把播放頭停在想加特效的格子</b>，按「＋ 加特效」或 <kbd>M</kbd>，從小動畫裡挑效果，再寫一句想要的感覺。","<b>Stop the playhead on a frame</b>, press “＋ Add effect” or <kbd>M</kbd>, pick from the small animations, and describe the feel you want.")}</span></li>
+      <li><span>${tr("到下方<b>修改清單</b>按「複製給 Claude」，貼回對話就好；也可以匯出到剪輯軟體。","In <b>Changes</b> below, press “Copy for Claude” and paste it back into your chat, or export to an editor.")}</span></li></ol>
+      <p class="help">${orig.sample?tr("現在是範例時間軸。把 Claude 給的影片和時間軸檔拖進頁面就能開始。","This is a sample timeline. Drop in the video and timeline file from Claude to begin."):tr("修改會自動暫存在這台裝置的瀏覽器。","Changes are saved automatically in this device's browser.")}</p>`;
   }
 }
+const markName=o=>{const q=(o.text||"").trim();return o.type==="text"?tr(`字幕${q?`「${q}」`:""}`,`Caption${q?` "${q}"`:""}`):tr(`特效【${fxOf(o.type).l}】`,`Effect [${fxOf(o.type).l}]`)};
 function changes(){
   const out=[],L=layout(doc),OL=layout(orig);
   orig.clips.forEach((o,i)=>{
-    const n=doc.clips.find(c=>c.id===o.id),lab=`鏡頭 ${pad(i+1)}「${o.name}」[${o.id}${o.src?" / "+o.src:""}]`;
-    if(!n){out.push({t:`${lab}：整段刪除（原長 ${o.out-o.in} 格）`});return}
+    const n=doc.clips.find(c=>c.id===o.id),lab=tr(`鏡頭 ${pad(i+1)}「${o.name}」`,`Clip ${pad(i+1)} "${o.name}" `)+`[${o.id}${o.src?" / "+o.src:""}]`;
+    if(!n){out.push({t:tr(`${lab}：整段刪除（原長 ${o.out-o.in} 格）`,`${lab}: delete entirely (was ${o.out-o.in} frames)`)});return}
     const p=[];
-    if(n.in!==o.in){const d=n.in-o.in;p.push(`入點${d>0?"晚":"早"} ${Math.abs(d)} 格（素材格 ${o.in}→${n.in}）`)}
-    if(n.out!==o.out){const d=n.out-o.out;p.push(`出點${d>0?"晚":"早"} ${Math.abs(d)} 格（素材格 ${o.out}→${n.out}）`)}
-    if(n.srcDuration&&n.out>n.srcDuration)p.push(`注意：超出素材長度 ${n.out-n.srcDuration} 格`);
-    if(n.note!==o.note)p.push(n.note.trim()?`備註：${n.note.trim()}`:"清除原有備註");
-    if(p.length){const dd=(n.out-n.in)-(o.out-o.in);out.push({t:`${lab}：${p.join("；")}${dd?`。鏡頭長度 ${dd>0?"+":""}${dd} 格`:""}`})}
+    if(n.in!==o.in){const d=n.in-o.in;p.push(tr(`入點${d>0?"晚":"早"} ${Math.abs(d)} 格（素材格 ${o.in}→${n.in}）`,`in point ${Math.abs(d)} frames ${d>0?"later":"earlier"} (source frame ${o.in}→${n.in})`))}
+    if(n.out!==o.out){const d=n.out-o.out;p.push(tr(`出點${d>0?"晚":"早"} ${Math.abs(d)} 格（素材格 ${o.out}→${n.out}）`,`out point ${Math.abs(d)} frames ${d>0?"later":"earlier"} (source frame ${o.out}→${n.out})`))}
+    if(n.srcDuration&&n.out>n.srcDuration)p.push(tr(`注意：超出素材長度 ${n.out-n.srcDuration} 格`,`warning: ${n.out-n.srcDuration} frames past the source length`));
+    if(n.note!==o.note)p.push(n.note.trim()?tr(`備註：${n.note.trim()}`,`note: ${n.note.trim()}`):tr("清除原有備註","clear the existing note"));
+    if(p.length){const dd=(n.out-n.in)-(o.out-o.in);out.push({t:`${lab}${tr("：",": ")}${p.join(tr("；","; "))}${dd?tr(`。鏡頭長度 ${dd>0?"+":""}${dd} 格`,`. Clip length ${dd>0?"+":""}${dd} frames`):""}`})}
   });
-  const where=(m,LL)=>{const e=LL.map[m.clip];if(!e)return"（鏡頭已刪除）";const f=markerFrame(m,LL);return `鏡頭 ${pad(e.i+1)}「${e.c.name}」第 ${f-e.start} 格（成片 ${tc(f)}）`};
+  const where=(m,LL)=>{const e=LL.map[m.clip];if(!e)return tr("（鏡頭已刪除）","(clip deleted)");const f=markerFrame(m,LL);return tr(`鏡頭 ${pad(e.i+1)}「${e.c.name}」第 ${f-e.start} 格（成片 ${tc(f)}）`,`clip ${pad(e.i+1)} "${e.c.name}" frame ${f-e.start} (timeline ${tc(f)})`)};
   doc.markers.forEach(m=>{
-    const o=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type).l,note=m.note.trim()?`：${m.note.trim()}`:"";
+    const o=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type).l,note=m.note.trim()?`${tr("：",": ")}${m.note.trim()}`:"";
     if(!L.map[m.clip])return;
-    const dl=m.type==="text"&&m.dur?`（顯示 ${m.dur} 格）`:"";
-    if(!o){out.push({t:m.type==="text"?`新增字幕${capText(m)?`「${capText(m)}」`:""}於 ${where(m,L)}${note}${dl}`:`新增特效【${fx}】於 ${where(m,L)}${note}`,fx:1});return}
+    const dl=m.type==="text"&&m.dur?tr(`（顯示 ${m.dur} 格）`,` (shown for ${m.dur} frames)`):"";
+    if(!o){const q=capText(m);out.push({t:m.type==="text"?tr(`新增字幕${q?`「${q}」`:""}於 ${where(m,L)}${note}${dl}`,`Add caption${q?` "${q}"`:""} at ${where(m,L)}${note}${dl}`):tr(`新增特效【${fx}】於 ${where(m,L)}${note}`,`Add effect [${fx}] at ${where(m,L)}${note}`),fx:1});return}
     const p=[],oE=OL.map[o.clip],at=clamp(m.at,0,L.map[m.clip].c.out-L.map[m.clip].c.in-1);
-    if(o.clip!==m.clip||clamp(o.at,0,oE.c.out-oE.c.in-1)!==at)p.push(`位置移到 ${where(m,L)}`);
-    if(o.type!==m.type)p.push(`改成【${fx}】`);
-    if(o.note!==m.note)p.push(m.note.trim()?`說明改為：${m.note.trim()}`:"清除原有說明");
-    if((o.text||"")!==(m.text||""))p.push(capText(m)?`字幕文字改為「${capText(m)}」`:"清除字幕文字");
-    if((o.dur||0)!==(m.dur||0))p.push(`顯示改為 ${capDur(m)} 格`);
-    if(p.length)out.push({t:`${o.type==="text"?`字幕${o.text?`「${o.text.trim()}」`:""}`:`特效【${fxOf(o.type).l}】`}原在 ${where(o,OL)}：${p.join("；")}`,fx:1});
+    if(o.clip!==m.clip||clamp(o.at,0,oE.c.out-oE.c.in-1)!==at)p.push(tr(`位置移到 ${where(m,L)}`,`move to ${where(m,L)}`));
+    if(o.type!==m.type)p.push(tr(`改成【${fx}】`,`change to [${fx}]`));
+    if(o.note!==m.note)p.push(m.note.trim()?tr(`說明改為：${m.note.trim()}`,`note becomes: ${m.note.trim()}`):tr("清除原有說明","clear the existing note"));
+    if((o.text||"")!==(m.text||""))p.push(capText(m)?tr(`字幕文字改為「${capText(m)}」`,`caption text becomes "${capText(m)}"`):tr("清除字幕文字","clear the caption text"));
+    if((o.dur||0)!==(m.dur||0))p.push(tr(`顯示改為 ${capDur(m)} 格`,`show for ${capDur(m)} frames`));
+    if(p.length)out.push({t:`${markName(o)}${tr("原在 "," was at ")}${where(o,OL)}${tr("：",": ")}${p.join(tr("；","; "))}`,fx:1});
   });
-  orig.markers.forEach(o=>{if(!doc.markers.some(m=>m.id===o.id)&&OL.map[o.clip])out.push({t:`移除${o.type==="text"?`字幕${o.text?`「${o.text.trim()}」`:""}`:`特效【${fxOf(o.type).l}】`}（原在 ${where(o,OL)}）`,fx:1})});
+  orig.markers.forEach(o=>{if(!doc.markers.some(m=>m.id===o.id)&&OL.map[o.clip])out.push({t:tr(`移除${markName(o)}（原在 ${where(o,OL)}）`,`Remove ${markName(o)} (was at ${where(o,OL)})`),fx:1})});
   return out;
 }
 function exportDoc(){const d=clone(doc);delete d.sample;d.markers=d.markers.filter(m=>d.clips.some(c=>c.id===m.clip)).map(m=>{const c=d.clips.find(x=>x.id===m.clip);return{...m,at:clamp(m.at,0,c.out-c.in-1)}});return d}
 function logText(){
   const ch=changes();
-  let s=`【Koma 剪輯回饋】${doc.project}｜${+fps.toFixed(3)}fps\n說明：入點／出點以素材格數計，「晚」＝往後、「早」＝往前；成片時間碼為 分:秒:格。\n`;
-  s+=ch.length?ch.map((c,i)=>`${i+1}. ${c.t}`).join("\n"):"（沒有修改）";
-  if($("#withJson").checked)s+="\n\n修改後的 Koma 時間軸：\n"+JSON.stringify(exportDoc());
+  let s=tr(`【Koma 剪輯回饋】${doc.project}｜${+fps.toFixed(3)}fps\n說明：入點／出點以素材格數計，「晚」＝往後、「早」＝往前；成片時間碼為 分:秒:格。\n`,`[Koma edit feedback] ${doc.project} | ${+fps.toFixed(3)}fps\nNote: in and out points count source frames; "later" moves forward, "earlier" moves back; timeline timecode is mm:ss:ff.\n`);
+  s+=ch.length?ch.map((c,i)=>`${i+1}. ${c.t}`).join("\n"):tr("（沒有修改）","(no changes)");
+  if($("#withJson").checked)s+=tr("\n\n修改後的 Koma 時間軸：\n","\n\nEdited Koma timeline:\n")+JSON.stringify(exportDoc());
   return s;
 }
 function renderLog(){
@@ -880,7 +908,7 @@ function nudgeClip(edge,d){const c=doc.clips.find(x=>x.id===sel.id);const v=edge
   mutate(()=>{if(edge==="in")setIn(c,v);else setOut(c,v)});
   const e=layout(doc).map[c.id];seek(edge==="in"?e.start:e.start+c.out-c.in-1)}
 function placeMarker(m,f){const L=layout(doc);f=clamp(f,0,L.total-1);const h=clipAt(f,L);m.clip=h.c.id;m.at=f-h.start}
-function addMarker(type="glitch"){if(doc.markers.length>=MAXCLIPS*4)return toast(`特效最多 ${MAXCLIPS*4} 個`);const id="m"+Date.now().toString(36);mutate(()=>{const m={id,clip:"",at:0,type,note:""};placeMarker(m,playhead);doc.markers.push(m);sel={kind:"mk",id}})}
+function addMarker(type="glitch"){if(doc.markers.length>=MAXCLIPS*4)return toast(tr(`特效最多 ${MAXCLIPS*4} 個`,`Up to ${MAXCLIPS*4} effects`));const id="m"+Date.now().toString(36);mutate(()=>{const m={id,clip:"",at:0,type,note:""};placeMarker(m,playhead);doc.markers.push(m);sel={kind:"mk",id}})}
 
 $("#insp").addEventListener("click",e=>{
   const t=e.target.closest(".fxt");
@@ -893,15 +921,15 @@ $("#insp").addEventListener("click",e=>{
   if(a==="note")return openNote();
   if(a==="usenote"){const m=doc.markers.find(x=>x.id===sel.id),n=$("#insp textarea");n.value=m.note.trim();n.dispatchEvent(new Event("input",{bubbles:true}));b.hidden=true;return}
   if(a==="cancelnote"){$("#insp textarea").blur();cancelNote();return}
-  if(a==="dur"){const m=doc.markers.find(x=>x.id===sel.id),d=clamp(capDur(m)+ +v*Math.round(fps/2),Math.round(fps/2),Math.round(fps*60));if(d===capDur(m))return;pushUndo();m.dur=d;$("#capDurV").textContent=`${(d/fps).toFixed(1)} 秒`;$("#capCut").textContent=capCutText(m);badgeKey="";updatePlayhead();renderLog();save();return}
+  if(a==="dur"){const m=doc.markers.find(x=>x.id===sel.id),d=clamp(capDur(m)+ +v*Math.round(fps/2),Math.round(fps/2),Math.round(fps*60));if(d===capDur(m))return;pushUndo();m.dur=d;$("#capDurV").textContent=durText(d);$("#capCut").textContent=capCutText(m);badgeKey="";updatePlayhead();renderLog();save();return}
   if(a==="edge"){nudgeEdge=v;renderInspector();const e2=layout(doc).map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1);return}
   if(a==="in"||a==="out")nudgeClip(a,+v);
   else if(a==="mk"){const m=doc.markers.find(x=>x.id===sel.id),f0=markerFrame(m,layout(doc));if(clamp(f0+ +v,0,total()-1)===f0)return;const noting=$("#insp").classList.contains("noting"),keep=noteStart;mutate(()=>placeMarker(m,f0+ +v));seek(markerFrame(m,layout(doc)));if(noting){openNote();noteStart=keep}}
   else if(a==="go"){const L=layout(doc);if(v==="mk")seek(markerFrame(doc.markers.find(x=>x.id===sel.id),L));else{const e2=L.map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1)}}
   else if(a==="delmk")mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null});
   else if(a==="delclip"){
-    if(b.dataset.armed){if(doc.clips.length<2)return toast("至少要留一個鏡頭");mutate(()=>{doc.clips=doc.clips.filter(x=>x.id!==sel.id);sel=null})}
-    else{b.dataset.armed=1;b.textContent="再按一次確認";setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent="刪除鏡頭"}},2500)}
+    if(b.dataset.armed){if(doc.clips.length<2)return toast(tr("至少要留一個鏡頭","At least one clip must remain"));mutate(()=>{doc.clips=doc.clips.filter(x=>x.id!==sel.id);sel=null})}
+    else{b.dataset.armed=1;b.textContent=tr("再按一次確認","Press again to confirm");setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent=tr("刪除鏡頭","Delete clip")}},2500)}
   }
 });
 
@@ -968,7 +996,7 @@ $("#trF").addEventListener("dblclick",e=>{if(isM())return;if(!e.target.closest("
 
 function togglePlay(){
   playing=!playing;
-  const pb=$("#playBtn");pb.setAttribute("aria-label",playing?"暫停":"播放");
+  const pb=$("#playBtn");pb.setAttribute("aria-label",playing?tr("暫停","Pause"):tr("播放","Play"));
   pb.innerHTML=playing?'<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>':'<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>';
   if(playing){if(playhead>=total()-1)playhead=0;last=performance.now();acc=0;requestAnimationFrame(tick)}else video.pause();
   updatePlayhead();
@@ -1014,7 +1042,7 @@ addEventListener("keydown",e=>{
   else if((k==="Delete"||k==="Backspace")&&sel?.kind==="mk"){e.preventDefault();mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null})}
   else if((k==="["||k==="]")&&sel?.kind==="clip"){
     const e2=layout(doc).map[sel.id],c=e2.c,k2=playhead-e2.start;
-    if(k2<0||k2>=c.out-c.in)return toast("播放頭要在選取的鏡頭範圍內");
+    if(k2<0||k2>=c.out-c.in)return toast(tr("播放頭要在選取的鏡頭範圍內","The playhead must be inside the selected clip"));
     if(k==="["?k2===0:k2===c.out-c.in-1)return;
     mutate(()=>{if(k==="[")setIn(c,c.in+k2);else setOut(c,c.in+k2+1)});
     const e3=layout(doc).map[sel.id];seek(k==="["?e3.start:e3.start+c.out-c.in-1);
@@ -1036,14 +1064,14 @@ function tcToF(s,base,df){const m=String(s).match(/(\d+)[:;.](\d+)[:;.](\d+)([:;
   if(+m[3]===0&&+m[5]<n&&+m[2]%10!==0)return null; /* these labels do not exist in drop-frame */
   return abs-n*(tm-Math.floor(tm/10))}
 function fToTc(f,base){const ff=f%base,s=Math.floor(f/base);return `${pad(Math.floor(s/3600))}:${pad(Math.floor(s/60)%60)}:${pad(s%60)}:${pad(ff)}`}
-function fxFromText(s){s=String(s||"");const f=FX.find(x=>s.includes(x.l)||s.toLowerCase().includes(x.k));return f?f.k:"other"}
+function fxFromText(s){s=String(s||"");const f=FX.find(x=>s.includes(x.lz)||s.includes(x.le)||s.toLowerCase().includes(x.k));return f?f.k:"other"}
 const baseName=p=>{try{p=decodeURIComponent(p)}catch(e){}return p.split(/[\\/]/).pop()};
 const xesc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"}[c]));
 
 /* ---------- import ---------- */
 function parseEDL(text,f){
   const base=Math.round(f),ev=[],locs=[];let title="",df=false,wipes=0,badTc=0;
-  const needDrop=()=>{if(f!==29.97&&f!==59.94)throw new Error("這份 EDL 是掉格時間碼，幀率請選 29.97 或 59.94")};
+  const needDrop=()=>{if(f!==29.97&&f!==59.94)throw new Error(tr("這份 EDL 是掉格時間碼，幀率請選 29.97 或 59.94","This EDL uses drop-frame timecode; set the frame rate to 29.97 or 59.94"))};
   for(const raw of text.split(/\r?\n/)){
     const line=raw.trimEnd();
     const t=line.match(/^TITLE:\s*(.*)$/i);if(t){title=t[1].trim();continue}
@@ -1066,32 +1094,32 @@ function parseEDL(text,f){
     else if(c=line.match(/^\*\s*LOC:\s*(\S+)\s+(\S+)?\s*(.*)$/i))locs.push({t:tcToF(c[1],base,df),txt:c[3]||""});
     else if(c=line.match(/\|C:\S*\s*\|M:(.*?)\s*\|D:\d+/))locs.push({t:ev.length?ev[ev.length-1].ri:0,txt:c[1]});
   }
-  if(!ev.length)throw new Error("EDL 裡沒有找到影像剪接事件");
+  if(!ev.length)throw new Error(tr("EDL 裡沒有找到影像剪接事件","No video events found in the EDL"));
   ev.sort((a,b)=>a.ri-b.ri);
   const clips=[],markers=[],warn=[];
   let gaps=0,overlaps=0;ev.forEach((e,i)=>{if(i){const p=ev[i-1];if(e.ri>p.ro)gaps++;else if(e.ri<p.ro)overlaps++}});
-  if(gaps)warn.push(`略過 ${gaps} 段空白，總長會變短`);
-  if(overlaps)warn.push(`${overlaps} 處鏡頭重疊，已改成依序排列`);
-  if(wipes)warn.push(`${wipes} 個溶接或劃接被當成直切`);
-  if(badTc)warn.push(`略過 ${badTc} 個時間碼不合法的事件`);
+  if(gaps)warn.push(tr(`略過 ${gaps} 段空白，總長會變短`,`${gaps} gaps skipped; the total gets shorter`));
+  if(overlaps)warn.push(tr(`${overlaps} 處鏡頭重疊，已改成依序排列`,`${overlaps} overlapping clips placed in sequence`));
+  if(wipes)warn.push(tr(`${wipes} 個溶接或劃接被當成直切`,`${wipes} dissolves or wipes treated as cuts`));
+  if(badTc)warn.push(tr(`略過 ${badTc} 個時間碼不合法的事件`,`${badTc} events with invalid timecode skipped`));
   ev.forEach((e,i)=>clips.push({id:"c"+(i+1),name:e.name||e.src||e.reel,src:e.src||e.name||e.reel,in:e.si,out:e.so,note:e.note}));
   locs.forEach((l,i)=>{const j=ev.findIndex(e=>l.t>=e.ri&&l.t<e.ro);if(j<0)return;
     const nm=l.txt.match(/^\[(.+?)\]\s*(.*)$/);markers.push({id:"m"+(i+1),clip:"c"+(j+1),at:l.t-ev[j].ri,type:fxFromText(nm?nm[1]:l.txt),note:nm?nm[2]:l.txt})});
-  return{project:title||"EDL 匯入",fps:f,clips,markers,warn};
+  return{project:title||tr("EDL 匯入","EDL import"),fps:f,clips,markers,warn};
 }
 function parseFCPXML(text){
   const x=new DOMParser().parseFromString(text,"application/xml");
-  if(x.querySelector("parsererror"))throw new Error("FCPXML 格式有誤");
+  if(x.querySelector("parsererror"))throw new Error(tr("FCPXML 格式有誤","Invalid FCPXML"));
   const formats={},assets={};
   x.querySelectorAll("resources > format").forEach(f=>formats[f.id]=f);
   x.querySelectorAll("resources > asset, resources > media").forEach(a=>{
     const mr=a.querySelector("media-rep");const src=a.getAttribute("src")||mr?.getAttribute("src")||"";
     assets[a.id]={name:a.getAttribute("name")||"",src:src?baseName(src):""}});
   const seq=x.querySelector("project sequence")||x.querySelector("sequence");
-  if(!seq)throw new Error("FCPXML 裡沒有找到序列");
+  if(!seq)throw new Error(tr("FCPXML 裡沒有找到序列","No sequence found in the FCPXML"));
   const fmt=formats[seq.getAttribute("format")]||Object.values(formats)[0];
   const fd=parseT(fmt?.getAttribute("frameDuration")||"1/30s")||1/30,f=snapFps(1/fd);
-  const spine=seq.querySelector("spine");if(!spine)throw new Error("FCPXML 序列是空的");
+  const spine=seq.querySelector("spine");if(!spine)throw new Error(tr("FCPXML 序列是空的","The FCPXML sequence is empty"));
   const clips=[],markers=[],warn=[];let skipped=0,trans=0,jumps=0,cursor=null;
   [...spine.children].forEach(el=>{
     const tag=el.tagName;
@@ -1106,38 +1134,38 @@ function parseFCPXML(text){
     clips.push({id,name:el.getAttribute("name")||a.name||tag,src:a.src||a.name||"",in:i0,out:i0+Math.max(1,Math.round(dur*f))});
     el.querySelectorAll(":scope > marker, :scope > chapter-marker").forEach(mk=>{
       const v=mk.getAttribute("value")||"",n=mk.getAttribute("note")||"";
-      markers.push({id:"m"+(markers.length+1),clip:id,at:Math.max(0,Math.round((parseT(mk.getAttribute("start"))-start)*f)),type:fxFromText(v),note:FX.some(q=>q.l===v)?n:[v,n].filter(Boolean).join("｜")})});
+      markers.push({id:"m"+(markers.length+1),clip:id,at:Math.max(0,Math.round((parseT(mk.getAttribute("start"))-start)*f)),type:fxFromText(v),note:FX.some(q=>q.lz===v||q.le===v)?n:[v,n].filter(Boolean).join("｜")})});
   });
-  if(!clips.length)throw new Error("FCPXML 主時間軸上沒有鏡頭");
+  if(!clips.length)throw new Error(tr("FCPXML 主時間軸上沒有鏡頭","No clips on the FCPXML primary storyline"));
   const retimed=spine.querySelectorAll("timeMap").length,lanes=spine.querySelectorAll("[lane]").length,nested=spine.querySelectorAll(":scope > ref-clip, :scope > mc-clip, :scope > sync-clip").length;
-  if(skipped)warn.push(`略過 ${skipped} 段空白，總長會變短`);
-  if(trans)warn.push(`${trans} 個轉場被當成直切`);
-  if(jumps)warn.push(`${jumps} 處鏡頭位置不連續，已改成依序排列`);
-  if(retimed)warn.push(`${retimed} 段變速不會保留`);
-  if(lanes)warn.push(`${lanes} 個連接片段或上層軌道不會匯入`);
-  if(nested)warn.push(`${nested} 個複合或多機片段只匯入外層`);
+  if(skipped)warn.push(tr(`略過 ${skipped} 段空白，總長會變短`,`${skipped} gaps skipped; the total gets shorter`));
+  if(trans)warn.push(tr(`${trans} 個轉場被當成直切`,`${trans} transitions treated as cuts`));
+  if(jumps)warn.push(tr(`${jumps} 處鏡頭位置不連續，已改成依序排列`,`${jumps} discontinuous clips placed in sequence`));
+  if(retimed)warn.push(tr(`${retimed} 段變速不會保留`,`${retimed} speed changes won't be kept`));
+  if(lanes)warn.push(tr(`${lanes} 個連接片段或上層軌道不會匯入`,`${lanes} connected clips or upper lanes won't be imported`));
+  if(nested)warn.push(tr(`${nested} 個複合或多機片段只匯入外層`,`${nested} compound or multicam clips imported at the outer level only`));
   const proj=x.querySelector("project");
-  return{warn,data:{project:proj?.getAttribute("name")||"FCPXML 匯入",fps:f,width:+fmt?.getAttribute("width")||1920,height:+fmt?.getAttribute("height")||1080,clips,markers},skipped};
+  return{warn,data:{project:proj?.getAttribute("name")||tr("FCPXML 匯入","FCPXML import"),fps:f,width:+fmt?.getAttribute("width")||1920,height:+fmt?.getAttribute("height")||1080,clips,markers},skipped};
 }
 function importText(text,name=""){
   const s=text.replace(/^\uFEFF/,"").trim();
   const lower=name.toLowerCase();
   if(/^```/.test(s))return importText(s.replace(/^```\w*\s*/,"").replace(/```\s*$/,""),name);
-  const notes=w=>{const all=[...(w||[]),...normWarn];return all.length?` 注意：${all.join("；")}。`:""};
+  const notes=w=>{const all=[...(w||[]),...normWarn];return all.length?tr(` 注意：${all.join("；")}。`,` Note: ${all.join("; ")}.`):""};
   const ask=(w,data,done)=>{pendingImport={data,done};$("#lossyBar").hidden=false;
     document.querySelector('.tab[data-tab="in"]').click();if(isM())openSheet("in");
-    return `這份時間軸有 Koma 不支援的內容：${w.join("；")}。尚未載入，請選擇是否仍要匯入。`};
-  if(s.startsWith("{")){loadNew(JSON.parse(s));return `已載入 Koma 時間軸：${doc.clips.length} 個鏡頭、${doc.markers.length} 個特效。`+notes()}
-  if(s.includes("<fcpxml")){const r=parseFCPXML(s),done=()=>`已載入 FCPXML：${doc.clips.length} 個鏡頭、${doc.markers.length} 個標記，${+fps.toFixed(3)}fps。`+notes(r.warn);
+    return tr(`這份時間軸有 Koma 不支援的內容：${w.join("；")}。尚未載入，請選擇是否仍要匯入。`,`This timeline has content Koma doesn't support: ${w.join("; ")}. Nothing is loaded yet; choose whether to import anyway.`)};
+  if(s.startsWith("{")){loadNew(JSON.parse(s));return tr(`已載入 Koma 時間軸：${doc.clips.length} 個鏡頭、${doc.markers.length} 個特效。`,`Koma timeline loaded: ${doc.clips.length} clips, ${doc.markers.length} effects.`)+notes()}
+  if(s.includes("<fcpxml")){const r=parseFCPXML(s),done=()=>tr(`已載入 FCPXML：${doc.clips.length} 個鏡頭、${doc.markers.length} 個標記，${+fps.toFixed(3)}fps。`,`FCPXML loaded: ${doc.clips.length} clips, ${doc.markers.length} markers, ${+fps.toFixed(3)}fps.`)+notes(r.warn);
     if(r.warn.length)return ask(r.warn,r.data,done);loadNew(r.data);return done()}
-  if(s.includes("<xmeml"))throw new Error("這是 Premiere 的 XML。請在 Premiere 改匯出 EDL（檔案 → 匯出 → EDL）");
-  if(lower.endsWith(".edl")||/^TITLE:/im.test(s)||/^\s*\d{3,6}\s+\S+\s+V/m.test(s)){const f=+$("#edlFps").value,r=parseEDL(s,f),done=()=>`已載入 EDL：${doc.clips.length} 個鏡頭（以 ${f}fps 計算）。`+notes(r.warn);
+  if(s.includes("<xmeml"))throw new Error(tr("這是 Premiere 的 XML。請在 Premiere 改匯出 EDL（檔案 → 匯出 → EDL）","This is Premiere XML. Export an EDL from Premiere instead (File → Export → EDL)"));
+  if(lower.endsWith(".edl")||/^TITLE:/im.test(s)||/^\s*\d{3,6}\s+\S+\s+V/m.test(s)){const f=+$("#edlFps").value,r=parseEDL(s,f),done=()=>tr(`已載入 EDL：${doc.clips.length} 個鏡頭（以 ${f}fps 計算）。`,`EDL loaded: ${doc.clips.length} clips (at ${f}fps).`)+notes(r.warn);
     if(r.warn.length)return ask(r.warn,r,done);loadNew(r);return done()}
-  throw new Error("看不出是哪一種格式。支援 Koma JSON、FCPXML、EDL");
+  throw new Error(tr("看不出是哪一種格式。支援 Koma JSON、FCPXML、EDL","Unrecognized format. Koma JSON, FCPXML and EDL are supported"));
 }
 let pendingImport=null;
 function settleImport(go){const p=pendingImport;pendingImport=null;$("#lossyBar").hidden=true;if(!p)return;
-  try{if(go){loadNew(p.data);say($("#inMsg"),true,p.done())}else say($("#inMsg"),true,"已取消匯入，時間軸沒有改變。")}catch(e){say($("#inMsg"),false,"無法載入："+e.message)}}
+  try{if(go){loadNew(p.data);say($("#inMsg"),true,p.done())}else say($("#inMsg"),true,tr("已取消匯入，時間軸沒有改變。","Import cancelled; the timeline is unchanged."))}catch(e){say($("#inMsg"),false,tr("無法載入：","Can't load: ")+e.message)}}
 function say(el,ok,t){el.className="msg "+(ok?"ok":"err");el.textContent=t}
 async function handleFiles(list){
   const msgs=[];let err=false;
@@ -1146,8 +1174,8 @@ async function handleFiles(list){
     try{msgs.push(importText(await f.text(),f.name))}catch(e){err=true;msgs.push(`${f.name}：${e.message}`)}
   }
   const v=files.find(f=>f.type.startsWith("video/")||/\.(mp4|mov|m4v|webm)$/i.test(f.name));
-  if(v){loadVideo(v);msgs.push(`影片：${v.name}`)}
-  if(msgs.length){say($("#inMsg"),!err,msgs.join(" "));toast(err?"有檔案無法讀取，詳情見「匯入」":"已載入")}
+  if(v){loadVideo(v);msgs.push(tr(`影片：${v.name}`,`Video: ${v.name}`))}
+  if(msgs.length){say($("#inMsg"),!err,msgs.join(" "));toast(err?tr("有檔案無法讀取，詳情見「匯入」","Some files couldn't be read; see Import"):tr("已載入","Loaded"))}
 }
 function loadVideo(f){if(videoURL)URL.revokeObjectURL(videoURL);videoURL=URL.createObjectURL(f);video.src=videoURL;video.hidden=false;$("#ph").hidden=true;
   vidOffset=0;calibrating=null;
@@ -1162,7 +1190,7 @@ function calibrate(){
 }
 function checkVideo(){const w=$("#vidWarn");if(!videoURL||!video.duration||!orig){w.hidden=true;return}
   const tl=layout(orig).total/fps,bad=Math.abs(video.duration-tl)>.5;w.hidden=!bad;
-  if(bad)w.textContent=`影片 ${video.duration.toFixed(2)} 秒、時間軸 ${tl.toFixed(2)} 秒，可能不是同一版，畫面會對不準`}
+  if(bad)w.textContent=tr(`影片 ${video.duration.toFixed(2)} 秒、時間軸 ${tl.toFixed(2)} 秒，可能不是同一版，畫面會對不準`,`Video is ${video.duration.toFixed(2)}s, timeline is ${tl.toFixed(2)}s; they may be different versions and won't line up`)}
 $("#lossyYes").addEventListener("click",()=>settleImport(true));
 $("#lossyNo").addEventListener("click",()=>settleImport(false));
 $("#pickFile").addEventListener("click",()=>$("#anyFile").click());
@@ -1172,8 +1200,8 @@ addEventListener("dragenter",e=>{if([...e.dataTransfer.types].includes("Files"))
 addEventListener("dragleave",()=>{if(--dragDepth<=0){dragDepth=0;document.body.classList.remove("dragging")}});
 addEventListener("dragover",e=>{if([...e.dataTransfer.types].includes("Files"))e.preventDefault()});
 addEventListener("drop",e=>{if(!e.dataTransfer.files.length)return;e.preventDefault();dragDepth=0;document.body.classList.remove("dragging");handleFiles(e.dataTransfer.files)});
-$("#loadPaste").addEventListener("click",()=>{try{say($("#inMsg"),true,importText($("#pasteIn").value))}catch(e){say($("#inMsg"),false,"無法載入："+e.message)}});
-$("#loadSample").addEventListener("click",()=>{try{loadNew(SAMPLE);say($("#inMsg"),true,"已載入範例。")}catch(e){say($("#inMsg"),false,e.message);toast(e.message)}});
+$("#loadPaste").addEventListener("click",()=>{try{say($("#inMsg"),true,importText($("#pasteIn").value))}catch(e){say($("#inMsg"),false,tr("無法載入：","Can't load: ")+e.message)}});
+$("#loadSample").addEventListener("click",()=>{try{loadNew(sampleData());say($("#inMsg"),true,tr("已載入範例。","Sample loaded."))}catch(e){say($("#inMsg"),false,e.message);toast(e.message)}});
 
 /* ---------- export ---------- */
 function buildFCPXML(){
@@ -1198,25 +1226,25 @@ function buildFCPXML(){
 /* cuts run last to first, so earlier timecodes stay valid while the editor works down the list */
 function buildManual(){
   const OL=layout(orig),L=layout(doc),b=Math.round(fps),T=f=>fToTc(f,b),steps=[];
-  const out=[`Koma 手動操作清單｜${doc.project}｜${+fps.toFixed(3)}fps`,`時間碼是 時:分:秒:格，每秒 ${b} 格，以軟體時間軸從 00:00:00:00 起算（非掉格）。請由上往下做。`,"「到」不含最後那一格。",""];
+  const out=tr([`Koma 手動操作清單｜${doc.project}｜${+fps.toFixed(3)}fps`,`時間碼是 時:分:秒:格，每秒 ${b} 格，以軟體時間軸從 00:00:00:00 起算（非掉格）。請由上往下做。`,"「到」不含最後那一格。",""],[`Koma manual checklist | ${doc.project} | ${+fps.toFixed(3)}fps`,`Timecode is hh:mm:ss:ff at ${b} frames per second, counted from 00:00:00:00 on your editor's timeline (non-drop). Work from top to bottom.`,`"to" excludes the last frame.`,""]);
   let needSrc=false;
   [...orig.clips].reverse().forEach(o=>{
     const n=doc.clips.find(c=>c.id===o.id),i=orig.clips.indexOf(o),S=OL.map[o.id].start;
-    let len=o.out-o.in;const lab=`鏡頭 ${pad(i+1)}「${o.name}」`;
-    if(!n){steps.push(`${lab}：整段刪除，從 ${T(S)} 到 ${T(S+len)}`);return}
+    let len=o.out-o.in;const lab=tr(`鏡頭 ${pad(i+1)}「${o.name}」`,`Clip ${pad(i+1)} "${o.name}"`);
+    if(!n){steps.push(tr(`${lab}：整段刪除，從 ${T(S)} 到 ${T(S+len)}`,`${lab}: delete entirely, from ${T(S)} to ${T(S+len)}`));return}
     const dO=n.out-o.out,dI=n.in-o.in,p=[];
-    if(dI<0){p.push(`開頭延長 ${-dI} 格（需要原始素材）`);len-=dI;needSrc=true}
-    if(dO>0){p.push(`結尾延長 ${dO} 格（需要原始素材）`);len+=dO;needSrc=true}
-    if(dO<0){p.push(`結尾裁掉 ${-dO} 格：在 ${T(S+len+dO)} 切一刀，刪到 ${T(S+len)}`);len+=dO}
-    if(dI>0)p.push(`開頭裁掉 ${dI} 格：刪除 ${T(S)} 到 ${T(S+dI)}`);
-    if(p.length)steps.push(`${lab}：${p.join("；")}`);
+    if(dI<0){p.push(tr(`開頭延長 ${-dI} 格（需要原始素材）`,`extend the start by ${-dI} frames (needs source media)`));len-=dI;needSrc=true}
+    if(dO>0){p.push(tr(`結尾延長 ${dO} 格（需要原始素材）`,`extend the end by ${dO} frames (needs source media)`));len+=dO;needSrc=true}
+    if(dO<0){p.push(tr(`結尾裁掉 ${-dO} 格：在 ${T(S+len+dO)} 切一刀，刪到 ${T(S+len)}`,`trim ${-dO} frames off the end: cut at ${T(S+len+dO)} and delete to ${T(S+len)}`));len+=dO}
+    if(dI>0)p.push(tr(`開頭裁掉 ${dI} 格：刪除 ${T(S)} 到 ${T(S+dI)}`,`trim ${dI} frames off the start: delete ${T(S)} to ${T(S+dI)}`));
+    if(p.length)steps.push(`${lab}${tr("：",": ")}${p.join(tr("；","; "))}`);
   });
-  out.push("一、修剪鏡頭（由後往前）");out.push(...(steps.length?steps.map((t,i)=>`${i+1}. ${t}`):["沒有修剪"]));
-  if(needSrc)out.push("","注意：標示「需要原始素材」的步驟，只有成片做不到。請改請 Claude 重新輸出。");
+  out.push(tr("一、修剪鏡頭（由後往前）","1. Trim clips (last to first)"));out.push(...(steps.length?steps.map((t,i)=>`${i+1}. ${t}`):[tr("沒有修剪","No trims")]));
+  if(needSrc)out.push("",tr("注意：標示「需要原始素材」的步驟，只有成片做不到。請改請 Claude 重新輸出。",'Note: steps marked "needs source media" can\'t be done from the final cut alone. Ask Claude to re-render instead.'));
   out.push("");
   const fx=exportDoc().markers.map(m=>({m,f:markerFrame(m,L)})).sort((a,b)=>a.f-b.f);
-  out.push("二、加上特效與字幕（修剪完成後的時間碼）");
-  out.push(...(fx.length?fx.map(({m,f},i)=>`${i+1}. ${T(f)} ${m.type==="text"&&capText(m)?mkNote(m).replace(/\s+/g," "):fxOf(m.type).l+(mkNote(m)?"："+mkNote(m).replace(/\s+/g," "):"")}`):["沒有特效與字幕"]));
+  out.push(tr("二、加上特效與字幕（修剪完成後的時間碼）","2. Add effects and captions (timecode after trimming)"));
+  out.push(...(fx.length?fx.map(({m,f},i)=>`${i+1}. ${T(f)} ${m.type==="text"&&capText(m)?mkNote(m).replace(/\s+/g," "):fxOf(m.type).l+(mkNote(m)?tr("：",": ")+mkNote(m).replace(/\s+/g," "):"")}`):[tr("沒有特效與字幕","No effects or captions")]));
   return out.join("\n")+"\n";
 }
 function srtTime(f){const ms=Math.round(f/fps*1000),z=(n,w=2)=>String(n).padStart(w,"0");return `${z(Math.floor(ms/3600000))}:${z(Math.floor(ms/60000)%60)}:${z(Math.floor(ms/1000)%60)},${z(ms%1000,3)}`}
@@ -1254,23 +1282,23 @@ async function deliver(name,text){
     if(dl){
       const direct=["json","txt","md"].includes(ext);
       try{await dl.save(direct?{filename:name,data:text}:{filename:name.replace(/\.[^.]+$/,"")+".zip",data:zip([{name,text}])});
-        say(msg,true,direct?`已儲存 ${name}`:`已儲存壓縮檔，解壓後就是 ${name}，可直接匯入剪輯軟體。`)}
-      catch(e){if(e?.code==="declined")say(msg,false,"已取消儲存。");else{say(msg,false,"這裡無法直接存檔，已把內容放在右邊，可以複製後存成 "+name);showOut(name,text)}}
+        say(msg,true,direct?tr(`已儲存 ${name}`,`Saved ${name}`):tr(`已儲存壓縮檔，解壓後就是 ${name}，可直接匯入剪輯軟體。`,`Saved a zip; unzip it to get ${name}, ready to import into your editor.`))}
+      catch(e){if(e?.code==="declined")say(msg,false,tr("已取消儲存。","Save cancelled."));else{say(msg,false,tr("這裡無法直接存檔，已把內容放在右邊，可以複製後存成 ","Can't save directly here. The contents are shown alongside; copy them and save as ")+name);showOut(name,text)}}
       return;
     }
-    say(msg,false,"這裡無法直接存檔，已把內容放在右邊，可以複製後存成 "+name);showOut(name,text);return;
+    say(msg,false,tr("這裡無法直接存檔，已把內容放在右邊，可以複製後存成 ","Can't save directly here. The contents are shown alongside; copy them and save as ")+name);showOut(name,text);return;
   }
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/octet-stream"}));a.download=name;document.body.appendChild(a);a.click();
-  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);say(msg,true,`已下載 ${name}`);
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);say(msg,true,tr(`已下載 ${name}`,`Downloaded ${name}`));
 }
-function showOut(name,text){const t=$("#exportOut");t.hidden=false;t.value=text;$("#exportOutActs").hidden=false;$("#exportOutHint").textContent="存成 "+name}
+function showOut(name,text){const t=$("#exportOut");t.hidden=false;t.value=text;$("#exportOutActs").hidden=false;$("#exportOutHint").textContent=tr("存成 ","Save as ")+name}
 document.querySelectorAll("[data-exp]").forEach(b=>b.addEventListener("click",()=>{
   const k=b.dataset.exp,n=safeName(doc.project);
-  if(k==="fcpxml")deliver(n+".fcpxml",buildFCPXML()).then(()=>{if(!$("#mediaDir").value.trim())$("#outMsg").textContent+=" 沒填素材資料夾，開啟後請手動重新連結素材。"});
+  if(k==="fcpxml")deliver(n+".fcpxml",buildFCPXML()).then(()=>{if(!$("#mediaDir").value.trim())$("#outMsg").textContent+=tr(" 沒填素材資料夾，開啟後請手動重新連結素材。"," No media folder set; relink media manually after opening.")});
   else if(k==="edl")deliver(n+".edl",buildEDL());
   else if(k==="manual")deliver(n+".txt",buildManual());
-  else if(k==="srt"){const t=buildSRT(),left=doc.markers.filter(m=>m.type==="text"&&!capText(m)&&m.note.trim()).length,tip=left?`有 ${left} 個字幕標記只有說明，沒有輸出；點標記可按「用說明當字幕」。`:"";
-    if(!t)return say($("#outMsg"),false,tip||"還沒有字幕。先按「字幕」或「加字幕」輸入內容。");deliver(n+".srt",t).then(()=>{if(tip)$("#outMsg").textContent+=" "+tip})}
+  else if(k==="srt"){const t=buildSRT(),left=doc.markers.filter(m=>m.type==="text"&&!capText(m)&&m.note.trim()).length,tip=left?tr(`有 ${left} 個字幕標記只有說明，沒有輸出；點標記可按「用說明當字幕」。`,`${left} caption markers have notes only and were left out; select one and use "Use note as caption".`):"";
+    if(!t)return say($("#outMsg"),false,tip||tr("還沒有字幕。先按「字幕」或「加字幕」輸入內容。","No captions yet. Press Caption or Add caption to type one."));deliver(n+".srt",t).then(()=>{if(tip)$("#outMsg").textContent+=" "+tip})}
   else deliver(n+".koma.json",JSON.stringify(exportDoc(),null,2));
 }));
 $("#copyExport").addEventListener("click",()=>copy($("#exportOut").value,$("#exportOut")));
@@ -1280,8 +1308,8 @@ document.querySelector(".tabs").addEventListener("click",e=>{const t=e.target.cl
   document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
   document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==t.dataset.tab)});
 function copy(text,fallbackEl){
-  const fb=()=>{if(fallbackEl){const pn=fallbackEl.closest("[data-panel]");if(isM()&&pn)openSheet(pn.dataset.panel);fallbackEl.hidden=false;fallbackEl.value=text;fallbackEl.focus();fallbackEl.select();toast("請手動複製選取的文字")}};
-  try{navigator.clipboard.writeText(text).then(()=>toast("已複製"),fb)}catch(err){fb()}
+  const fb=()=>{if(fallbackEl){const pn=fallbackEl.closest("[data-panel]");if(isM()&&pn)openSheet(pn.dataset.panel);fallbackEl.hidden=false;fallbackEl.value=text;fallbackEl.focus();fallbackEl.select();toast(tr("請手動複製選取的文字","Copy the selected text manually"))}};
+  try{navigator.clipboard.writeText(text).then(()=>toast(tr("已複製","Copied")),fb)}catch(err){fb()}
 }
 $("#copyLog").addEventListener("click",()=>copy(logText(),$("#copyFallback")));
 $("#copyTop").addEventListener("click",()=>copy(logText(),$("#copyFallback")));
@@ -1304,11 +1332,11 @@ vv?.addEventListener("resize",fitViewport);vv?.addEventListener("scroll",fitView
 $("#insp").addEventListener("focusin",e=>{if(isM()&&e.target.matches("textarea,#mkProd"))document.body.classList.add("typing")});
 $("#insp").addEventListener("focusout",e=>{if(e.target.matches("textarea,#mkProd")&&!$("#mkProd")){document.body.classList.remove("typing");$("#insp").classList.remove("noting");updatePlayhead()}});
 MQ.addEventListener("change",()=>{const st=document.documentElement.style;if(isM())fitViewport();else{st.removeProperty("--vh");st.removeProperty("--vvt");st.removeProperty("--kb");closeSheet()}setHint();fit();renderAll()});
-function setHint(t){$("#ph .hint").textContent=t||(isM()?"點下方「匯入」選擇成片影片":"拖入成片影片，這裡就會顯示實際畫面")}
+function setHint(t){$("#ph .hint").textContent=t||(isM()?tr("點下方「匯入」選擇成片影片","Tap Import below to choose the final video"):tr("拖入成片影片，這裡就會顯示實際畫面","Drop in the final video to see real footage here"))}
 $("#copySnip").addEventListener("click",()=>copy($("#askSnip").textContent,null));
 $("#resetBtn").addEventListener("click",e=>{const b=e.currentTarget;
-  if(b.dataset.armed){delete b.dataset.armed;b.textContent="全部還原";mutate(()=>{doc=clone(orig);sel=null});toast("已還原成 Claude 原版，可按「復原」找回");return}
-  b.dataset.armed=1;b.textContent="確定還原？再按一次";setTimeout(()=>{if(b.dataset.armed){delete b.dataset.armed;b.textContent="全部還原"}},3000)});
+  if(b.dataset.armed){delete b.dataset.armed;b.textContent=tr("全部還原","Reset all");mutate(()=>{doc=clone(orig);sel=null});toast(tr("已還原成 Claude 原版，可按「復原」找回","Reset to Claude's version; use Undo to get your edits back"));return}
+  b.dataset.armed=1;b.textContent=tr("確定還原？再按一次","Reset? Press again");setTimeout(()=>{if(b.dataset.armed){delete b.dataset.armed;b.textContent=tr("全部還原","Reset all")}},3000)});
 $("#undoBtn").addEventListener("click",doUndo);
 $("#redoBtn").addEventListener("click",doRedo);
 $("#restorePrev").addEventListener("click",restorePrev);
@@ -1316,8 +1344,8 @@ try{const p=JSON.parse(store.get(PREV)||"[]");prevDrafts=Array.isArray(p)?p:[]}c
 try{const md=localStorage.getItem("koma:mediaDir");if(md)$("#mediaDir").value=md}catch(e){}
 $("#mediaDir").addEventListener("change",e=>{try{localStorage.setItem("koma:mediaDir",e.target.value)}catch(err){}});
 
-const HERE=!IN_CLAUDE&&/^https?:/.test(location.protocol)?location.origin+location.pathname:"<Koma 網址>";
-$("#askSnip").textContent=`每次幫我剪完影片，請另外附上一個 .koma.json 時間軸檔，讓我用 Koma 逐格微調：
+const HERE=!IN_CLAUDE&&/^https?:/.test(location.protocol)?location.origin+location.pathname:tr("<Koma 網址>","<Koma URL>");
+const askText=()=>tr(`每次幫我剪完影片，請另外附上一個 .koma.json 時間軸檔，讓我用 Koma 逐格微調：
 
 { "project": 片名, "fps": 成片幀率, "width": 寬, "height": 高,
   "clips": [ { "id": "c1", "name": 鏡頭描述, "src": 素材檔名,
@@ -1332,10 +1360,47 @@ $("#askSnip").textContent=`每次幫我剪完影片，請另外附上一個 .kom
 type 只用 glitch, flash, rgb, zoom, slow, ramp, shake, scan, text, trans, grade, sfx, other。
 
 Koma 在 ${HERE}
-我修改後會貼回「Koma 剪輯回饋」，請照清單重新輸出成片和新的時間軸。`;
+我修改後會貼回「Koma 剪輯回饋」，請照清單重新輸出成片和新的時間軸。`,`Each time you finish editing a video for me, also attach a .koma.json timeline file so I can fine-tune it frame by frame in Koma:
+
+{ "project": title, "fps": final frame rate, "width": width, "height": height,
+  "clips": [ { "id": "c1", "name": shot description, "src": source file name,
+               "in": in point, "out": out point (exclusive),
+               "srcDuration": total source length (optional) } ],
+  "markers": [ { "id": "m1", "clip": clip id, "at": frame within the clip,
+                 "type": effect type, "note": production note,
+                 "text": on-screen text (optional, for text only),
+                 "dur": caption length in frames (optional, for text only) } ] }
+
+List clips in final-cut order. Always express in, out and srcDuration in the final frame rate, even if the source uses another rate.
+Use only these types: glitch, flash, rgb, zoom, slow, ramp, shake, scan, text, trans, grade, sfx, other.
+
+Koma is at ${HERE}
+After editing I'll paste back the "Koma edit feedback" list; please re-render the video and a new timeline from it.`);
+$("#askSnip").textContent=askText();
 
 let tt;function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,2200)}
 let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(renderTimeline,120)});
+
+/* ---------- language ---------- */
+const META={zh:["KOMA 影格｜逐格修改 Claude 剪好的影片","在瀏覽器裡逐格修剪 Claude 剪好的影片、標記特效，產生可貼回 Claude 的修改提示詞，或匯出 FCPXML、EDL 到剪輯軟體。影片不會上傳。"],en:["KOMA | Frame-by-frame editor for Claude video","Trim videos edited by Claude frame by frame in your browser, mark effects, and get a change list to paste back to Claude, or export FCPXML and EDL to your editor. Your video is never uploaded."]};
+function applyLang(){
+  const en=lang==="en";document.documentElement.lang=en?"en":"zh-Hant";
+  [document.title,document.querySelector('meta[name=description]').content]=META[lang];
+  document.querySelectorAll("[data-en]").forEach(el=>{el.koZh??=el.innerHTML;el.innerHTML=en?el.dataset.en:el.koZh});
+  for(const a of ["title","aria-label","placeholder"])document.querySelectorAll(`[data-en-${a}]`).forEach(el=>{const k="koZh"+a;el[k]??=el.getAttribute(a);el.setAttribute(a,en?el.getAttribute("data-en-"+a):el[k])});
+  const b=$("#langBtn");b.textContent=en?"中":"EN";b.title=en?"切換成中文":"Switch to English";b.setAttribute("aria-label",b.title);b.lang=en?"zh-Hant":"en";
+  const pb=$("#playBtn");pb.setAttribute("aria-label",playing?tr("暫停","Pause"):tr("播放","Play"));
+  $("#askSnip").textContent=askText();setHint();
+}
+/* the untouched sample follows the language; anything the user made stays as written */
+function matchSample(){if(!orig?.sample||changes().length||orig.project===sampleData().project)return false;const p=playhead,s=sel;load(sampleData());playhead=p;sel=s;renderAll();return true}
+function setLang(l){lang=l;store.set(l,LANGK);
+  if(langQ){const u=new URL(location.href);u.searchParams.set("lang",l);history.replaceState(null,"",u)}
+  applyLang();$("#inMsg").textContent="";$("#outMsg").textContent="";badgeKey="";
+  if(!matchSample())renderAll();
+  savePrevs()}
+$("#langBtn").addEventListener("click",()=>setLang(lang==="en"?"zh":"en"));
+applyLang();
 
 /* ---------- boot: link > saved draft > sample ---------- */
 async function fromHash(){
@@ -1344,21 +1409,21 @@ async function fromHash(){
   const bytes=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
   if(m[1]==="j")return JSON.parse(new TextDecoder().decode(bytes));
   const rd=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw")).getReader(),parts=[];let n=0;
-  for(;;){const{done,value}=await rd.read();if(done)break;n+=value.length;if(n>MAXLINK)throw new Error("連結內容過大");parts.push(value)}
+  for(;;){const{done,value}=await rd.read();if(done)break;n+=value.length;if(n>MAXLINK)throw new Error(tr("連結內容過大","Link content is too large"));parts.push(value)}
   return JSON.parse(await new Blob(parts).text());
 }
 async function openLink(){
   try{const h=await fromHash();if(h){const n=normalize(h);
-    if(JSON.stringify(orig)===JSON.stringify(n))toast("已接續上次的修改");
-    else{loadNew(h);toast(`已從連結載入：${doc.clips.length} 個鏡頭`)}
-    say($("#inMsg"),true,"時間軸已從連結載入。把成片影片加進來就能對照畫面。");}}
-  catch(e){toast(/空間不足/.test(e.message)?e.message:"連結裡的時間軸無法讀取")}
+    if(JSON.stringify(orig)===JSON.stringify(n))toast(tr("已接續上次的修改","Continuing your last edits"));
+    else{loadNew(h);toast(tr(`已從連結載入：${doc.clips.length} 個鏡頭`,`Loaded from link: ${doc.clips.length} clips`))}
+    say($("#inMsg"),true,tr("時間軸已從連結載入。把成片影片加進來就能對照畫面。","Timeline loaded from the link. Add the final video to compare footage."));}}
+  catch(e){toast(e.space?e.message:tr("連結裡的時間軸無法讀取","The timeline in this link can't be read"))}
 }
 addEventListener("hashchange",openLink);
 (async function(){
   setHint();fitViewport();let s=null;try{s=JSON.parse(store.get()||"null")}catch(e){}
-  try{if(s&&s.orig&&s.doc){load(s.orig,s.doc);setHint(isM()?"草稿已還原。點下方「匯入」重新選擇成片影片":"草稿已還原。請重新拖入成片影片對照畫面")}else load(SAMPLE)}
-  catch(e){const kept=store.set(store.get()||"",KEY+":unreadable");saveBlocked=!kept;load(SAMPLE);toast(kept?"上次的草稿無法讀取，已另存備份":"上次的草稿無法讀取，已停止自動暫存以保留它")}
+  try{if(s&&s.orig&&s.doc){load(s.orig,s.doc);matchSample();if(!orig.sample)setHint(isM()?tr("草稿已還原。點下方「匯入」重新選擇成片影片","Draft restored. Tap Import below to choose the final video again"):tr("草稿已還原。請重新拖入成片影片對照畫面","Draft restored. Drop in the final video again to compare footage"))}else load(sampleData())}
+  catch(e){const kept=store.set(store.get()||"",KEY+":unreadable");saveBlocked=!kept;load(sampleData());toast(kept?tr("上次的草稿無法讀取，已另存備份","Your last draft couldn't be read; a backup was kept"):tr("上次的草稿無法讀取，已停止自動暫存以保留它","Your last draft couldn't be read; autosave stopped to preserve it"))}
   await openLink();
 })();
 </script>
