@@ -3,13 +3,13 @@
 <meta name="description" content="在瀏覽器裡逐格修剪 Claude 剪好的影片、標記特效，產生可貼回 Claude 的修改提示詞，或匯出 FCPXML、EDL 到剪輯軟體。影片不會上傳。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='2' y='8' width='36' height='24' rx='2' fill='%232b2d2f'/%3E%3Crect x='15' y='12' width='10' height='16' fill='%23a3766d'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&text=%E5%BD%B1%E6%A0%BC&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&family=DM+Mono:wght@400&family=Outfit:wght@300;400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&text=%E5%BD%B1%E6%A0%BC&display=swap">
 <style>
 /* Layout: a quiet editing desk — generous margins, preview + inspector, transport, a film-strip timeline with vertical labels, notebook below. */
 :root{
   --paper:#f6f5ef; --sheet:#ffffff; --well:#e5eee6; --ink:#293c35; --sub:#52635b; --line:#d9ddd3; --hair:#e8eae2;
-  --ac:#366653; --ac2:#805544; --warn:#985036; --shu:#c8553d; --gold:#7d6a3a; --onac:#ffffff; --stage:#ecebe3;
+  --ac:#3b7560; --ac2:#805544; --warn:#985036; --shu:#c8574a; --gold:#7d6a3a; --onac:#ffffff; --stage:#ecebe3;
   --f-disp:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
   --f-ui:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
   --f-mono:"DM Mono",ui-monospace,"SF Mono",Menlo,monospace;
@@ -28,11 +28,12 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 /* header */
 .top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px}
-.logo{width:32px;height:32px;flex:none}
-.brand h1{margin:0;font-weight:500;line-height:1.1;white-space:nowrap;display:flex;align-items:baseline;gap:8px;word-spacing:-1em}
-.ko{font-family:"DM Sans",var(--f-ui);font-size:24px;letter-spacing:.06em;word-spacing:0}
-.kaku{font-family:"Noto Serif TC",serif;font-size:19px;letter-spacing:.1em;color:var(--ac);word-spacing:0}
-.brand p{margin:3px 0 0;font-family:"DM Sans",var(--f-ui);font-size:11.5px;line-height:1.3;color:var(--sub);letter-spacing:0}
+.logo{width:40px;height:40px;flex:none}
+.brand h1{margin:0;font-weight:500;line-height:1.1;white-space:nowrap;display:flex;align-items:baseline;gap:0;word-spacing:-1em}
+.dot{width:5px;height:5px;margin:0 11px;border-radius:50%;background:#e6a79a;align-self:center}
+.ko{font-family:"Outfit",var(--f-ui);font-weight:400;font-size:28px;letter-spacing:.2em;margin-right:-.2em;word-spacing:0}
+.kaku{font-family:"Huninn",var(--f-ui);font-weight:400;font-size:23px;letter-spacing:.08em;color:var(--ac);word-spacing:0}
+.brand p{margin:3px 0 0;font-family:"Outfit",var(--f-ui);font-weight:300;font-size:12.5px;line-height:1.3;color:var(--sub);letter-spacing:.1em}
 .proj{display:flex;gap:10px;align-items:baseline;flex:1;min-width:0;flex-wrap:wrap}
 .proj b{font-family:var(--f-disp);font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .pill{font-size:12px;font-variant-numeric:tabular-nums;color:var(--sub);white-space:nowrap;letter-spacing:0}
@@ -42,7 +43,7 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .btn:hover{border-color:var(--ac);color:var(--ac)}
 .btn:disabled{opacity:.35;cursor:default}
 .btn:disabled:hover{border-color:var(--line);color:inherit}
-.btn.pri,.btn.shu{background:var(--ac);border-color:var(--ac);color:var(--onac)}
+.btn.pri,.btn.shu{background:var(--ac);border-color:var(--ac);color:var(--onac);border-radius:999px}
 .btn.pri:hover,.btn.shu:hover{background:color-mix(in srgb,var(--ac) 85%,var(--ink));color:var(--onac)}
 .btn.ghost{color:var(--ac2);border-color:color-mix(in srgb,var(--ac2) 40%,var(--line))}
 .btn.sm{padding:3px 11px;font-size:12px}
@@ -51,10 +52,10 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .card{background:var(--sheet);border:1px solid var(--hair);border-radius:var(--r);box-shadow:0 1px 2px rgba(41,60,53,.04)}
 
 /* stage */
-.stage{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px}
 @media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr)}.insp{max-height:none}}
-.preview{display:flex;align-items:center;justify-content:center;padding:18px;min-height:240px;background:var(--stage);border-color:var(--hair)}
-.frame{position:relative;height:min(50vh,560px);max-width:100%;aspect-ratio:9/16;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(41,60,53,.1)}
+.preview{display:flex;align-items:center;justify-content:center;padding:12px;min-height:240px;background:var(--stage);border-color:var(--hair)}
+.frame{position:relative;height:min(50vh,560px);max-width:100%;aspect-ratio:9/16;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 8px 28px rgba(47,74,64,.1)}
 .frame video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
 .ph{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:22px 20px 46px;color:var(--ink);
   background:linear-gradient(180deg,color-mix(in srgb,var(--c,#9aaba3) 22%,#fff) 0%,color-mix(in srgb,var(--c,#9aaba3) 7%,#fff) 100%)}
@@ -188,7 +189,7 @@ textarea{resize:vertical;min-height:64px}
   linear-gradient(var(--hair),var(--hair)) 0 9px/100% 1px no-repeat,
   linear-gradient(var(--hair),var(--hair)) 0 calc(100% - 9px)/100% 1px no-repeat}
 .track.f{height:56px;border-bottom:0}
-.clip{position:absolute;top:14px;bottom:14px;margin-left:var(--tlp,10px);box-sizing:border-box;background:color-mix(in srgb,var(--c) 16%,var(--sheet));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-top:3px solid var(--c);border-radius:2px;overflow:hidden;touch-action:pan-x;cursor:pointer}
+.clip{position:absolute;top:14px;bottom:14px;margin-left:var(--tlp,10px);box-sizing:border-box;background:color-mix(in srgb,var(--c) 24%,var(--sheet));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-top:3px solid var(--c);border-radius:2px;overflow:hidden;touch-action:pan-x;cursor:pointer}
 .clip{border-radius:6px}.clip.mod{border-style:dashed;border-top-style:solid;border-color:var(--ac2);border-top-color:var(--c)}
 .clip.sel{outline:1.5px solid var(--ink);outline-offset:1px;z-index:2}
 .clip .body{position:absolute;inset:0 10px;padding-top:4px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
@@ -205,7 +206,7 @@ textarea{resize:vertical;min-height:64px}
 .d.dl{left:12px}.d.dr{right:12px}
 .mk{position:absolute;top:10px;margin-left:var(--tlp,10px);display:flex;align-items:flex-start;gap:5px;cursor:grab;touch-action:none;z-index:2}
 .mk i{width:2px;height:30px;background:var(--c);flex:none}
-.mk span{font-size:11px;line-height:1.5;color:var(--ink);background:var(--sheet);border:1px solid var(--line);border-left:0;padding:0 7px 0 4px;white-space:nowrap}
+.mk span{font-size:12px;line-height:1.5;color:var(--ink);background:var(--sheet);border:1px solid var(--line);border-radius:999px;padding:0 9px;white-space:nowrap}
 .mk.sel span{border-color:var(--ink);font-weight:500}
 .mk.sel i{width:3px;background:var(--ink)}
 .phd{position:absolute;top:0;bottom:0;width:0;border-left:2px solid var(--shu);pointer-events:none;z-index:5;margin-left:var(--tlp,10px)}
@@ -261,10 +262,10 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .top{order:0;flex:none;gap:2px 6px;flex-wrap:wrap;padding:4px 10px 3px;border-bottom:0;background:var(--sheet)}
   .foot,#projMeta{display:none}
   .brand{gap:7px;flex:1 1 0;min-width:0}
-  .brand h1{gap:6px}.ko{font-size:19px;letter-spacing:.04em}.kaku{font-size:15.5px;letter-spacing:.08em}
-  .brand p{margin:1px 0 0;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ko{font-size:19px;letter-spacing:.18em;margin-right:-.18em}.kaku{font-size:16px}.dot{width:4px;height:4px;margin:0 8px}
+  .brand p{margin:1px 0 0;font-size:10.5px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .brand>div{min-width:0}
-  .logo{width:26px;height:26px}
+  .logo{width:30px;height:30px}
   .proj{order:8;flex:1 1 100%;display:flex;gap:8px;align-items:baseline;flex-wrap:nowrap;line-height:1.4;overflow:hidden;white-space:nowrap}
   .proj b{font-family:var(--f-ui);font-weight:400;font-size:11px;color:var(--sub);flex:0 1 auto;min-width:0}
   .proj .pill{font-size:10px;flex:none}
@@ -272,8 +273,8 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   #undoBtn,#redoBtn{width:40px;padding:0;justify-content:center;border-color:transparent}
   #undoBtn .t,#redoBtn .t{display:none}
   #undoBtn svg,#redoBtn svg{width:18px;height:18px}
-  #copyTop{font-weight:500;background:var(--well);border-color:var(--well);color:var(--ac);min-height:44px}
-  #copyTop:hover{background:var(--well);color:var(--ac)}
+  .top #copyTop{font-weight:500;min-height:36px;padding:0 13px;border-radius:999px;position:relative}
+  #copyTop::after{content:"";position:absolute;inset:-4px 0}
   #restorePrev{order:9;flex:1 1 100%;margin-bottom:6px}
   .preview{order:1;flex:1 1 0;min-height:96px;padding:6px 8px;container-type:size;background:var(--stage)}
   .frame{height:auto;width:min(100cqw,calc(100cqh*var(--ar,.5625)));max-width:none;border-radius:6px}
@@ -326,7 +327,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .mk::before{content:"";position:absolute;inset:-7px 0}
   .mk.sel{touch-action:none;z-index:3}
   .mk i{height:28px}
-  .mk span{background:var(--well);color:var(--ink);max-width:150px;overflow:hidden;text-overflow:ellipsis;border:0;border-radius:0 4px 4px 0;padding:3px 7px;line-height:1.3;font-size:11.5px}
+  .mk span{background:var(--well);color:var(--ink);max-width:150px;overflow:hidden;text-overflow:ellipsis;border:0;border-radius:999px;padding:3px 7px;line-height:1.3;font-size:11.5px}
   .mk.sel span{background:var(--ac);color:#fff}
   .mk.sel i{background:var(--ac)}
   .phd{display:none}
@@ -407,7 +408,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
 
 <div class="app">
   <header class="top">
-    <div class="brand"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="5" fill="var(--well)"/><rect x="3" y="6" width="26" height="20" rx="5" fill="none" stroke="var(--ac)" stroke-width="1.6"/><path d="M12 6v20M20 6v20" stroke="var(--ac)" stroke-width="1.2" opacity=".35"/><circle cx="16" cy="16" r="3.4" fill="var(--shu)"/></svg><div><h1><span class="ko">KOMA</span> <span class="kaku">影格</span></h1><p>(editor for claude video)</p></div></div>
+    <div class="brand"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x="3.8" y="7" width="24.4" height="19" rx="6" fill="#fff" stroke="var(--ac)" stroke-width="1.4"/><rect x="12" y="10.5" width="8" height="12" rx="1.5" fill="#7fb39a"/><path d="M8 11v0M8 16.5v0M8 22v0M24 11v0M24 16.5v0M24 22v0" stroke="var(--ac)" stroke-width="1.8" stroke-linecap="round" opacity=".45"/><circle cx="26.5" cy="7.5" r="3" fill="#e6a79a"/></svg><div><h1><span class="ko">KOMA</span> <i class="dot" aria-hidden="true"></i><span class="kaku">影格</span></h1><p>(editor for claude video)</p></div></div>
     <div class="proj"><b id="projName"></b><span class="pill" id="projMeta"></span><span class="pill warn" id="sampleTag" hidden>範例資料</span><span class="pill" id="saveState"></span><span class="pill warn" id="vidWarn" hidden></span></div>
     <button class="btn ghost" id="restorePrev" hidden>還原上一份草稿</button>
     <button class="btn" id="undoBtn" title="復原 (Ctrl/⌘+Z)" aria-label="復原"><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62A7.95 7.95 0 0 1 20.4 16l2.37-.78A10.5 10.5 0 0 0 12.5 8z"/></svg><span class="t">復原</span></button>
@@ -585,7 +586,7 @@ const FX=[
  {k:"grade",l:"調色",c:"#a8809d",d:"這段改變色調或氛圍。"},
  {k:"sfx",l:"音效點",c:"#9a8768",d:"這裡要放音效，或讓畫面對準某個聲音。"},
  {k:"other",l:"其他",c:"#8e9096",d:"其他想法，請在下面寫清楚。"}];
-const PAL=["#93a79e","#97a8b8","#a7a0b6","#b7ab8c","#b69d9d","#8ea6a6","#a3ac93","#b49f91"];
+const PAL=["#93a79e","#a9c6d6","#a7a0b6","#b7ab8c","#b69d9d","#8ea6a6","#a3ac93","#b49f91"];
 const KEY="koma:v1";
 const $=s=>document.querySelector(s);
 const clone=o=>JSON.parse(JSON.stringify(o));
