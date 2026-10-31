@@ -6,7 +6,7 @@
 <title>Koma 測試</title>
 <style>
 body{font:14px/1.6 ui-monospace,Menlo,monospace;margin:16px;background:#fafaf8;color:#2b2d2f}
-.fail{color:#a33}.pass{color:#3a7}pre{white-space:pre-wrap}iframe{display:none}
+.fail{color:#a33}.pass{color:#3a7}pre{white-space:pre-wrap}iframe{display:none}#phone{display:block;position:absolute;left:-9999px;top:0;border:0}
 @media (prefers-color-scheme:dark){body{background:#19191a;color:#e0dfdb}}
 </style>
 </head>
@@ -14,6 +14,7 @@ body{font:14px/1.6 ui-monospace,Menlo,monospace;margin:16px;background:#fafaf8;c
 <h1 id="sum">執行中…</h1>
 <pre id="out"></pre>
 <iframe id="app" src="../index.html?test"></iframe>
+<iframe id="phone" width="390" height="700" src="../index.html?test"></iframe>
 <script>
 /* Runs the real page in an iframe with ?test, which keeps it away from saved drafts. */
 const frame=document.getElementById("app");
@@ -99,6 +100,59 @@ frame.onload=async()=>{
   T("保護舊草稿期間不能用還原覆寫它",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('out',-1);loadNew({clips:[{id:'z',out:9}]});saveBlocked=true;window.__n=0;window.__set=store.set;store.set=(v,key=KEY)=>{if(key===KEY)window.__n++;return true};restorePrev();store.set=window.__set;saveBlocked=false");
     return (k("window.__n")===0&&k("doc.clips[0].id")==="z"&&k("prevDrafts.length")===1)||k("[window.__n,doc.clips[0].id]")});
   T("?test 不寫入瀏覽器儲存",()=>eq(k("store.get()"),null));
+
+  /* phone layout runs in a real 390-wide viewport */
+  const pf=document.getElementById("phone");
+  if(!pf.contentDocument||pf.contentDocument.readyState!=="complete")await new Promise(r=>pf.addEventListener("load",r,{once:true}));
+  await new Promise(r=>setTimeout(r,50));
+  const pw=pf.contentWindow,p=c=>pw.eval(c),pd=pf.contentDocument,tick=()=>new Promise(r=>setTimeout(r,60));
+  const size=async(w,h)=>{pf.width=w;pf.height=h;await tick()};
+  const preset=()=>p("sel=null;load(SAMPLE);renderInspector();renderTimeline();closeSheet();seek(0)");
+  /* everything needed to edit has to be on screen at once */
+  const onScreen=(sels)=>{const bad=[],H=pw.innerHeight;if(pd.documentElement.scrollHeight>H)bad.push("page scrolls");
+    if(pd.querySelector(".app").scrollHeight>pd.querySelector(".app").clientHeight+1)bad.push("app overflows");
+    for(const q of sels){const e=pd.querySelector(q),b=e&&e.getBoundingClientRect();if(!b||!b.height||b.top<0||b.bottom>H+.5)bad.push(q)}
+    const pv=pd.querySelector(".preview").getBoundingClientRect().height;if(pv<96)bad.push("preview "+pv);return bad.length?bad:true};
+  const BASE=["#frame",".transport",".tl",".tools"];
+  for(const [w,h] of [[320,568],[375,667],[390,700],[430,932]]){await size(w,h);preset();
+    T(`${w}×${h} 預覽、播放、時間軸、工具同屏`,()=>onScreen(BASE));
+    p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
+    T(`${w}×${h} 修剪時微調面板同屏`,()=>onScreen([...BASE,".nudge[data-k=in] .nb",".insp .acts"]));
+    p("addMarker()");await tick();
+    T(`${w}×${h} 特效面板同屏`,()=>onScreen([...BASE,".fxgrid",".insp .acts"]))}
+  await size(390,700);preset();await tick();
+  T("主要按鈕觸控區夠大",()=>{p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");const bad=[...pd.querySelectorAll(".transport .ib,.nudge[data-k=in] .nb,.tools button")].filter(b=>{const r=b.getBoundingClientRect();return r.height<44||r.width<38}).map(b=>b.outerHTML.slice(0,50));return bad.length?bad:true});
+  await tick();
+  T("選取鏡頭的把手觸區至少 44 寬",()=>{const r=pd.querySelector(".clip.sel .h.r").getBoundingClientRect();return r.width>=44||r.width});
+  T("未選取鏡頭沒有把手，滑動不會誤修剪",()=>{const h=pd.querySelector(".clip:not(.sel) .h");return pw.getComputedStyle(h).display==="none"||"shown"});
+  preset();await tick();
+  p("scroll.scrollLeft=300");pd.getElementById("scroll").dispatchEvent(new pw.Event("scroll"));
+  T("捲動 300px 對應第 100 格",()=>eq(p("playhead"),100));
+  p("seek(50)");await tick();
+  T("程式移動播放頭後不被捲動事件改寫",()=>eq([p("playhead"),p("scroll.scrollLeft")],[50,150]));
+  p("ppf=.25;renderTimeline();seek(51)");await tick();
+  T("低縮放下逐格不被像素取整吃掉",()=>eq(p("playhead"),51));
+  preset();p("ppf=3;renderTimeline()");await tick();
+  const clipEl=id=>pd.querySelector(`.clip[data-id="${id}"]`);
+  clipEl("c1").click();
+  T("點鏡頭選取且不動播放頭",()=>eq([p("sel&&sel.id"),p("playhead")],["c1",0]));
+  await tick();
+  const fire=(el,t,x,id=1)=>el.dispatchEvent(new pw.PointerEvent(t,{bubbles:true,cancelable:true,clientX:x,clientY:300,pointerId:id,isPrimary:true}));
+  const out0=p("doc.clips[0].out"),h=pd.querySelector(".clip.sel .h.r");
+  fire(h,"pointerdown",200);fire(pw,"pointermove",230);
+  T("拖把手時時間軸凍結",()=>eq(p("tlFreeze"),true));
+  fire(pw,"pointermove",230,2);
+  T("第二指不影響修剪",()=>eq(p("doc.clips[0].out"),out0+10));
+  fire(pw,"pointercancel",230);
+  T("手勢被取消時還原修剪",()=>eq([p("doc.clips[0].out"),p("undo.length"),p("tlFreeze")],[out0,0,false]));
+  fire(pd.querySelector(".clip.sel .h.r"),"pointerdown",200);fire(pw,"pointermove",215);fire(pw,"pointerup",215);
+  T("放開後修剪生效且可復原",()=>{const a=p("doc.clips[0].out");p("doUndo()");return eq([a,p("doc.clips[0].out")],[out0+5,out0])});
+  preset();await tick();
+  T("打開抽屜不會推動畫面",()=>{p("openSheet('out')");const a=pd.querySelector(".app"),r=[a.scrollTop,pd.body.scrollTop,pd.documentElement.scrollTop];p("closeSheet()");return eq(r,[0,0,0])});
+  await size(740,360);preset();await tick();
+  T("手機橫向也不用捲動",()=>onScreen(BASE));
+  p("nudgeEdge='in';sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
+  T("手機橫向修剪面板同屏",()=>onScreen([".transport",".tl",".nudge[data-k=in] .nb"]));
 
   reset();
   const fail=results.filter(r=>!r.ok);
