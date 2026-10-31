@@ -181,6 +181,8 @@ frame.onload=async()=>{
   p(`editCaption("${cid}")`);await tick();
   T("游標停在字幕尾端",()=>{const n=ta();return eq(n.selectionStart,n.value.length)});
   const atBefore=p(`doc.markers.find(m=>m.id==="${cid}").at`);
+  const vis=q=>{const e=pd.querySelector(q),b=e.getBoundingClientRect();return !!b.width&&pd.elementFromPoint(b.left+b.width/2,b.top+b.height/2)===e};
+  T("起點按鈕看得到也點得到",()=>vis('.capdur [data-a="mk:1"]')&&vis('#insp [data-a="delmk"]')||"covered");
   pd.querySelector('.capdur [data-a="mk:1"]').click();await tick();
   T("編輯字幕時可微調起點且鍵盤不收",()=>eq([p(`doc.markers.find(m=>m.id==="${cid}").at`),pd.activeElement.id,pd.getElementById("insp").classList.contains("noting")],[atBefore+1,"mkNote",true]));
   pd.querySelector('#insp [data-a="cancelnote"]').click();await tick();
@@ -200,6 +202,9 @@ frame.onload=async()=>{
   T("字幕文字帶進三種匯出",()=>{p("doc.markers=[{id:'a',clip:'c1',at:0,type:'text',note:'',text:'甲句'}]");return (p("buildFCPXML()").includes("字幕：甲句")&&p("buildEDL()").includes("字幕：甲句")&&p("buildManual()").includes("字幕：甲句"))||"missing"});
   T("舊版字幕會提醒，且可一鍵轉成字幕文字",()=>{p("normWarn=[];load({clips:[{id:'a',out:90}],markers:[{id:'x',clip:'a',at:0,type:'text',note:'舊字幕'}]})");const w=p("normWarn.join()");const before=p("buildSRT()");p("editCaption('x')");pd.querySelector('#insp [data-a="usenote"]').click();return (w.includes("用說明當字幕")&&before===""&&p("buildSRT()").includes("舊字幕")&&p("doc.markers[0].note")==="舊字幕")||[w,before,p("buildSRT()")]});
   T("被截斷的字幕會說實際秒數",()=>{p("load({clips:[{id:'a',out:300}],markers:[{id:'x',clip:'a',at:0,type:'text',note:'',text:'甲',dur:150},{id:'y',clip:'a',at:30,type:'text',note:'',text:'乙'}]});editCaption('x')");return pd.getElementById("capCut").textContent.includes("實際 30 格（1.00 秒）")||pd.getElementById("capCut").textContent});
+  T("取消新增字幕不留空標記",()=>{p("load(SAMPLE);sel=null;renderInspector()");const n=p("doc.markers.length");pd.querySelector('.tools [data-t="caption"]').click();ta().value="x";ta().dispatchEvent(new pw.Event("input",{bubbles:true}));pd.querySelector('#insp [data-a="cancelnote"]').click();return eq([p("doc.markers.length"),p("changes().length"),p("undo.length")],[n,0,0])});
+  T("製作說明可改可清，收鍵盤後仍是字幕面板",()=>{p("load({clips:[{id:'a',out:300}],markers:[{id:'x',clip:'a',at:0,type:'text',note:'舊說明',text:'甲'}]});editCaption('x')");const i=pd.getElementById("mkProd");i.value="";i.dispatchEvent(new pw.Event("input",{bubbles:true}));p("document.activeElement.blur()");return eq([p("doc.markers[0].note"),pd.getElementById("insp").classList.contains("noting")],["",true])});
+  T("字幕清單用字不重複",()=>{p("load({clips:[{id:'a',out:300}],markers:[]});sel=null;addMarker('text');doc.markers[0].text='乙';");const x=p("changes()[0].t");return (x.startsWith("新增字幕「乙」")&&!x.includes("字卡"))||x});
   T("編輯時可刪除字幕，且真的刪掉",()=>{p("load({clips:[{id:'a',out:300}],markers:[{id:'x',clip:'a',at:0,type:'text',note:'',text:'甲'}]});editCaption('x')");const b=pd.querySelector('#insp [data-a="delmk"]'),vis=pw.getComputedStyle(b).display!=="none"&&b.textContent==="刪除字幕";b.click();return eq([vis,p("doc.markers.length"),p("sel")],[true,0,null])});
   T("匯出不重複字幕文字與標籤",()=>{p("load({clips:[{id:'a',out:300}],markers:[{id:'x',clip:'a',at:0,type:'text',note:'同句',text:'同句'}]})");const x=p("buildManual()"),y=p("buildFCPXML()");return (!x.includes("字卡 / 字幕：字幕")&&(x.match(/同句/g)||[]).length===1&&(y.match(/同句/g)||[]).length===1)||[x,y]});
   p("document.activeElement.blur();load(SAMPLE)");
