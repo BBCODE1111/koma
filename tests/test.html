@@ -120,6 +120,9 @@ frame.onload=async()=>{
     T(`${w}×${h} 修剪時微調面板同屏`,()=>onScreen([...BASE,".nudge[data-k=in] .nb",".insp .acts"]));
     p("addMarker()");await tick();
     T(`${w}×${h} 特效面板同屏`,()=>onScreen([...BASE,".fxgrid",".insp .acts"]))}
+  for(const w of [320,375,390]){await size(w,667);preset();await tick();
+    T(`${w} 寬標題與副標不被截斷`,()=>{const h=pd.querySelector(".brand h1"),q=pd.querySelector(".brand p"),d=pd.querySelector(".dot").getBoundingClientRect();return (h.scrollWidth<=h.clientWidth+1&&q.scrollWidth<=q.clientWidth+1&&d.width>=3)||[h.scrollWidth,h.clientWidth,q.scrollWidth,q.clientWidth,d.width]});
+    T(`${w} 寬手機字級至少 10.5px`,()=>{const bad=[...pd.querySelectorAll(".app *")].filter(e=>e.children.length===0&&e.textContent.trim()&&e.getBoundingClientRect().width&&!e.closest(".fxv")&&parseFloat(pw.getComputedStyle(e).fontSize)<10.5).map(e=>e.className+":"+pw.getComputedStyle(e).fontSize);return bad.length?bad.slice(0,5):true})}
   await size(390,700);preset();await tick();
   T("主要按鈕觸控區夠大",()=>{p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");const bad=[...pd.querySelectorAll(".transport .ib,.nudge[data-k=in] .nb,.tools button")].filter(b=>{const r=b.getBoundingClientRect();return r.height<44||r.width<38}).map(b=>b.outerHTML.slice(0,50));return bad.length?bad:true});
   await tick();
