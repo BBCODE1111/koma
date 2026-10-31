@@ -75,7 +75,8 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .frame{container-type:inline-size}
 .ph .nm{font-family:var(--f-disp);font-weight:500;font-size:clamp(13px,8cqw,22px);line-height:1.45;letter-spacing:.08em;text-wrap:balance}
 .ph .hint{color:var(--sub);font-size:11.5px;margin-top:8px}
-.ov{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;gap:6px;pointer-events:none;font-variant-numeric:tabular-nums;font-size:11px;color:var(--ink)}
+.ov{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;gap:6px;pointer-events:none;font-variant-numeric:tabular-nums;font-size:12px;color:var(--ink)}
+#ovClip{flex:none}#ovSrc{min-width:0}
 .ov span{background:rgba(244,242,233,.88);padding:1px 7px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
 .cutflag{position:absolute;left:10px;bottom:10px;color:var(--ac);font-size:11px;padding:0 8px;border-radius:6px;background:rgba(244,242,233,.92)}
 .fxbadge{position:absolute;right:10px;top:38px;width:42%;display:flex;flex-direction:column;gap:4px;background:rgba(244,242,233,.94);padding:5px;border-radius:8px;color:var(--ink);font-size:11px;text-align:center;cursor:pointer;animation:fade .3s ease}
@@ -134,7 +135,7 @@ textarea{resize:vertical;min-height:64px}
 .fxv .m1{position:absolute;left:0;right:0;bottom:0;height:58%;background:#8ba29b;clip-path:polygon(0 100%,0 58%,28% 14%,52% 62%,74% 32%,100% 68%,100% 100%)}
 .fxv .m2{position:absolute;left:0;right:0;bottom:0;height:34%;background:#4d605c;clip-path:polygon(0 100%,0 40%,40% 70%,70% 20%,100% 60%,100% 100%)}
 .fxv .fo{position:absolute;inset:0;pointer-events:none}
-.fxv .tag{position:absolute;right:4px;top:4px;font-size:9px;line-height:1.4;padding:0 4px;background:rgba(12,18,17,.55);color:#f6faf8;font-family:var(--f-mono);letter-spacing:0}
+.fxv .tag{position:absolute;right:4px;top:4px;font-size:11px;line-height:1.4;padding:0 4px;background:rgba(12,18,17,.55);color:#f6faf8;font-family:var(--f-mono);letter-spacing:0}
 .fx-glitch .b{animation:glitch 1.8s steps(1) infinite;filter:hue-rotate(140deg) saturate(1.6)}
 @keyframes glitch{0%,58%,100%{clip-path:inset(0 0 100% 0);transform:none}60%{clip-path:inset(18% 0 58% 0);transform:translateX(-9%)}63%{clip-path:inset(60% 0 14% 0);transform:translateX(8%)}66%{clip-path:inset(36% 0 40% 0);transform:translateX(-4%)}69%{clip-path:inset(0 0 100% 0)}}
 .fx-glitch .sc:not(.b){animation:gj 1.8s steps(1) infinite}
@@ -196,7 +197,7 @@ textarea{resize:vertical;min-height:64px}
 .ruler{height:28px;position:relative;border-bottom:1px solid var(--hair);cursor:ew-resize;touch-action:none;
   background-image:linear-gradient(to right,var(--line) 1px,transparent 1px);background-repeat:repeat-x;background-position:var(--tlp,10px) 100%}
 .tick{position:absolute;top:8px;bottom:0;border-left:1px solid var(--sub);margin-left:var(--tlp,10px)}
-.tick span{position:absolute;left:5px;top:-3px;font-family:var(--f-mono);font-size:11px;color:var(--sub);white-space:nowrap;letter-spacing:0}
+.tick span{position:absolute;left:5px;top:-3px;font-family:var(--f-mono);font-size:12px;color:var(--sub);white-space:nowrap;letter-spacing:0}
 .track{position:relative;border-bottom:1px solid var(--hair)}
 .track.v{height:82px;background:
   linear-gradient(var(--hair),var(--hair)) 0 9px/100% 1px no-repeat,
@@ -215,7 +216,7 @@ textarea{resize:vertical;min-height:64px}
 .clip:hover .h::after{opacity:.9}
 .h:hover,.h:active{background:color-mix(in srgb,var(--ac) 22%,transparent)}
 @media (pointer:coarse){.h{width:18px}.clip .body{inset:0 20px}.nb{width:44px;padding:8px 0}.ib{width:44px;height:44px}.ib.play{width:52px;height:52px}.tab{padding:14px 0}.expbtn{padding:14px 2px}}
-.d{position:absolute;bottom:3px;font-style:normal;font-family:var(--f-mono);font-size:10px;color:var(--ac2);pointer-events:none;letter-spacing:0}
+.d{position:absolute;top:3px;background:color-mix(in srgb,var(--c) 24%,var(--sheet));padding:0 3px;border-radius:3px;font-style:normal;font-family:var(--f-mono);font-size:12px;color:var(--ac2);pointer-events:none;letter-spacing:0}
 .d.dl{left:12px}.d.dr{right:12px}
 .mk{position:absolute;top:10px;margin-left:var(--tlp,10px);display:flex;align-items:flex-start;gap:5px;cursor:grab;touch-action:none;z-index:2}
 .mk i{width:2px;height:30px;background:var(--c);flex:none}
@@ -280,8 +281,8 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .brand>div{min-width:0}
   .logo{width:36px;height:26px}
   .proj{order:8;flex:1 1 100%;display:flex;gap:8px;align-items:baseline;flex-wrap:nowrap;line-height:1.4;overflow:hidden;white-space:nowrap}
-  .proj b{font-family:var(--f-ui);font-weight:400;font-size:11px;color:var(--sub);flex:0 1 auto;min-width:0}
-  .proj .pill{font-size:11px;flex:none}
+  .proj b{font-family:var(--f-ui);font-weight:400;font-size:12px;color:var(--sub);flex:0 1 auto;min-width:0}
+  .proj .pill{font-size:12px;flex:none}
   .top .btn{min-height:40px;padding:0 10px;border-radius:8px;flex:none}
   #undoBtn,#redoBtn{width:40px;padding:0;justify-content:center;border-color:transparent}
   #undoBtn .t,#redoBtn .t{display:none}
@@ -297,8 +298,8 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   body.hassel .ph .hint{display:none}
   .ov{left:6px;right:6px;top:6px}
   .ov #ovSrc{display:none}
-  .ov span{max-width:100%;font-size:11px;border-radius:4px}
-  .cutflag{left:6px;bottom:6px;font-size:11px;border-radius:4px}
+  .ov span{max-width:100%;font-size:12px;border-radius:4px}
+  .cutflag{left:6px;bottom:6px;font-size:12px;border-radius:4px}
   .fxbadge{width:34%;max-width:96px;right:8px;top:36px;font-size:11px;border-radius:6px}
   .transport{order:2;flex:none;flex-wrap:nowrap;gap:0;padding:2px 8px;justify-content:space-between;background:var(--sheet);box-shadow:none}
   .transport>.btn{display:none}
@@ -318,7 +319,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .scroll::-webkit-scrollbar{display:none}
   .ruler{height:20px;border:0;touch-action:pan-x;cursor:default}
   .tick{top:12px;border-left-color:var(--line)}
-  .tick span{top:-12px;left:3px;font-size:11px}
+  .tick span{top:-12px;left:3px;font-size:12px}
   .track{border:0}
   .track.v{height:clamp(62px,10dvh,92px);background:none}
   .track.f{height:44px}
@@ -358,7 +359,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .seg{flex:none;display:inline-flex;background:var(--well);border-radius:8px;padding:2px}
   .seg button{background:none;border:0;border-radius:6px;min-width:60px;height:40px;color:var(--sub)}
   .seg button[aria-pressed=true]{background:var(--ac);color:var(--onac);font-weight:500}
-  .len{flex:1;min-width:0;text-align:right;font-variant-numeric:tabular-nums;font-size:11px;line-height:1.3;color:var(--sub);letter-spacing:0;white-space:nowrap}
+  .len{flex:1;min-width:0;text-align:right;font-variant-numeric:tabular-nums;font-size:12px;line-height:1.3;color:var(--sub);letter-spacing:0;white-space:nowrap}
   .len b{display:block;font-family:var(--f-ui);font-weight:500;font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
   .insp .row{display:block}
   .nudge{flex-wrap:nowrap;gap:4px}
@@ -449,7 +450,8 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
 .insp.more .moreacts{display:flex!important}
 .morebtn[aria-expanded=true]{background:var(--well);color:var(--ac);border-color:var(--ac)}
 .morebtn .ico{stroke-width:3}
-.ins-j::before{content:"";position:absolute;inset:-9px}
+.ins-j::before{content:"";position:absolute;inset:-9px -5px}
+@media (min-width:761px) and (hover:hover){.ins-j{width:20px;height:20px;margin-left:calc(var(--tlp,10px) - 10px);font-size:13px}}
 .prodwrap:not(.empty) .prodadd{display:none!important}
 .prodadd{align-self:flex-start}
 @media (min-width:761px) and (min-height:501px),(min-width:761px) and (pointer:fine){.insp.hasacts{display:flex;flex-direction:column}.insp.hasacts>.acts{order:-1}.insp.hasacts>.eyebrow{order:-2}.insp.hasacts>.acts.main{margin-bottom:-4px}}
@@ -470,8 +472,8 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
   .insp.more .row,.insp.more .segrow,.insp.more .over,.insp.more .help{display:none!important}
   .insp.more .moreacts{display:grid!important;grid-template-columns:repeat(4,1fr);gap:4px;margin:0;overflow:visible;padding:0}
   .insp.more .moreacts .btn{min-width:0;min-height:44px;padding:0 1px;gap:3px;justify-content:center;font-size:11.5px;white-space:nowrap}}
-@media (max-width:400px){.tools button{font-size:10.5px}}
-@media (max-width:359px){.brand p{font-size:11px;letter-spacing:-.02em}.logo{display:none}#undoBtn,#redoBtn{width:36px}.ib{width:38px}.transport .tc{width:60px}.seg button{min-width:50px}}
+@media (min-width:360px) and (max-width:760px){.tools button{font-size:12px}.insp:not(.noting) .acts.main .btn{font-size:12px}}
+@media (max-width:359px){.proj b,.proj .pill{font-size:11px}.len{font-size:11px}.len b{font-size:11px}.brand p{font-size:11px;letter-spacing:-.02em}.logo{display:none}#undoBtn,#redoBtn{width:36px}.ib{width:38px}.transport .tc{width:60px}.seg button{min-width:50px}}
 </style>
 </head><body>
 
@@ -741,7 +743,11 @@ function load(data,draftDoc){
   fit();renderAll();checkVideo();
 }
 let saveBlocked=false;
-function save(){const el=$("#saveState"),ok=!saveBlocked&&store.set(JSON.stringify({orig,doc}));
+const HIST="koma:history";
+function saveHistory(){if(TEST)return;try{sessionStorage.setItem(HIST,JSON.stringify({d:JSON.stringify(doc),u:undo.slice(-60),r:redo.slice(-60)}))}catch(e){}}
+function loadedHistory(){if(TEST)return null;try{return JSON.parse(sessionStorage.getItem(HIST)||"null")}catch(e){return null}}
+function restoreHistory(h){if(h&&h.d===JSON.stringify(doc)){undo=h.u;redo=h.r;syncUndo();saveHistory()}}
+function save(){saveHistory();const el=$("#saveState"),ok=!saveBlocked&&store.set(JSON.stringify({orig,doc}));
   el.textContent=ok?tr("已自動暫存","Saved"):saveBlocked?tr("已停止自動暫存，以保護無法讀取的舊草稿","Autosave stopped to protect an unreadable draft"):tr("無法暫存，請匯出 JSON 備份","Can't save; export a JSON backup");el.classList.toggle("warn",!ok)}
 /* a new timeline never silently replaces edits: the old draft stays one click away */
 function loadNew(data){
@@ -769,7 +775,8 @@ function restorePrev(){
   load(p.orig,p.doc);toast(tr("已還原上一份草稿","Previous draft restored"));
 }
 function syncUndo(){$("#undoBtn").disabled=!undo.length;$("#redoBtn").disabled=!redo.length}
-function pushUndo(){undo.push(JSON.stringify(doc));if(undo.length>300)undo.shift();redoStash=redo;redo=[];syncUndo()}
+let fresh=null,lastMove=null;
+function pushUndo(){fresh=null;lastMove=null;undo.push(JSON.stringify(doc));if(undo.length>300)undo.shift();redoStash=redo;redo=[];syncUndo()}
 function cancelUndo(){undo.pop();redo=redoStash;syncUndo()}
 function stepHistory(from,to,msg){if(!from.length)return;to.push(JSON.stringify(doc));doc=JSON.parse(from.pop());if(sel&&!(sel.kind==="clip"?doc.clips:doc.markers).some(x=>x.id===sel.id))sel=null;renderAll();toast(msg)}
 function doUndo(){stepHistory(undo,redo,tr("已復原","Undone"))}
@@ -782,7 +789,7 @@ function setOut(c,v){c.out=v;clipMarks(c).forEach(m=>{m.at=Math.min(m.at,c.out-c
 const minIn=c=>Math.max(0,c.in-room());
 const maxOut=c=>Math.min(MAXF,c.out+room());
 function noteEditor(el,set){let open=false;
-  el.oninput=e=>{if(!open){pushUndo();open=true}set(e.target.value);renderLog();save()};
+  el.oninput=e=>{if(!open){if(!fresh||fresh!==sel?.id)pushUndo();fresh=null;open=true}set(e.target.value);renderLog();save()};
   el.onblur=()=>{open=false}}
 function mutate(fn){pushUndo();fn();renderAll()}
 
@@ -821,14 +828,18 @@ function renderTimeline(){
     const e=L.map[c.id],o=OL.map[c.id]?.c,dI=o?c.in-o.in:0,dO=o?c.out-o.out:0,isSel=sel?.kind==="clip"&&sel.id===c.id;
     return `<div class="clip${isSel?" sel":""}${c.ins?" ins":""}${dI||dO?" mod":""}${(c.out-c.in)*ppf<46?" tiny":""}${(c.out-c.in)*ppf<100?" short":""}" data-id="${esc(c.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(tr(`鏡頭 ${pad(i+1)} ${c.name}，${c.out-c.in} 格`,`Clip ${pad(i+1)} ${c.name}, ${c.out-c.in} frames`))}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
       <div class="h l" data-edge="in" title="${tr("拖曳修剪入點","Drag to trim the in point")}"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${c.out-c.in}f · ${esc(c.ins?insKind(c):c.src)}</em></div>${dI<0?`<i class="ext l" style="width:${-dI*ppf}px"></i>`:""}${dO>0?`<i class="ext r" style="width:${dO*ppf}px"></i>`:""}<div class="h r" data-edge="out" title="${tr("拖曳修剪出點","Drag to trim the out point")}"></div>
-      ${dI?`<i class="d dl">${tr("入","In ")}${sgn(dI)}</i>`:""}${dO?`<i class="d dr">${tr("出","Out ")}${sgn(dO)}</i>`:""}</div>`}).join("");
+      ${(c.out-c.in)*ppf<120?"":`${dI?`<i class="d dl">${tr("入","In ")}${sgn(dI)}</i>`:""}${dO?`<i class="d dr">${tr("出","Out ")}${sgn(dO)}</i>`:""}`}</div>`}).join("");
   $("#trV").insertAdjacentHTML("beforeend",doc.clips.concat([null]).map((c,i)=>{const prev=doc.clips[i-1],x=(c?L.map[c.id].start:L.total)*ppf;
     if((c&&(c.out-c.in)*ppf<40)||(prev&&(prev.out-prev.in)*ppf<40)||(sel?.kind==="clip"&&(sel.id===c?.id||sel.id===prev?.id)))return"";
     return `<button class="ins-j" data-at="${i}" style="left:${x}px" aria-label="${tr("在這裡插入新片段","Insert a new segment here")}" title="${tr("在這裡插入新片段","Insert a new segment here")}">＋</button>`}).join(""));
   $("#trF").innerHTML=doc.markers.map(m=>{const f=markerFrame(m,L);if(f==null)return"";const fx=fxOf(m.type),isSel=sel?.kind==="mk"&&sel.id===m.id;
     return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(m.type==="text"?tr(`字幕 ${capText(m)||"未輸入"}，${tc(f)}，點一下編輯`,`Caption ${capText(m)||"empty"}, ${tc(f)}, tap to edit`):tr(`特效 ${fx.l}，${tc(f)}`,`Effect ${fx.l}, ${tc(f)}`))}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?tr("：",": ")+m.note:""))}"><i></i><span>${esc(m.type==="text"&&capText(m)?capText(m).slice(0,14):fx.l)}</span></div>`}).join("");
-  updatePlayhead();
+  fitMarkLabels(L);updatePlayhead();
 }
+/* each label stops before the next marker; without room only its tick shows, and captions keep their words over effects on the same frame */
+function fitMarkLabels(L){const a=[...$("#trF").querySelectorAll(".mk")].map(el=>{const m=doc.markers.find(x=>x.id===el.dataset.id);return{el,m,f:markerFrame(m,L)}}).sort((x,y)=>x.f-y.f||(x.m.type==="text")-(y.m.type==="text"));
+  a.forEach((x,i)=>{const sp=x.el.querySelector("span"),isSel=sel?.kind==="mk"&&sel.id===x.m.id,g=a[i+1]?(a[i+1].f-x.f)*ppf-12:Infinity;
+    if(isSel||g===Infinity){sp.style.maxWidth="";sp.hidden=false;return}sp.hidden=g<34;sp.style.maxWidth=g+"px";sp.style.overflow="hidden";sp.style.textOverflow="ellipsis"})}
 let badgeKey="";
 function updatePlayhead(){
   const L=layout(doc);playhead=clamp(playhead,0,Math.max(0,L.total-1));
@@ -982,10 +993,11 @@ function changes(){
   });
   const where=(m,LL)=>{const e=LL.map[m.clip];if(!e)return tr("（鏡頭已刪除）","(clip deleted)");const f=markerFrame(m,LL);const oi=orig.clips.findIndex(x=>x.id===rootId(e.c)),no=pad((oi<0?e.i:oi)+1);return e.c.ins?tr(`${e.c.name} 第 ${f-e.start} 格（成片 ${tc(f)}）`,`${e.c.name} frame ${f-e.start} (timeline ${tc(f)})`):tr(`鏡頭 ${no}「${e.c.name}」第 ${f-e.start} 格（成片 ${tc(f)}）`,`clip ${no} "${e.c.name}" frame ${f-e.start} (timeline ${tc(f)})`)};
   out.push(...structureLines().map(t=>({t})));
+  const spans=captionSpans(L);
   doc.markers.forEach(m=>{
     const o=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type).l,note=m.note.trim()?`${tr("：",": ")}${m.note.trim()}`:"";
     if(!L.map[m.clip])return;
-    const dl=m.type==="text"&&m.dur?tr(`（顯示 ${m.dur} 格）`,` (shown for ${m.dur} frames)`):"";
+    const sp=m.type==="text"?spans.find(x=>x.m===m):null,dl=sp?tr(`（顯示到 ${tc(sp.end)}，共 ${sp.end-sp.f} 格）`,` (shown until ${tc(sp.end)}, ${sp.end-sp.f} frames)`):"";
     if(!o&&m.type==="swap"){const c=L.map[m.clip].c,n=m.dur||1,sf=c.in+clamp(m.at,0,c.out-c.in-1);out.push({t:tr(`換畫面：${where(m,L)}起 ${n} 格${c.src?`（${c.src} 素材格 ${sf}–${sf+n-1}）`:""}，只換這段，前後不動。要換成：${m.note.trim()||"（未說明，請先問我）"}`,`Replace shot: ${where(m,L)}, for ${n} frames${c.src?` (${c.src} source frames ${sf}–${sf+n-1})`:""}. Change only this part and leave what surrounds it. Replace with: ${m.note.trim()||"(not specified, ask me first)"}`),fx:1});return}
     if(!o){const q=capText(m);out.push({t:m.type==="text"?tr(`新增字幕${q?`「${q}」`:""}於 ${where(m,L)}${note}${dl}`,`Add caption${q?` "${q}"`:""} at ${where(m,L)}${note}${dl}`):tr(`新增特效【${fx}】於 ${where(m,L)}${note}`,`Add effect [${fx}] at ${where(m,L)}${note}`),fx:1});return}
     const p=[],oE=OL.map[o.clip],at=clamp(m.at,0,L.map[m.clip].c.out-L.map[m.clip].c.in-1);
@@ -993,7 +1005,7 @@ function changes(){
     if(o.type!==m.type)p.push(tr(`改成【${fx}】`,`change to [${fx}]`));
     if(o.note!==m.note)p.push(m.note.trim()?tr(`說明改為：${m.note.trim()}`,`note becomes: ${m.note.trim()}`):tr("清除原有說明","clear the existing note"));
     if((o.text||"")!==(m.text||""))p.push(capText(m)?tr(`字幕文字改為「${capText(m)}」`,`caption text becomes "${capText(m)}"`):tr("清除字幕文字","clear the caption text"));
-    if((o.dur||0)!==(m.dur||0))p.push(tr(`顯示改為 ${capDur(m)} 格`,`show for ${capDur(m)} frames`));
+    if((o.dur||0)!==(m.dur||0))p.push(sp?tr(`顯示到 ${tc(sp.end)}，共 ${sp.end-sp.f} 格`,`show until ${tc(sp.end)}, ${sp.end-sp.f} frames`):tr(`顯示改為 ${capDur(m)} 格`,`show for ${capDur(m)} frames`));
     if(p.length)out.push({t:`${markName(o)}${tr("原在 "," was at ")}${where(o,OL)}${tr("：",": ")}${p.join(tr("；","; "))}`,fx:1});
   });
   orig.markers.forEach(o=>{if(!doc.markers.some(m=>m.id===o.id)&&OL.map[o.clip])out.push({t:tr(`移除${markName(o)}（原在 ${where(o,OL)}）`,`Remove ${markName(o)} (was at ${where(o,OL)})`),fx:1})});
@@ -1023,8 +1035,12 @@ function nudgeClip(edge,d){const c=doc.clips.find(x=>x.id===sel.id);const v=edge
   mutate(()=>{if(edge==="in")setIn(c,v);else setOut(c,v)});
   const e=layout(doc).map[c.id];seek(edge==="in"?e.start:e.start+c.out-c.in-1)}
 const newId=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+/* jumping to a cut carries the clip selection along, so the next action lands on the clip you are looking at */
+function jumpCut(f){seek(f);if(sel?.kind!=="clip")return;const h=clipAt(playhead,layout(doc));if(h&&h.c.id!==sel.id){sel={kind:"clip",id:h.c.id};renderTimeline();renderInspector()}}
 function moveClip(id,to){const from=doc.clips.findIndex(c=>c.id===id);to=clamp(to,0,doc.clips.length-1);if(from<0||from===to)return;
-  mutate(()=>{const[c]=doc.clips.splice(from,1);doc.clips.splice(to,0,c);sel={kind:"clip",id}});seek(layout(doc).map[id].start)}
+  const now=performance.now(),same=lastMove&&lastMove.id===id&&now-lastMove.t<2000&&lastMove.n===undo.length;
+  if(same){const[c]=doc.clips.splice(from,1);doc.clips.splice(to,0,c);sel={kind:"clip",id};renderAll()}else mutate(()=>{const[c]=doc.clips.splice(from,1);doc.clips.splice(to,0,c);sel={kind:"clip",id}});
+  lastMove={id,t:now,n:undo.length};seek(layout(doc).map[id].start)}
 function insertClip(at){const n=Math.round(2*fps);if(room()<n)return toast(tr("時間軸已達上限","The timeline is at its limit"));
   const snap={doc:clone(doc),undo:[...undo],redo:[...redo]},id=newId("n"),no=doc.clips.filter(c=>c.ins).length+1;
   mutate(()=>{doc.clips.splice(at,0,{id,name:tr(`新片段 ${no}`,`New segment ${no}`),src:"",in:0,out:n,note:"",ins:"gen"});sel={kind:"clip",id}});
@@ -1040,7 +1056,7 @@ function splitClip(){const L=layout(doc),h=clipAt(playhead,L);if(!h)return;const
   mutate(()=>{const t=splitAtFrame(h.c,k,0);sel={kind:"clip",id:t.id}});toast(tr("已分割，可以移動或刪除其中一段","Split; move or delete either part"))}
 function nearestCut(){const L=layout(doc),h=clipAt(playhead,L);if(!h)return doc.clips.length;return playhead-h.start<(h.c.out-h.c.in)/2?h.i:h.i+1}
 function placeMarker(m,f){const L=layout(doc);f=clamp(f,0,L.total-1);const h=clipAt(f,L);m.clip=h.c.id;m.at=f-h.start}
-function addMarker(type="glitch"){if(doc.markers.length>=MAXCLIPS*4)return toast(tr(`特效最多 ${MAXCLIPS*4} 個`,`Up to ${MAXCLIPS*4} effects`));const id="m"+Date.now().toString(36);mutate(()=>{const m={id,clip:"",at:0,type,note:""};placeMarker(m,playhead);doc.markers.push(m);sel={kind:"mk",id}})}
+function addMarker(type="glitch"){if(doc.markers.length>=MAXCLIPS*4)return toast(tr(`特效最多 ${MAXCLIPS*4} 個`,`Up to ${MAXCLIPS*4} effects`));const id="m"+Date.now().toString(36);mutate(()=>{const m={id,clip:"",at:0,type,note:""};placeMarker(m,playhead);doc.markers.push(m);sel={kind:"mk",id}});fresh=id}
 
 $("#insp").addEventListener("click",e=>{
   const t=e.target.closest(".fxt");
@@ -1098,7 +1114,7 @@ $("#trV").addEventListener("pointerdown",e=>{
     drag(e,(ev,dx)=>{const d=Math.round(dx/ppf);if(edge==="in"){c.in=clamp(v0+d,lo,c.out-1);ats.forEach(([m,a])=>{m.at=clamp(a-(c.in-v0),0,c.out-c.in-1)})}
       else{c.out=clamp(v0+d,c.in+1,hi);ats.forEach(([m,a])=>{m.at=Math.min(a,c.out-c.in-1)})}
       const e2=layout(doc).map[id];playhead=edge==="in"?e2.start:e2.start+c.out-c.in-1;renderTimeline();renderInspector();renderLog()},
-      (_,cancelled)=>{if(isM())freeze(false);if(cancelled)doc=JSON.parse(before);if(JSON.stringify(doc)===before)cancelUndo();renderAll()});
+      (moved,cancelled)=>{handleTap=!moved&&!cancelled;if(isM())freeze(false);if(cancelled)doc=JSON.parse(before);if(JSON.stringify(doc)===before)cancelUndo();renderAll()});
     renderTimeline();renderInspector();return;
   }
   if(!isM()||sel?.kind!=="clip"||sel.id!==id){sel={kind:"clip",id};renderTimeline();renderInspector();seek(frameAt(e.clientX))}
@@ -1161,7 +1177,10 @@ $("#trF").addEventListener("pointerdown",e=>{
   if(!isM())seek(f0);renderTimeline();renderInspector();
 });
 /* phone: a tap selects without moving the playhead; tapping the selected item again lets go of it */
-function tapSelect(kind,sel0){return e=>{if(!isM()||performance.now()-lastDrag<400||e.target.closest(".h"))return;
+let handleTap=false;
+function tapSelect(kind,sel0){return e=>{
+  if(isM()&&e.target.closest(".h")&&handleTap){handleTap=false;const nb=document.elementsFromPoint(e.clientX,e.clientY).find(x=>x.matches?.(".clip")&&!x.classList.contains("sel"));if(nb){sel={kind:"clip",id:nb.dataset.id};renderTimeline();renderInspector();const e2=layout(doc).map[nb.dataset.id],n=e2.c.out-e2.c.in;if(playhead<e2.start||playhead>=e2.start+n)seek(e2.start)}return}
+  if(!isM()||performance.now()-lastDrag<400||e.target.closest(".h"))return;
   const it=e.target.closest(sel0),id=it&&it.dataset.id;
   if(kind==="mk"&&it&&["text","swap"].includes(doc.markers.find(x=>x.id===id)?.type))return editCaption(id);
   sel=it&&!(sel?.kind===kind&&sel.id===id)?{kind,id}:null;renderTimeline();renderInspector();
@@ -1202,8 +1221,8 @@ function transport(a){
   if(a==="caption"){const snap={doc:clone(doc),undo:[...undo],redo:[...redo]};addMarker("text");openNote();noteStart=snap;return}
   if(a==="fit"){if(isM()){const o=overview();ppf=Math.abs(ppf-o)<.01?defaultPpf():o;$("#zoom").value=z2v(ppf)}else fit();renderTimeline();return}
   const p=cutPoints();
-  if(a==="prevcut")return seek([...p].reverse().find(x=>x<playhead)??0);
-  if(a==="nextcut")return seek(p.find(x=>x>playhead)??total()-1);
+  if(a==="prevcut")return jumpCut([...p].reverse().find(x=>x<playhead)??0);
+  if(a==="nextcut")return jumpCut(p.find(x=>x>playhead)??total()-1);
   seek(playhead+ +a);
 }
 document.querySelector(".transport").addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(b)transport(b.dataset.t)});
@@ -1629,8 +1648,10 @@ async function openLink(){
 addEventListener("hashchange",openLink);
 (async function(){
   setHint();fitViewport();let s=null;try{s=JSON.parse(store.get()||"null")}catch(e){}
+  const hist=loadedHistory();
   try{if(s&&s.orig&&s.doc){load(s.orig,s.doc);matchSample();if(!orig.sample)setHint(isM()?tr("草稿已還原。點下方「匯入」重新選擇成片影片","Draft restored. Tap Import below to choose the final video again"):tr("草稿已還原。請重新拖入成片影片對照畫面","Draft restored. Drop in the final video again to compare footage"))}else load(sampleData())}
   catch(e){const kept=store.set(store.get()||"",KEY+":unreadable");saveBlocked=!kept;load(sampleData());toast(kept?tr("上次的草稿無法讀取，已另存備份","Your last draft couldn't be read; a backup was kept"):tr("上次的草稿無法讀取，已停止自動暫存以保留它","Your last draft couldn't be read; autosave stopped to preserve it"))}
+  restoreHistory(hist);
   await openLink();
 })();
 </script>
