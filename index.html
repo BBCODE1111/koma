@@ -437,14 +437,30 @@ button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .clip.ins .h.l{display:none!important}
 .clip .ext{position:absolute;top:0;bottom:0;pointer-events:none;background:repeating-linear-gradient(135deg,color-mix(in srgb,var(--ac2) 32%,transparent) 0 4px,transparent 4px 8px)}
 .clip .ext.l{left:0}.clip .ext.r{right:0}
-.clip.moving{opacity:.45}
+.tl,.tl *,#frame,#frame *,.transport,.tools{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.tlmoving .ins-j{display:none}
+body.tlmoving #trV .clip,body.tlmoving #trF .mk{transition:transform .16s cubic-bezier(.2,.7,.2,1)}
+body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-shadow:0 6px 16px rgba(41,60,53,.22);outline:1.5px solid var(--ac);outline-offset:1px}
+@media (prefers-reduced-motion:reduce){body.tlmoving #trV .clip,body.tlmoving #trF .mk{transition:none}}
+.moreacts{display:none!important}
+.insp.more .moreacts{display:flex!important}
+.morebtn[aria-expanded=true]{background:var(--well);color:var(--ac);border-color:var(--ac)}
+.morebtn .ico{stroke-width:3}
+@media (min-width:761px) and (min-height:501px),(min-width:761px) and (pointer:fine){.insp.hasacts{display:flex;flex-direction:column}.insp.hasacts>.acts{order:-1}.insp.hasacts>.eyebrow{order:-2}.insp.hasacts>.acts.main{margin-bottom:-4px}}
 .dropline{position:absolute;top:0;bottom:0;width:3px;margin-left:calc(var(--tlp,10px) - 1.5px);border-radius:2px;background:var(--ac);z-index:7;pointer-events:none}
 .ins-j{position:absolute;bottom:1px;width:26px;height:26px;margin-left:calc(var(--tlp,10px) - 13px);padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--ac);background:var(--sheet);color:var(--ac);z-index:4;font-size:16px;line-height:1}
 .ins-j:hover{background:var(--ac);color:var(--onac)}
 .seg2{display:inline-flex;gap:4px;flex-wrap:wrap}
 .seg2 button{background:var(--well);border:0;border-radius:8px;padding:0 10px;min-height:32px;color:var(--sub)}
 .seg2 button[aria-pressed=true]{background:var(--ac);color:var(--onac)}
-@media (max-width:760px),(max-height:500px) and (pointer:coarse){.clip.sel{touch-action:none}.ins-j{bottom:3px}.seg2 button{min-height:44px}}
+@media (max-width:760px),(max-height:500px) and (pointer:coarse){.clip.sel{touch-action:none}.ins-j{bottom:3px}.seg2 button{min-height:44px}
+  .insp:not(.noting) .acts.main{overflow:visible;gap:4px;margin:0}
+  .insp:not(.noting) .acts.main .btn.only-m{display:inline-flex!important}
+  .insp:not(.noting) .acts.main .btn{display:inline-flex;flex:1 1 0;min-width:0;min-height:44px;padding:2px 0;flex-direction:column;justify-content:center;gap:2px;font-size:11px;line-height:1.2;white-space:nowrap}
+  .insp:not(.noting) .acts.main .btn .ico{width:15px;height:15px;margin:0}
+  .insp.more .row,.insp.more .segrow,.insp.more .over,.insp.more .help{display:none!important}
+  .insp.more .moreacts{display:grid!important;grid-template-columns:repeat(3,1fr);gap:4px;margin:0;overflow:visible;padding:0}
+  .insp.more .moreacts .btn{min-width:0;min-height:42px;padding:0 2px;justify-content:center;font-size:12px;white-space:nowrap}}
 @media (max-width:400px){.tools button{font-size:10.5px}}
 @media (max-width:359px){.brand p{font-size:11px;letter-spacing:-.02em}.logo{display:none}#undoBtn,#redoBtn{width:36px}.ib{width:38px}.transport .tc{width:60px}.seg button{min-width:50px}}
 </style>
@@ -852,11 +868,13 @@ function nudgeRow(lb,key,v,o){const d=o==null?0:v-o;return `<div class="lb">${lb
   <button class="nb" data-a="${key}:-5" aria-label="${tr(`${lb}往前 5 格`,`${lb} 5 frames earlier`)}">−5</button><button class="nb" data-a="${key}:-1" aria-label="${tr(`${lb}往前 1 格`,`${lb} 1 frame earlier`)}">−1</button><span class="v"><span class="only-m vu">${tr("素材第 ","frame ")}</span>${v}<span class="only-m vu">${tr(" 格","")}</span></span><button class="nb" data-a="${key}:1" aria-label="${tr(`${lb}往後 1 格`,`${lb} 1 frame later`)}">+1</button><button class="nb" data-a="${key}:5" aria-label="${tr(`${lb}往後 5 格`,`${lb} 5 frames later`)}">+5</button></div>
   <div class="delta${d?" on":""}">${o==null?tr("新項目","New"):d?tr(`原本 ${o}，${d>0?"晚":"早"} ${Math.abs(d)} 格`,`Was ${o}, ${Math.abs(d)} frames ${d>0?"later":"earlier"}`):tr("未修改","Unchanged")}</div>`}
 function overMedia(c){return c.srcDuration&&c.out>c.srcDuration?`<p class="msg err">${tr(`超出素材長度 ${c.out-c.srcDuration} 格，Claude 可能沒有這段畫面。`,`${c.out-c.srcDuration} frames past the source length; Claude may not have this footage.`)}</p>`:""}
-const ICONS={left:"M15 5l-7 7 7 7",right:"M9 5l7 7-7 7",check:"M5 12l5 5 9-10",x:"M6 6l12 12M18 6L6 18",undo:"M9 7L4 12l5 5M4 12h11a5 5 0 0 1 0 10h-3",trash:"M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13",scissors:"M6 6l12 12M18 6L6 18M6 3v6M18 15v6",split:"M12 3v18M4 7h5v10H4M20 7h-5v10h5",swap:"M4 8h13l-3-3M20 16H7l3 3",plus:"M12 5v14M5 12h14",edit:"M4 20h4L19 9l-4-4L4 16zM13 7l4 4",in:"M6 4v16M10 12h10M15 7l5 5-5 5",out:"M18 4v16M14 12H4M9 7l-5 5 5 5",copy:"M8 8h12v12H8zM4 16V4h12",file:"M6 3h9l4 4v14H6zM14 3v5h5",load:"M12 4v11M7 11l5 4 5-4M4 20h16",reset:"M4 5v6h6M5 11a8 8 0 1 1 1 6",fit:"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"};
+const ICONS={left:"M15 5l-7 7 7 7",right:"M9 5l7 7-7 7",check:"M5 12l5 5 9-10",x:"M6 6l12 12M18 6L6 18",undo:"M9 7L4 12l5 5M4 12h11a5 5 0 0 1 0 10h-3",trash:"M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13",scissors:"M6 6l12 12M18 6L6 18M6 3v6M18 15v6",split:"M12 3v18M4 7h5v10H4M20 7h-5v10h5",swap:"M4 8h13l-3-3M20 16H7l3 3",plus:"M12 5v14M5 12h14",edit:"M4 20h4L19 9l-4-4L4 16zM13 7l4 4",in:"M6 4v16M10 12h10M15 7l5 5-5 5",out:"M18 4v16M14 12H4M9 7l-5 5 5 5",copy:"M8 8h12v12H8zM4 16V4h12",file:"M6 3h9l4 4v14H6zM14 3v5h5",load:"M12 4v11M7 11l5 4 5-4M4 20h16",reset:"M4 5v6h6M5 11a8 8 0 1 1 1 6",fit:"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5",dots:"M5 12h.01M12 12h.01M19 12h.01"};
 const ic=n=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`;
 const act=(a,icon,label,cls="btn sm")=>`<button class="${cls}" data-a="${a}">${ic(icon)}<span>${label}</span></button>`;
+let moreOpen=false;
 function renderInspector(){
   const el=$("#insp");
+  if(sel?.kind!=="clip")moreOpen=false;el.classList.toggle("more",moreOpen&&!doc.clips.find(c=>c.id===sel?.id)?.ins);el.classList.toggle("hasacts",sel?.kind==="clip");
   document.body.classList.toggle("hassel",!!sel);el.classList.remove("noting");const wasTyping=document.body.classList.contains("typing");document.body.classList.remove("typing");if(wasTyping&&isM()){scroll.scrollLeft=playhead*ppf;tlExpect=scroll.scrollLeft}el.dataset.edge=nudgeEdge;
   if(sel?.kind==="clip"){
     const i=doc.clips.findIndex(c=>c.id===sel.id),c=doc.clips[i];if(!c){sel=null;return renderInspector()}
@@ -868,7 +886,7 @@ function renderInspector(){
       <div class="capdur"><span class="seg2" role="group" aria-label="${tr("素材來源","Footage source")}"><button data-a="kind:gen" aria-pressed="${c.ins!=="footage"}">${tr("請 Claude 製作","Claude makes it")}</button><button data-a="kind:footage" aria-pressed="${c.ins==="footage"}">${tr("我提供素材","I supply it")}</button></span><span class="cdg"><span>${tr("長度","Length")}</span><button class="nb" data-a="len:-1" aria-label="${tr("短半秒","Half a second shorter")}">−</button><span class="mono">${durText(c.out-c.in)}</span><button class="nb" data-a="len:1" aria-label="${tr("長半秒","Half a second longer")}">＋</button></span></div>
       <label class="help fieldlab" for="clipNote">${tr("這段要放什麼","What goes here")}</label>
       <textarea id="clipNote" placeholder="${tr("例：加一段城市空拍，黃昏色調","e.g. An aerial city shot in dusk tones")}">${esc(c.note)}</textarea>
-      <div class="acts">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("note","edit",tr("編輯說明","Edit note"),"btn sm only-m")}${moves}${act("delclip","trash",tr("刪除片段","Delete segment"),"btn sm ghost")}</div>`;
+      <div class="acts main">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("note","edit",tr("編輯說明","Edit note"),"btn sm only-m")}${moves}${act("delclip","trash",tr("刪除片段","Delete segment"),"btn sm ghost")}</div>`;
       noteEditor($("#clipNote"),v=>{c.note=v});
       return;
     }
@@ -881,7 +899,8 @@ function renderInspector(){
       ${overMedia(c)}<p class="help">${tr("數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。","Numbers are source frames. ＋ moves later, − moves earlier. Later clips shift automatically.")}</p>
       <label class="help" for="clipNote">${tr("給 Claude 的備註","Note for Claude")}</label>
       <textarea id="clipNote" placeholder="${tr("例：這顆鏡頭調色再冷一點","e.g. Make this shot's grade a bit cooler")}">${esc(c.note)}</textarea>
-      <div class="acts">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("undo","undo",tr("復原","Undo"),"btn sm only-land")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${moves}${act("delf","scissors",tr("刪這格","Delete frame"))}${act("split","split",tr("分割","Split"))}${act("swap","swap",tr("換畫面","Replace"))}${act("ins:0","plus",tr("前面插入","Insert before"))}${act("ins:1","plus",tr("後面插入","Insert after"))}${act("note","edit",tr("備註","Note")+(c.note?" ●":""),"btn sm only-m")}${act("go:in","in",tr("跳到入點","Go to in"))}${act("go:out","out",tr("跳到出點","Go to out"))}${act("delclip","trash",tr("刪除鏡頭","Delete clip"),"btn sm ghost")}</div>`;
+      <div class="acts main">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("undo","undo",tr("復原","Undo"),"btn sm only-land")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("delf","scissors",tr("刪這格","Delete"))}${act("ins:1","plus",tr("插入","Insert"))}${act("split","split",tr("分割","Split"))}${act("swap","swap",tr("換畫面","Replace"))}${act("note","edit",tr("備註","Note")+(c.note?" ●":""),"btn sm only-m")}<button class="btn sm morebtn" data-a="more" aria-expanded="${moreOpen}" aria-controls="moreActs">${ic("dots")}<span>${tr("更多","More")}</span></button></div>
+      <div class="acts moreacts" id="moreActs">${moves}${act("ins:0","plus",tr("前面插入","Insert before"))}${act("go:in","in",tr("跳到入點","Go to in"))}${act("go:out","out",tr("跳到出點","Go to out"))}${act("delclip","trash",tr("刪除鏡頭","Delete clip"),"btn sm ghost")}</div>`;
     noteEditor($("#clipNote"),v=>{c.note=v});
   }else if(sel?.kind==="mk"){
     const m=doc.markers.find(x=>x.id===sel.id);if(!m){sel=null;return renderInspector()}
@@ -1022,6 +1041,7 @@ $("#insp").addEventListener("click",e=>{
   if(a==="close"){const n=$("#insp textarea");n&&n.blur();const cm=sel.kind==="mk"&&doc.markers.find(x=>x.id===sel.id);
     if(cm&&cm.type==="text"&&!capText(cm)&&!cm.note.trim()&&noteStart&&!noteStart.doc.markers.some(x=>x.id===cm.id))return cancelNote();
     noteStart=null;sel=null;renderTimeline();renderInspector();return}
+  if(a==="more"){moreOpen=!moreOpen;$("#insp").classList.toggle("more",moreOpen);b.setAttribute("aria-expanded",moreOpen);return}
   if(a==="note")return openNote();
   if(a==="usenote"){const m=doc.markers.find(x=>x.id===sel.id),n=$("#insp textarea");n.value=m.note.trim();n.dispatchEvent(new Event("input",{bubbles:true}));b.hidden=true;return}
   if(a==="cancelnote"){$("#insp textarea").blur();cancelNote();return}
@@ -1074,20 +1094,50 @@ $("#trV").addEventListener("pointerdown",e=>{
   dragMove(e,id);
 });
 $("#trV").addEventListener("click",e=>{const j=e.target.closest(".ins-j");if(!j)return;e.stopPropagation();stopPlay();insertClip(+j.dataset.at)});
-/* drag a clip's body to change the order; its effects and captions travel with it */
-function dragMove(e,id){
-  let line=null,to=-1,lastX=e.clientX,auto=0;
-  const el=()=>document.querySelector(`.clip[data-id="${CSS.escape(id)}"]`);
-  const place=()=>{const L=layout(doc),f=(lastX-inner.getBoundingClientRect().left-tlPad())/ppf,rest=doc.clips.filter(c=>c.id!==id);
+/* drag a clip's body to change the order: the clip follows the finger, the others slide aside, and its effects and captions travel with it */
+function moveSession(id,x0){
+  const L=layout(doc),me=doc.clips.find(c=>c.id===id),rest=doc.clips.filter(c=>c!==me),sc0=scroll.scrollLeft;
+  const of=c=>document.querySelector(`.clip[data-id="${CSS.escape(c)}"]`),mine=of(id);
+  const marks=[...document.querySelectorAll("#trF .mk")].map(el=>({el,c:doc.markers.find(m=>m.id===el.dataset.id)?.clip}));
+  let x=x0,to=doc.clips.indexOf(me),raf=0;
+  const line=document.createElement("div");line.className="dropline";$("#trV").append(line);
+  document.getSelection()?.removeAllRanges();document.body.classList.add("tlmoving");mine?.classList.add("lifted");if(isM())freeze(true);
+  const paint=()=>{
+    const f=(x-inner.getBoundingClientRect().left-tlPad())/ppf,dest={};
     to=rest.filter(c=>L.map[c.id].start+(c.out-c.in)/2<f).length;
-    const nb=rest[to],x=nb?L.map[nb.id].start:L.total;line.style.left=x*ppf+"px"};
-  drag(e,(ev,dx,moved)=>{if(!moved)return;lastX=ev.clientX;
-    if(!line){line=document.createElement("div");line.className="dropline";$("#trV").append(line);el()?.classList.add("moving");if(isM())freeze(true);
-      auto=setInterval(()=>{const r=scroll.getBoundingClientRect(),d=lastX<r.left+36?-10:lastX>r.right-36?10:0;if(d){scroll.scrollLeft+=d;tlExpect=scroll.scrollLeft;place()}},30)}
-    place()},
-  (moved,cancelled)=>{clearInterval(auto);line?.remove();el()?.classList.remove("moving");if(isM()){freeze(false);if(!moved)lastDrag=0}
-    if(line&&!cancelled&&to>=0)moveClip(id,to);else if(isM())updatePlayhead()});
+    let at=0;[...rest.slice(0,to),me,...rest.slice(to)].forEach(c=>{dest[c.id]=at;at+=c.out-c.in});
+    const fol=x-x0+scroll.scrollLeft-sc0,off=c=>c===id?fol:(dest[c]-L.map[c].start)*ppf;
+    rest.forEach(c=>{const el=of(c.id);if(el)el.style.transform=`translateX(${off(c.id)}px)`});
+    if(mine)mine.style.transform=`translateX(${fol}px)`;
+    marks.forEach(m=>{if(m.c&&m.c in dest)m.el.style.transform=`translateX(${off(m.c)}px)`});
+    line.style.left=dest[id]*ppf+"px"};
+  const tick=()=>{const r=scroll.getBoundingClientRect(),E=56,d=x<r.left+E?-(r.left+E-x):x>r.right-E?x-(r.right-E):0;
+    if(d){scroll.scrollLeft+=clamp(d,-E,E)/4;tlExpect=scroll.scrollLeft;paint()}raf=requestAnimationFrame(tick)};
+  paint();raf=requestAnimationFrame(tick);
+  return{move(nx){x=nx;paint()},end(commit){cancelAnimationFrame(raf);line.remove();document.body.classList.remove("tlmoving");mine?.classList.remove("lifted");
+    document.querySelectorAll("#trV .clip,#trF .mk").forEach(el=>{el.style.transform=""});if(isM())freeze(false);
+    if(commit)moveClip(id,to);else if(isM())updatePlayhead()}};
 }
+function dragMove(e,id){
+  let ses=null;const x0=e.clientX,th=e.pointerType==="mouse"?3:6;
+  drag(e,(ev,dx)=>{if(!ses&&Math.abs(dx)<th)return;ses=ses||moveSession(id,x0);ses.move(ev.clientX)},
+    (_,cancelled)=>{if(ses)ses.end(!cancelled);else if(isM())lastDrag=0});
+}
+/* phone: holding any clip picks it up, so reordering needs no tap first. A touch that moves early stays a pan. */
+let lift=null;
+$("#trV").addEventListener("touchstart",e=>{
+  if(!isM()||e.touches.length!==1||e.target.closest(".h,.ins-j"))return;
+  const cl=e.target.closest(".clip");if(!cl||cl.classList.contains("sel"))return;
+  const t=e.touches[0],me={x:t.clientX,y:t.clientY,id:cl.dataset.id,ses:null};
+  me.tm=setTimeout(()=>{if(lift!==me)return;stopPlay();me.ses=moveSession(me.id,me.x);navigator.vibrate?.(10)},320);lift=me},{passive:true});
+scroll.addEventListener("touchmove",e=>{if(!lift)return;const t=e.touches[0];
+  if(lift.ses){if(e.cancelable)e.preventDefault();lift.ses.move(t.clientX)}
+  else if(Math.hypot(t.clientX-lift.x,t.clientY-lift.y)>8){clearTimeout(lift.tm);lift=null}},{passive:false});
+const dropLift=e=>{if(!lift)return;const me=lift;lift=null;clearTimeout(me.tm);if(!me.ses)return;
+  sel={kind:"clip",id:me.id};me.ses.end(e.type==="touchend");lastDrag=performance.now();renderAll()};
+scroll.addEventListener("touchend",dropLift,{passive:true});scroll.addEventListener("touchcancel",dropLift,{passive:true});
+/* a long press on the timeline must never start selecting the words on it */
+document.querySelectorAll(".tl,#frame,.transport").forEach(el=>{el.addEventListener("selectstart",e=>e.preventDefault());el.addEventListener("contextmenu",e=>{if(isM())e.preventDefault()})});
 $("#trF").addEventListener("pointerdown",e=>{
   if(isM()&&(!e.isPrimary||!e.target.closest(".mk.sel")))return;
   stopPlay();
