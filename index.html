@@ -372,18 +372,21 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .fxgrid{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -10px;padding:2px 10px}
   .fxgrid::-webkit-scrollbar{display:none}
   .fxt{flex:none;width:62px;font-size:11px;white-space:nowrap}
+  .fxt[aria-pressed=true]{font-weight:600}
+  .fxt span{overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .capdur .nb{height:44px;width:42px}
   .insp textarea{display:none;min-height:60px;font-size:16px}
   body.typing .cutflag,body.typing .ov{display:none}
   .insp.noting textarea{display:block}
   .insp.noting>:not(textarea):not(.acts):not(.notehead):not(.capdur):not(.prodwrap):not(.fieldlab){display:none!important}
-  .insp .prod{font-size:16px;padding:6px 10px;min-height:40px}.insp .prodwrap.empty{display:none}
+  .insp .prod{font-size:16px;padding:6px 10px;min-height:40px}.insp .prodwrap.empty>:not(.prodadd){display:none}
   .insp.noting .fieldlab{display:block!important;margin-bottom:-3px}
   .notehead{display:none!important;font-size:12px;color:var(--sub)}
   .insp.noting .notehead{display:block!important}
   .insp.noting .acts button:not([data-a=close]):not([data-a=cancelnote]):not([data-a=usenote]):not([data-a=delmk]){display:none!important}
   .insp:not(.noting) [data-a=cancelnote]{display:none!important}
-  @media (max-height:620px){.fxt{width:52px}.fxt span{display:none}.fxt[aria-pressed=true] span{display:none}.proj b,.proj .pill:not(.warn){display:none}}
+  @media (max-height:620px){.fxt{width:56px}.proj b,.proj .pill:not(.warn){display:none}}
+  @media (max-height:580px){.fxt span{display:none}}
   @media (max-height:450px){body.typing .notehead,body.typing .prodwrap,body.typing .insp.noting .fieldlab{display:none!important}body.typing .preview{min-height:120px}}
   /* tool bar */
   .tools{order:5;flex:none;display:flex!important;padding:2px 4px calc(2px + env(safe-area-inset-bottom,0px));background:var(--sheet);border-top:1px solid var(--hair)}
@@ -446,6 +449,8 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
 .insp.more .moreacts{display:flex!important}
 .morebtn[aria-expanded=true]{background:var(--well);color:var(--ac);border-color:var(--ac)}
 .morebtn .ico{stroke-width:3}
+.prodwrap:not(.empty) .prodadd{display:none!important}
+.prodadd{align-self:flex-start}
 @media (min-width:761px) and (min-height:501px),(min-width:761px) and (pointer:fine){.insp.hasacts{display:flex;flex-direction:column}.insp.hasacts>.acts{order:-1}.insp.hasacts>.eyebrow{order:-2}.insp.hasacts>.acts.main{margin-bottom:-4px}}
 .dropline{position:absolute;top:0;bottom:0;width:3px;margin-left:calc(var(--tlp,10px) - 1.5px);border-radius:2px;background:var(--ac);z-index:7;pointer-events:none}
 .ins-j{position:absolute;bottom:1px;width:26px;height:26px;margin-left:calc(var(--tlp,10px) - 13px);padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--ac);background:var(--sheet);color:var(--ac);z-index:4;font-size:16px;line-height:1}
@@ -458,6 +463,9 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
   .insp:not(.noting) .acts.main .btn.only-m:not([data-a=cancelnote]){display:inline-flex!important}
   .insp:not(.noting) .acts.main .btn{display:inline-flex;flex:1 1 0;min-width:0;min-height:44px;padding:2px 0;flex-direction:column;justify-content:center;gap:2px;font-size:11px;line-height:1.2;white-space:nowrap}
   .insp:not(.noting) .acts.main .btn .ico{width:15px;height:15px;margin:0}
+  .insp:not(.noting) .acts.main [data-a=close]{background:none;border-color:var(--ac);color:var(--ac)}
+  .insp:not(.noting) .acts.main [data-a=delf],.insp:not(.noting) .acts.main [data-a=addf]{flex-grow:1.25;background:color-mix(in srgb,var(--ac) 13%,var(--sheet));border-color:color-mix(in srgb,var(--ac) 45%,var(--line));color:var(--ink);font-size:12.5px;font-weight:500}
+  .clip.sel{outline-width:2px}
   .insp.more .row,.insp.more .segrow,.insp.more .over,.insp.more .help{display:none!important}
   .insp.more .moreacts{display:grid!important;grid-template-columns:repeat(4,1fr);gap:4px;margin:0;overflow:visible;padding:0}
   .insp.more .moreacts .btn{min-width:0;min-height:44px;padding:0 1px;gap:3px;justify-content:center;font-size:11.5px;white-space:nowrap}}
@@ -583,6 +591,7 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
       <div class="grid2">
         <div class="blk">
           <h4 data-en="Export the edited timeline">匯出修改後的時間軸</h4>
+          <p class="help" data-en="Grades, title cards and motion effects don't carry over, only cuts and markers. Effects appear as markers on the timeline to remind you what to do there.">調色、字卡和動態特效不會跟著過去，只有剪接點和標記。特效會以 marker 出現在時間軸上，提醒你在那裡做什麼。</p>
           <div class="exp">
             <button class="expbtn" data-exp="fcpxml"><span class="ext">.fcpxml</span><b>Final Cut Pro · DaVinci Resolve</b><span data-en="Cuts, clip names and effect markers">剪接點、鏡頭名稱、特效標記（變成 marker）</span></button>
             <button class="expbtn" data-exp="edl"><span class="ext">.edl</span><b>Premiere Pro · DaVinci · Avid</b><span data-en="Cuts and clip names; effects as comments">剪接點與鏡頭名稱；特效寫成註解</span></button>
@@ -596,7 +605,6 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
           <h4 data-en="Where is the source media?">素材在哪裡？</h4>
           <label class="help" for="mediaDir" data-en="Media folder path (optional). With it, your editor can link media automatically; without it, relink manually after opening.">素材資料夾路徑（選填）。填了以後，剪輯軟體開啟時就能自動連結素材；沒填的話開啟後再手動「重新連結」即可。</label>
           <input type="text" id="mediaDir" data-en-placeholder="e.g. /Users/you/Movies/footage/" placeholder="例：/Users/you/Movies/素材/">
-          <p class="help" data-en="Grades, title cards and motion effects don't carry over, only cuts and markers. Effects appear as markers on the timeline to remind you what to do there.">調色、字卡和動態特效不會跟著過去，只有剪接點和標記。特效會以 marker 出現在時間軸上，提醒你在那裡做什麼。</p>
           <textarea id="exportOut" rows="6" hidden readonly aria-label="匯出內容" data-en-aria-label="Export contents"></textarea>
           <div class="acts" id="exportOutActs" hidden><button class="btn sm" id="copyExport" data-en="Copy contents">複製內容</button><span class="help" id="exportOutHint"></span></div>
         </div>
@@ -915,7 +923,7 @@ function renderInspector(){
       ${m.type==="swap"?`<div class="capdur"><span class="cdg"><span>${tr("要換幾格","Frames to replace")}</span><button class="nb" data-a="dur:-1" aria-label="${tr("少 1 格","1 frame fewer")}">−</button><span class="mono" id="capDurV">${m.dur||1}</span><button class="nb" data-a="dur:1" aria-label="${tr("多 1 格","1 frame more")}">＋</button></span></div>`:""}${isCap?`<div class="capdur"><span class="cdg"><span>${tr("起點","Start")}</span><button class="nb" data-a="mk:-1" aria-label="${tr("字幕早 1 格","Caption 1 frame earlier")}">−1</button><button class="nb" data-a="mk:1" aria-label="${tr("字幕晚 1 格","Caption 1 frame later")}">+1</button></span><span class="cdg"><span>${tr("顯示","Show")}</span><button class="nb" data-a="dur:-1" aria-label="${tr("顯示短半秒","Half a second shorter")}">−</button><span class="mono" id="capDurV">${durText(capDur(m))}</span><button class="nb" data-a="dur:1" aria-label="${tr("顯示長半秒","Half a second longer")}">＋</button></span><span id="capCut" class="msg">${capCutText(m)}</span></div>`:""}
       <label class="help fieldlab" for="mkNote">${isCap?tr("字幕內容","Caption text"):m.type==="swap"?tr("要換成什麼畫面","What should it show instead"):tr("想要的效果（越具體越好）","What you want (the more specific the better)")}</label>
       <textarea id="mkNote" placeholder="${isCap?tr("輸入要出現的文字","Type the text to show"):tr("例：抖 6 格、強度中等，配合鼓點","e.g. Shake for 6 frames, medium strength, on the drum hit")}">${esc(isCap?m.text||"":m.note)}</textarea>
-      ${isCap?`<div class="prodwrap${m.note.trim()?"":" empty"}"><label class="help fieldlab" for="mkProd">${tr("給 Claude 的製作說明（選填）","Production note for Claude (optional)")}</label><input type="text" class="prod" id="mkProd" value="${esc(m.note)}" placeholder="${tr("例：淡入、白字置中","e.g. Fade in, centered white text")}"></div>`:""}
+      ${isCap?`<div class="prodwrap${m.note.trim()?"":" empty"}">${m.note.trim()?"":`<button type="button" class="btn sm prodadd only-m" data-a="prodopen">${ic("plus")}<span>${tr("加製作說明","Add production note")}</span></button>`}<label class="help fieldlab" for="mkProd">${tr("給 Claude 的製作說明（選填）","Production note for Claude (optional)")}</label><input type="text" class="prod" id="mkProd" value="${esc(m.note)}" placeholder="${tr("例：淡入、白字置中","e.g. Fade in, centered white text")}"></div>`:""}
       <div class="acts"><button class="btn sm only-m" data-a="close">${tr("完成","Done")}</button><button class="btn sm only-land" data-a="undo">${tr("復原","Undo")}</button>${isCap&&m.note.trim()&&!capText(m)?`<button class="btn sm" data-a="usenote">${tr("用說明當字幕","Use note as caption")}</button>`:""}<button class="btn sm only-m" data-a="cancelnote">${tr("取消","Cancel")}</button><button class="btn sm only-m" data-a="note">${isCap?tr("編輯字幕","Edit caption"):tr("備註","Note")}${(isCap?capText(m):m.note)?" ●":""}</button><button class="btn sm" data-a="go:mk">${tr("跳到這裡","Go here")}</button><button class="btn sm ghost" data-a="delmk">${isCap?tr("刪除字幕","Delete caption"):tr("刪除特效","Delete effect")}</button></div>`;
     if($("#mkProd"))noteEditor($("#mkProd"),v=>{m.note=v});
     if(isM()&&(m.type==="text"||m.type==="swap")){el.classList.add("noting");document.body.classList.add("typing")}
@@ -1041,6 +1049,7 @@ $("#insp").addEventListener("click",e=>{
   if(a==="close"){const n=$("#insp textarea");n&&n.blur();const cm=sel.kind==="mk"&&doc.markers.find(x=>x.id===sel.id);
     if(cm&&cm.type==="text"&&!capText(cm)&&!cm.note.trim()&&noteStart&&!noteStart.doc.markers.some(x=>x.id===cm.id))return cancelNote();
     noteStart=null;sel=null;renderTimeline();renderInspector();return}
+  if(a==="prodopen"){const w=b.closest(".prodwrap");w.classList.remove("empty");b.remove();$("#mkProd").focus();return}
   if(a==="more"){moreOpen=!moreOpen;$("#insp").classList.toggle("more",moreOpen);b.setAttribute("aria-expanded",moreOpen);return}
   if(a==="note")return openNote();
   if(a==="usenote"){const m=doc.markers.find(x=>x.id===sel.id),n=$("#insp textarea");n.value=m.note.trim();n.dispatchEvent(new Event("input",{bubbles:true}));b.hidden=true;return}
@@ -1411,6 +1420,7 @@ function buildFCPXML(){
 function buildManual(){
   const OL=layout(orig),L=layout(doc),b=Math.round(fps),T=f=>fToTc(f,b),steps=[];
   const out=tr([`Koma 手動操作清單｜${doc.project}｜${+fps.toFixed(3)}fps`,`時間碼是 時:分:秒:格，每秒 ${b} 格，以軟體時間軸從 00:00:00:00 起算（非掉格）。請由上往下做。`,"「到」不含最後那一格。",""],[`Koma manual checklist | ${doc.project} | ${+fps.toFixed(3)}fps`,`Timecode is hh:mm:ss:ff at ${b} frames per second, counted from 00:00:00:00 on your editor's timeline (non-drop). Work from top to bottom.`,`"to" excludes the last frame.`,""]);
+  const spans=captionSpans(L),spanEnd=m=>spans.find(x=>x.m.id===m.id)?.end;
   let needSrc=false;
   [...orig.clips].reverse().forEach(o=>{
     const pcs=doc.clips.filter(c=>rootId(c)===o.id).sort((a,b)=>a.in-b.in),i=orig.clips.indexOf(o),S=OL.map[o.id].start;
@@ -1433,7 +1443,7 @@ function buildManual(){
   const fx=exportDoc().markers.map(m=>({m,f:markerFrame(m,L)})).sort((a,b)=>a.f-b.f);
   const st=structureLines();if(st.length){out.push(tr("二、調整順序與插入新片段（由上往下）","2. Reorder and insert segments (top to bottom)"),...st.map((t,i)=>`${i+1}. ${t}`),"")}
   out.push(st.length?tr("三、加上特效與字幕（前面都完成後的時間碼）","3. Add effects and captions (timecode after the steps above)"):tr("二、加上特效與字幕（修剪完成後的時間碼）","2. Add effects and captions (timecode after trimming)"));
-  out.push(...(fx.length?fx.map(({m,f},i)=>`${i+1}. ${T(f)} ${m.type==="text"&&capText(m)?mkNote(m).replace(/\s+/g," "):fxOf(m.type).l+(mkNote(m)?tr("：",": ")+mkNote(m).replace(/\s+/g," "):"")}`):[tr("沒有特效與字幕","No effects or captions")]));
+  out.push(...(fx.length?fx.map(({m,f},i)=>`${i+1}. ${T(f)}${m.type==="text"&&spanEnd(m)!=null?tr(" 到 "," to ")+T(spanEnd(m)):""} ${m.type==="text"&&capText(m)?mkNote(m).replace(/\s+/g," "):fxOf(m.type).l+(mkNote(m)?tr("：",": ")+mkNote(m).replace(/\s+/g," "):"")}`):[tr("沒有特效與字幕","No effects or captions")]));
   return out.join("\n")+"\n";
 }
 function srtTime(f){const ms=Math.round(f/fps*1000),z=(n,w=2)=>String(n).padStart(w,"0");return `${z(Math.floor(ms/3600000))}:${z(Math.floor(ms/60000)%60)}:${z(Math.floor(ms/1000)%60)},${z(ms%1000,3)}`}

@@ -193,6 +193,8 @@ frame.onload=async()=>{
   T("取消後面板收起",()=>eq([p("sel"),pd.getElementById("insp").getBoundingClientRect().height],[null,0]));
   await new Promise(r=>setTimeout(r,450));
   p(`editCaption("${cid}")`);await tick();
+  T("手機新字幕可打開製作說明",()=>{const b=pd.querySelector('[data-a="prodopen"]');if(!b)return "no button";const v=pd.defaultView.getComputedStyle(b).display;if(v==="none")return "hidden";b.click();return pd.defaultView.getComputedStyle(pd.querySelector("#mkProd")).display!=="none"||"still hidden"});
+  pd.querySelector("#mkNote").focus();
   T("字幕編輯時面板在畫面內",()=>onScreen(["#mkNote",".insp .acts"]));
   T("SRT 不會被字幕裡的空行切斷",()=>{const n=p("doc.markers.length");p("doc.markers.push({id:'bl',clip:'c1',at:5,type:'text',note:'',text:'一\\n\\n二'})");const x=p("buildSRT()");p("doc.markers.pop()");return (n>=0&&x.includes("一\n二"))||x});
   pd.querySelector('#insp [data-a="dur:1"]').click();
@@ -281,6 +283,8 @@ frame.onload=async()=>{
   T("未編輯時看不到取消",()=>eq(pd.defaultView.getComputedStyle(pd.querySelector('.acts.main [data-a="cancelnote"]')).display,"none"));
   {const o=p("doc.clips[1].out");pd.querySelector('[data-a="addf"]').click();await tick();
    T("加一格讓鏡頭多一格並停在新格",()=>eq([p("doc.clips[1].out")-o,p("playhead")],[1,p("layout(doc).map.c2.start+doc.clips[1].out-doc.clips[1].in-1")]))}
+  preset();p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
+  T("手動清單的字幕有起訖時間",()=>{const x=p("(doc.markers=[{id:'zz',clip:'c1',at:0,type:'text',note:'',text:'甲',dur:30}],buildManual())");return /00:00:00:00 到 00:00:0\d:\d\d 甲/.test(x)||x});
   preset();p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
   T("手機常用鍵排成一列不用左右滑",()=>{const a=pd.querySelector(".acts.main");return a.scrollWidth<=a.clientWidth+1||[a.scrollWidth,a.clientWidth]});
   T("更多預設收起",()=>eq(pd.defaultView.getComputedStyle(pd.querySelector("#moreActs")).display,"none"));
