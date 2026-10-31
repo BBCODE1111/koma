@@ -332,10 +332,10 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   /* handles only exist on the selected clip, so a swipe anywhere else always pans */
   .clip .h{display:none;touch-action:none}
   .clip.sel .h{display:block;width:44px;top:-4px;bottom:-4px;background:none}
-  .clip.sel .h.l{left:-36px}
-  .clip.sel .h.r{right:-36px;left:auto}
-  .clip.sel .h::after{top:4px;bottom:4px;left:auto;right:0;width:5px;border-radius:3px 0 0 3px;background:var(--ac);opacity:1}
-  .clip.sel .h.r::after{right:auto;left:0;border-radius:0 3px 3px 0}
+  .clip.sel .h.l{left:-16px}
+  .clip.sel .h.r{right:-16px;left:auto}
+  .clip.sel .h::after{top:4px;bottom:4px;left:auto;right:20px;width:5px;border-radius:3px 0 0 3px;background:var(--ac);opacity:1}
+  .clip.sel .h.r::after{right:auto;left:20px;border-radius:0 3px 3px 0}
   .nb[data-a$=":5"],.nb[data-a$=":-5"]{background:none;box-shadow:inset 0 0 0 1px var(--line);color:var(--sub)}
   .insp .acts [data-a=close]{background:var(--ac);border-color:var(--ac);color:var(--onac)}
   .mk{top:7px;touch-action:pan-x;cursor:pointer;min-width:44px}
@@ -455,12 +455,12 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
 .seg2 button[aria-pressed=true]{background:var(--ac);color:var(--onac)}
 @media (max-width:760px),(max-height:500px) and (pointer:coarse){.clip.sel{touch-action:none}.ins-j{bottom:3px}.seg2 button{min-height:44px}
   .insp:not(.noting) .acts.main{overflow:visible;gap:4px;margin:0}
-  .insp:not(.noting) .acts.main .btn.only-m{display:inline-flex!important}
+  .insp:not(.noting) .acts.main .btn.only-m:not([data-a=cancelnote]){display:inline-flex!important}
   .insp:not(.noting) .acts.main .btn{display:inline-flex;flex:1 1 0;min-width:0;min-height:44px;padding:2px 0;flex-direction:column;justify-content:center;gap:2px;font-size:11px;line-height:1.2;white-space:nowrap}
   .insp:not(.noting) .acts.main .btn .ico{width:15px;height:15px;margin:0}
   .insp.more .row,.insp.more .segrow,.insp.more .over,.insp.more .help{display:none!important}
-  .insp.more .moreacts{display:grid!important;grid-template-columns:repeat(3,1fr);gap:4px;margin:0;overflow:visible;padding:0}
-  .insp.more .moreacts .btn{min-width:0;min-height:42px;padding:0 2px;justify-content:center;font-size:12px;white-space:nowrap}}
+  .insp.more .moreacts{display:grid!important;grid-template-columns:repeat(4,1fr);gap:4px;margin:0;overflow:visible;padding:0}
+  .insp.more .moreacts .btn{min-width:0;min-height:44px;padding:0 1px;gap:3px;justify-content:center;font-size:11.5px;white-space:nowrap}}
 @media (max-width:400px){.tools button{font-size:10.5px}}
 @media (max-width:359px){.brand p{font-size:11px;letter-spacing:-.02em}.logo{display:none}#undoBtn,#redoBtn{width:36px}.ib{width:38px}.transport .tc{width:60px}.seg button{min-width:50px}}
 </style>
@@ -868,7 +868,7 @@ function nudgeRow(lb,key,v,o){const d=o==null?0:v-o;return `<div class="lb">${lb
   <button class="nb" data-a="${key}:-5" aria-label="${tr(`${lb}往前 5 格`,`${lb} 5 frames earlier`)}">−5</button><button class="nb" data-a="${key}:-1" aria-label="${tr(`${lb}往前 1 格`,`${lb} 1 frame earlier`)}">−1</button><span class="v"><span class="only-m vu">${tr("素材第 ","frame ")}</span>${v}<span class="only-m vu">${tr(" 格","")}</span></span><button class="nb" data-a="${key}:1" aria-label="${tr(`${lb}往後 1 格`,`${lb} 1 frame later`)}">+1</button><button class="nb" data-a="${key}:5" aria-label="${tr(`${lb}往後 5 格`,`${lb} 5 frames later`)}">+5</button></div>
   <div class="delta${d?" on":""}">${o==null?tr("新項目","New"):d?tr(`原本 ${o}，${d>0?"晚":"早"} ${Math.abs(d)} 格`,`Was ${o}, ${Math.abs(d)} frames ${d>0?"later":"earlier"}`):tr("未修改","Unchanged")}</div>`}
 function overMedia(c){return c.srcDuration&&c.out>c.srcDuration?`<p class="msg err">${tr(`超出素材長度 ${c.out-c.srcDuration} 格，Claude 可能沒有這段畫面。`,`${c.out-c.srcDuration} frames past the source length; Claude may not have this footage.`)}</p>`:""}
-const ICONS={left:"M15 5l-7 7 7 7",right:"M9 5l7 7-7 7",check:"M5 12l5 5 9-10",x:"M6 6l12 12M18 6L6 18",undo:"M9 7L4 12l5 5M4 12h11a5 5 0 0 1 0 10h-3",trash:"M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13",scissors:"M6 6l12 12M18 6L6 18M6 3v6M18 15v6",split:"M12 3v18M4 7h5v10H4M20 7h-5v10h5",swap:"M4 8h13l-3-3M20 16H7l3 3",plus:"M12 5v14M5 12h14",edit:"M4 20h4L19 9l-4-4L4 16zM13 7l4 4",in:"M6 4v16M10 12h10M15 7l5 5-5 5",out:"M18 4v16M14 12H4M9 7l-5 5 5 5",copy:"M8 8h12v12H8zM4 16V4h12",file:"M6 3h9l4 4v14H6zM14 3v5h5",load:"M12 4v11M7 11l5 4 5-4M4 20h16",reset:"M4 5v6h6M5 11a8 8 0 1 1 1 6",fit:"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5",dots:"M5 12h.01M12 12h.01M19 12h.01"};
+const ICONS={left:"M15 5l-7 7 7 7",right:"M9 5l7 7-7 7",check:"M5 12l5 5 9-10",x:"M6 6l12 12M18 6L6 18",undo:"M9 7L4 12l5 5M4 12h11a5 5 0 0 1 0 10h-3",trash:"M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13",scissors:"M6 6l12 12M18 6L6 18M6 3v6M18 15v6",split:"M12 3v18M4 7h5v10H4M20 7h-5v10h5",swap:"M4 8h13l-3-3M20 16H7l3 3",plus:"M12 5v14M5 12h14",edit:"M4 20h4L19 9l-4-4L4 16zM13 7l4 4",in:"M6 4v16M10 12h10M15 7l5 5-5 5",out:"M18 4v16M14 12H4M9 7l-5 5 5 5",copy:"M8 8h12v12H8zM4 16V4h12",file:"M6 3h9l4 4v14H6zM14 3v5h5",load:"M12 4v11M7 11l5 4 5-4M4 20h16",reset:"M4 5v6h6M5 11a8 8 0 1 1 1 6",fit:"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5",addf:"M4 6h10v12H4zM18 9v6M15 12h6",dots:"M5 12h.01M12 12h.01M19 12h.01"};
 const ic=n=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`;
 const act=(a,icon,label,cls="btn sm")=>`<button class="${cls}" data-a="${a}">${ic(icon)}<span>${label}</span></button>`;
 let moreOpen=false;
@@ -899,8 +899,8 @@ function renderInspector(){
       ${overMedia(c)}<p class="help">${tr("數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。","Numbers are source frames. ＋ moves later, − moves earlier. Later clips shift automatically.")}</p>
       <label class="help" for="clipNote">${tr("給 Claude 的備註","Note for Claude")}</label>
       <textarea id="clipNote" placeholder="${tr("例：這顆鏡頭調色再冷一點","e.g. Make this shot's grade a bit cooler")}">${esc(c.note)}</textarea>
-      <div class="acts main">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("undo","undo",tr("復原","Undo"),"btn sm only-land")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("delf","scissors",tr("刪這格","Delete"))}${act("ins:1","plus",tr("插入","Insert"))}${act("split","split",tr("分割","Split"))}${act("swap","swap",tr("換畫面","Replace"))}${act("note","edit",tr("備註","Note")+(c.note?" ●":""),"btn sm only-m")}<button class="btn sm morebtn" data-a="more" aria-expanded="${moreOpen}" aria-controls="moreActs">${ic("dots")}<span>${tr("更多","More")}</span></button></div>
-      <div class="acts moreacts" id="moreActs">${moves}${act("ins:0","plus",tr("前面插入","Insert before"))}${act("go:in","in",tr("跳到入點","Go to in"))}${act("go:out","out",tr("跳到出點","Go to out"))}${act("delclip","trash",tr("刪除鏡頭","Delete clip"),"btn sm ghost")}</div>`;
+      <div class="acts main">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("undo","undo",tr("復原","Undo"),"btn sm only-land")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("delf","scissors",tr("刪這格","Delete"))}${act("addf","addf",tr("加一格","Add frame"))}${act("ins:1","plus",tr("插入","Insert"))}${act("note","edit",tr("備註","Note")+(c.note?" ●":""),"btn sm only-m")}<button class="btn sm morebtn" data-a="more" aria-expanded="${moreOpen}" aria-controls="moreActs">${ic("dots")}<span>${tr("更多","More")}</span></button></div>
+      <div class="acts moreacts" id="moreActs">${act("split","split",tr("分割","Split"))}${act("swap","swap",tr("換畫面","Replace"))}${moves}${act("ins:0","plus",tr("前面插入","Insert before"))}${act("go:in","in",tr("跳到入點","Go to in"))}${act("go:out","out",tr("跳到出點","Go to out"))}${act("delclip","trash",tr("刪除鏡頭","Delete clip"),"btn sm ghost")}</div>`;
     noteEditor($("#clipNote"),v=>{c.note=v});
   }else if(sel?.kind==="mk"){
     const m=doc.markers.find(x=>x.id===sel.id);if(!m){sel=null;return renderInspector()}
@@ -1049,6 +1049,7 @@ $("#insp").addEventListener("click",e=>{
   if(a==="edge"){nudgeEdge=v;renderInspector();const e2=layout(doc).map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1);return}
   if(a==="mv"){const i=doc.clips.findIndex(x=>x.id===sel.id);moveClip(sel.id,i+ +v);return}
   if(a==="delf")return deleteFrame();
+  if(a==="addf"){const c=doc.clips.find(x=>x.id===sel.id);if(c.out>=maxOut(c))return toast(tr("這個鏡頭已到上限","This clip cannot get longer"));nudgeClip("out",1);const e2=layout(doc).map[c.id];seek(e2.start+c.out-c.in-1);return}
   if(a==="split")return splitClip();
   if(a==="swap")return transport("swap");
   if(a==="ins"){insertClip(doc.clips.findIndex(x=>x.id===sel.id)+ +v);return}
@@ -1126,6 +1127,7 @@ function dragMove(e,id){
 /* phone: holding any clip picks it up, so reordering needs no tap first. A touch that moves early stays a pan. */
 let lift=null;
 $("#trV").addEventListener("touchstart",e=>{
+  if(lift&&e.touches.length>1){const me=lift;lift=null;clearTimeout(me.tm);if(me.ses)me.ses.end(false);return}
   if(!isM()||e.touches.length!==1||e.target.closest(".h,.ins-j"))return;
   const cl=e.target.closest(".clip");if(!cl||cl.classList.contains("sel"))return;
   const t=e.touches[0],me={x:t.clientX,y:t.clientY,id:cl.dataset.id,ses:null};

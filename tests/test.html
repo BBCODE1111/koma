@@ -278,6 +278,10 @@ frame.onload=async()=>{
   p("cancelNote()");preset();await tick();
   p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
   T("手機鏡頭面板常用鍵（刪格、插入）一屏可見",()=>onScreen([".transport",".tl",'[data-a="delf"]','[data-a="ins:1"]','[data-a="more"]']));
+  T("未編輯時看不到取消",()=>eq(pd.defaultView.getComputedStyle(pd.querySelector('.acts.main [data-a="cancelnote"]')).display,"none"));
+  {const o=p("doc.clips[1].out");pd.querySelector('[data-a="addf"]').click();await tick();
+   T("加一格讓鏡頭多一格並停在新格",()=>eq([p("doc.clips[1].out")-o,p("playhead")],[1,p("layout(doc).map.c2.start+doc.clips[1].out-doc.clips[1].in-1")]))}
+  preset();p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
   T("手機常用鍵排成一列不用左右滑",()=>{const a=pd.querySelector(".acts.main");return a.scrollWidth<=a.clientWidth+1||[a.scrollWidth,a.clientWidth]});
   T("更多預設收起",()=>eq(pd.defaultView.getComputedStyle(pd.querySelector("#moreActs")).display,"none"));
   pd.querySelector('[data-a="more"]').click();await tick();
@@ -287,6 +291,9 @@ frame.onload=async()=>{
   T("時間軸文字不能被選取",()=>eq(pd.defaultView.getComputedStyle(pd.querySelector(".clip .body")).webkitUserSelect,"none"));
   {preset();await tick();p("sel=null;renderTimeline();renderInspector();scroll.scrollLeft=0");await tick();
    const cl=pd.querySelector('.clip[data-id="c1"]'),r=cl.getBoundingClientRect(),W=pd.defaultView,sc=pd.querySelector(".scroll"),x0=r.left+r.width/2,y=r.top+r.height/2,mk=(x)=>new W.Touch({identifier:1,target:cl,clientX:x,clientY:y}),fire=(n,x)=>{const t=mk(x);(n==="touchend"?cl:cl).dispatchEvent(new W.TouchEvent(n,{bubbles:true,cancelable:true,touches:n==="touchend"?[]:[t],targetTouches:n==="touchend"?[]:[t],changedTouches:[t]}))};
+   {const a=new W.Touch({identifier:7,target:cl,clientX:x0,clientY:y}),b=new W.Touch({identifier:8,target:cl,clientX:x0+40,clientY:y});
+    cl.dispatchEvent(new W.TouchEvent("touchstart",{bubbles:true,touches:[a],targetTouches:[a],changedTouches:[a]}));cl.dispatchEvent(new W.TouchEvent("touchstart",{bubbles:true,touches:[a,b],targetTouches:[a,b],changedTouches:[b]}));await new Promise(r=>setTimeout(r,380));
+    T("第二指加入就不拿起鏡頭",()=>eq(p("document.body.classList.contains('tlmoving')"),false));cl.dispatchEvent(new W.TouchEvent("touchend",{bubbles:true,touches:[],targetTouches:[],changedTouches:[a,b]}))}
    fire("touchstart",x0);await new Promise(r=>setTimeout(r,380));
    T("長按未選取的鏡頭會拿起來",()=>eq(p("document.body.classList.contains('tlmoving')"),true));
    const w=p("(doc.clips[0].out-doc.clips[0].in+(doc.clips[1].out-doc.clips[1].in)/2+6)*ppf");fire("touchmove",x0+w);await tick();
