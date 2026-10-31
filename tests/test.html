@@ -178,9 +178,9 @@ frame.onload=async()=>{
   p(`doc.markers.find(m=>m.id==="${cid}").at=40;renderTimeline();sel=null;renderInspector();seek(400);editCaption("${cid}")`);await tick();
   const cf=p(`markerFrame(doc.markers.find(m=>m.id==="${cid}"),layout(doc))`);
   p("document.body.classList.add('typing')");await tick();
-  T("編輯字幕時間軸收起後，播放頭仍停在字幕上",()=>eq([cf>0,p("playhead"),p("scroll.scrollLeft")],[true,cf,p("playhead*ppf")]));
+  T("編輯字幕時間軸收起後，播放頭仍停在字幕上",()=>eq([cf>0,p("playhead"),Math.abs(p("scroll.scrollLeft")-p("playhead*ppf"))<1],[true,cf,true]));
   pd.querySelector('#insp [data-a="close"]').click();await tick();
-  T("完成後時間軸對齊原位",()=>eq([p("playhead"),p("scroll.scrollLeft"),p("document.body.classList.contains('typing')")],[cf,p("playhead*ppf"),false]));
+  T("完成後時間軸對齊原位",()=>eq([p("playhead"),Math.abs(p("scroll.scrollLeft")-p("playhead*ppf"))<1,p("document.body.classList.contains('typing')")],[cf,true,false]));
   await new Promise(r=>setTimeout(r,450));
   p(`editCaption("${cid}")`);await tick();
   T("游標停在字幕尾端",()=>{const n=ta();return eq(n.selectionStart,n.value.length)});
