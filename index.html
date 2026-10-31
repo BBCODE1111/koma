@@ -87,6 +87,7 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .delta{grid-column:2;font-size:12px;color:var(--sub)}
 .delta.on{color:var(--ac2)}
 .help{color:var(--sub);font-size:12px;margin:0}
+.prodwrap{display:flex;flex-direction:column;gap:4px}
 .insp:has(.capdur) .row{display:none}
 .capdur{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;color:var(--sub)}.cdg{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.capdur{column-gap:14px}#capCut{flex:1 1 100%}#capCut:empty{display:none}.capdur .mono{min-width:48px;text-align:center;color:var(--ink)}.capdur .nb{flex:none;width:44px;height:32px}
 textarea,select,input[type=text]{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:8px 10px;width:100%;box-sizing:border-box}
@@ -357,8 +358,9 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .insp textarea{display:none;min-height:60px;font-size:16px}
   body.typing .cutflag,body.typing .ov{display:none}
   .insp.noting textarea{display:block}
-  .insp.noting>:not(textarea):not(.acts):not(.notehead):not(.capdur):not(.prod){display:none!important}
-  .insp .prod{font-size:16px;padding:6px 10px;min-height:40px}.insp .prod.empty{display:none}
+  .insp.noting>:not(textarea):not(.acts):not(.notehead):not(.capdur):not(.prodwrap):not(.fieldlab){display:none!important}
+  .insp .prod{font-size:16px;padding:6px 10px;min-height:40px}.insp .prodwrap.empty{display:none}
+  .insp.noting .fieldlab{display:block!important;margin-bottom:-3px}
   .notehead{display:none!important;font-size:12px;color:var(--sub)}
   .insp.noting .notehead{display:block!important}
   .insp.noting .acts button:not([data-a=close]):not([data-a=cancelnote]):not([data-a=usenote]):not([data-a=delmk]){display:none!important}
@@ -598,7 +600,7 @@ const PREV=KEY+":prev",MAXF=1e8,MAXTOTAL=2e6,MAXCLIPS=5000,MAXLINK=5e6,MAXPX=2e7
 const IN_CLAUDE=!!window.claude;
 
 const MQ=matchMedia("(max-width:760px),(max-height:500px) and (pointer:coarse)"),isM=()=>MQ.matches;
-let noteStart=null,noteUndo=0,badgeId=null;
+let noteStart=null,badgeId=null;
 let tlFreeze=false,tlExpect=0,fromScroll=false,lastDrag=0,nudgeEdge="in";
 let orig,doc,fps=30,ppf=6,playhead=0,sel=null,undo=[],redo=[],redoStash=[],playing=false,videoURL=null,last=0,acc=0,syncClip=null,normWarn=[],vidOffset=0,calibrating=null;
 const video=$("#video"),scroll=$("#scroll"),inner=$("#inner");
@@ -752,7 +754,8 @@ function capCutText(m){const x=captionSpans(layout(doc)).find(y=>y.m===m);if(!ca
 function captionAt(L){return captionSpans(L).find(x=>x.f<=playhead&&playhead<x.end)?.m||null}
 function updateCaption(L){const m=captionAt(L),el=$("#capOv");el.hidden=!m;el.dataset.id=m?m.id:"";if(m&&el.textContent!==capText(m))el.textContent=capText(m)}
 function editCaption(id){stopPlay();sel={kind:"mk",id};const m=doc.markers.find(x=>x.id===id),L=layout(doc);renderTimeline();renderInspector();seek(markerFrame(m,L));openNote()}
-function openNote(){const n=$("#insp textarea");if(!n)return;noteStart=clone(doc);noteUndo=undo.length;$("#insp").classList.add("noting");n.focus();n.setSelectionRange(n.value.length,n.value.length)}
+function cancelNote(){if(noteStart){doc=noteStart.doc;undo=noteStart.undo;redo=noteStart.redo;noteStart=null}sel=null;renderAll()}
+function openNote(){const n=$("#insp textarea");if(!n)return;noteStart={doc:clone(doc),undo:[...undo],redo:[...redo]};$("#insp").classList.add("noting");n.focus();n.setSelectionRange(n.value.length,n.value.length)}
 function updatePreview(L){
   const hit=clipAt(playhead,L);if(!hit)return;
   const{c,i,start}=hit,k=playhead-start,srcF=c.in+k;
@@ -802,12 +805,12 @@ function renderInspector(){
       <div class="eyebrow">${m.type==="text"?"改成特效":"換一種特效"}</div>
       <div class="fxgrid" role="group" aria-label="特效種類">${FX.map(x=>`<button class="fxt" data-fx="${x.k}" aria-pressed="${x.k===m.type}" style="--fxc:${x.c}">${thumb(x.k)}<span>${x.l}</span></button>`).join("")}</div>
       ${m.type==="text"?`<div class="capdur"><span class="cdg"><span>起點</span><button class="nb" data-a="mk:-1" aria-label="字幕早 1 格">−1</button><button class="nb" data-a="mk:1" aria-label="字幕晚 1 格">+1</button></span><span class="cdg"><span>顯示</span><button class="nb" data-a="dur:-1" aria-label="顯示短半秒">−</button><span class="mono" id="capDurV">${(capDur(m)/fps).toFixed(1)} 秒</span><button class="nb" data-a="dur:1" aria-label="顯示長半秒">＋</button></span><span id="capCut" class="msg">${capCutText(m)}</span></div>`:""}
-      <label class="help" for="mkNote">${m.type==="text"?"字幕內容":"想要的效果（越具體越好）"}</label>
-      ${m.type==="text"?`<input type="text" class="prod${m.note.trim()?"":" empty"}" id="mkProd" value="${esc(m.note)}" placeholder="給 Claude 的製作說明（選填）" aria-label="給 Claude 的製作說明">`:""}
+      <label class="help fieldlab" for="mkNote">${m.type==="text"?"字幕內容":"想要的效果（越具體越好）"}</label>
       <textarea id="mkNote" placeholder="${m.type==="text"?esc("輸入要出現的文字"):"例：抖 6 格、強度中等，配合鼓點"}">${esc(m.type==="text"?m.text||"":m.note)}</textarea>
+      ${m.type==="text"?`<div class="prodwrap${m.note.trim()?"":" empty"}"><label class="help fieldlab" for="mkProd">給 Claude 的製作說明（選填）</label><input type="text" class="prod" id="mkProd" value="${esc(m.note)}" placeholder="例：淡入、白字置中"></div>`:""}
       <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button>${m.type==="text"&&m.note.trim()&&!capText(m)?'<button class="btn sm" data-a="usenote">用說明當字幕</button>':""}<button class="btn sm only-m" data-a="cancelnote">取消</button><button class="btn sm only-m" data-a="note">${m.type==="text"?"編輯字幕":"備註"}${(m.type==="text"?capText(m):m.note)?" ●":""}</button><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">${m.type==="text"?"刪除字幕":"刪除特效"}</button></div>`;
     if($("#mkProd"))noteEditor($("#mkProd"),v=>{m.note=v});
-    if(isM()&&m.type==="text")el.classList.add("noting");
+    if(isM()&&m.type==="text"){el.classList.add("noting");document.body.classList.add("typing")}
     noteEditor($("#mkNote"),v=>{if(m.type==="text"){m.text=v;badgeKey="";renderTimeline();$("#capCut").textContent=capCutText(m)}else m.note=v});
   }else{
     el.innerHTML=`<div class="eyebrow">使用方式</div><ol class="steps">
@@ -877,14 +880,16 @@ $("#insp").addEventListener("click",e=>{
   if(t&&sel?.kind==="mk"){const m=doc.markers.find(x=>x.id===sel.id);if(m.type!==t.dataset.fx){mutate(()=>{m.type=t.dataset.fx});badgeKey="";updatePlayhead();if(m.type==="text")openNote()}return}
   const b=e.target.closest("[data-a]");if(!b||!sel)return;const[a,v]=b.dataset.a.split(":");
   if(a==="undo")return doUndo();
-  if(a==="close"){const n=$("#insp textarea");n&&n.blur();noteStart=null;sel=null;renderTimeline();renderInspector();return}
+  if(a==="close"){const n=$("#insp textarea");n&&n.blur();const cm=sel.kind==="mk"&&doc.markers.find(x=>x.id===sel.id);
+    if(cm&&cm.type==="text"&&!capText(cm)&&!cm.note.trim()&&noteStart&&!noteStart.doc.markers.some(x=>x.id===cm.id))return cancelNote();
+    noteStart=null;sel=null;renderTimeline();renderInspector();return}
   if(a==="note")return openNote();
   if(a==="usenote"){const m=doc.markers.find(x=>x.id===sel.id),n=$("#insp textarea");n.value=m.note.trim();n.dispatchEvent(new Event("input",{bubbles:true}));b.hidden=true;return}
-  if(a==="cancelnote"){$("#insp textarea").blur();if(noteStart){doc=noteStart;undo.length=noteUndo;noteStart=null}sel=null;renderAll();return}
+  if(a==="cancelnote"){$("#insp textarea").blur();cancelNote();return}
   if(a==="dur"){const m=doc.markers.find(x=>x.id===sel.id),d=clamp(capDur(m)+ +v*Math.round(fps/2),Math.round(fps/2),Math.round(fps*60));if(d===capDur(m))return;pushUndo();m.dur=d;$("#capDurV").textContent=`${(d/fps).toFixed(1)} 秒`;$("#capCut").textContent=capCutText(m);badgeKey="";updatePlayhead();renderLog();save();return}
   if(a==="edge"){nudgeEdge=v;renderInspector();const e2=layout(doc).map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1);return}
   if(a==="in"||a==="out")nudgeClip(a,+v);
-  else if(a==="mk"){const m=doc.markers.find(x=>x.id===sel.id),f0=markerFrame(m,layout(doc));if(clamp(f0+ +v,0,total()-1)===f0)return;const noting=$("#insp").classList.contains("noting"),keep=noteStart,ku=noteUndo;mutate(()=>placeMarker(m,f0+ +v));seek(markerFrame(m,layout(doc)));if(noting){openNote();noteStart=keep;noteUndo=ku}}
+  else if(a==="mk"){const m=doc.markers.find(x=>x.id===sel.id),f0=markerFrame(m,layout(doc));if(clamp(f0+ +v,0,total()-1)===f0)return;const noting=$("#insp").classList.contains("noting"),keep=noteStart;mutate(()=>placeMarker(m,f0+ +v));seek(markerFrame(m,layout(doc)));if(noting){openNote();noteStart=keep}}
   else if(a==="go"){const L=layout(doc);if(v==="mk")seek(markerFrame(doc.markers.find(x=>x.id===sel.id),L));else{const e2=L.map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1)}}
   else if(a==="delmk")mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null});
   else if(a==="delclip"){
@@ -968,7 +973,7 @@ function transport(a){
   if(a==="play")return togglePlay();
   stopPlay();
   if(a==="mark")return addMarker();
-  if(a==="caption"){const snap=clone(doc),u=undo.length;addMarker("text");openNote();noteStart=snap;noteUndo=u;return}
+  if(a==="caption"){const snap={doc:clone(doc),undo:[...undo],redo:[...redo]};addMarker("text");openNote();noteStart=snap;return}
   if(a==="fit"){if(isM()){const o=overview();ppf=Math.abs(ppf-o)<.01?defaultPpf():o;$("#zoom").value=z2v(ppf)}else fit();renderTimeline();return}
   const p=cutPoints();
   if(a==="prevcut")return seek([...p].reverse().find(x=>x<playhead)??0);
@@ -1290,7 +1295,7 @@ function fitViewport(){if(!vv||!isM())return;const st=document.documentElement.s
   st.setProperty("--vh",vv.height+"px");st.setProperty("--vvt",vv.offsetTop+"px");st.setProperty("--kb",Math.max(0,innerHeight-vv.height-vv.offsetTop)+"px")}
 vv?.addEventListener("resize",fitViewport);vv?.addEventListener("scroll",fitViewport);
 $("#insp").addEventListener("focusin",e=>{if(isM()&&e.target.matches("textarea,#mkProd"))document.body.classList.add("typing")});
-$("#insp").addEventListener("focusout",e=>{if(e.target.matches("textarea,#mkProd")){document.body.classList.remove("typing");if(!$("#mkProd"))$("#insp").classList.remove("noting");updatePlayhead()}});
+$("#insp").addEventListener("focusout",e=>{if(e.target.matches("textarea,#mkProd")&&!$("#mkProd")){document.body.classList.remove("typing");$("#insp").classList.remove("noting");updatePlayhead()}});
 MQ.addEventListener("change",()=>{const st=document.documentElement.style;if(isM())fitViewport();else{st.removeProperty("--vh");st.removeProperty("--vvt");st.removeProperty("--kb");closeSheet()}setHint();fit();renderAll()});
 function setHint(t){$("#ph .hint").textContent=t||(isM()?"點下方「匯入」選擇成片影片":"拖入成片影片，這裡就會顯示實際畫面")}
 $("#copySnip").addEventListener("click",()=>copy($("#askSnip").textContent,null));
