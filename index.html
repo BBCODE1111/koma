@@ -30,10 +30,10 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .brand{display:flex;align-items:center;gap:10px}
 .logo{width:40px;height:40px;flex:none}
 .brand h1{margin:0;font-weight:500;line-height:1.1;white-space:nowrap;display:flex;align-items:baseline;gap:0;word-spacing:-1em}
-.dot{width:5px;height:5px;margin:0 11px;border-radius:50%;background:#e6a79a;align-self:center;flex:none}
-.ko{font-family:"Outfit",var(--f-ui);font-weight:400;font-size:27px;letter-spacing:.14em;margin-right:-.14em;word-spacing:0}
-.kaku{font-family:"Huninn",var(--f-ui);font-weight:400;font-size:23px;letter-spacing:.08em;color:var(--ac);word-spacing:0}
-.brand p{margin:3px 0 0;font-family:"Outfit",var(--f-ui);font-weight:400;font-size:12.5px;line-height:1.3;color:var(--sub);letter-spacing:.04em}
+.dot{width:5px;height:5px;margin:0 9px;border-radius:50%;background:#e6a79a;align-self:center;flex:none}
+.ko{font-family:"Outfit",var(--f-ui);font-weight:400;font-size:26px;letter-spacing:.08em;margin-right:-.08em;word-spacing:0}
+.kaku{font-family:"Huninn",var(--f-ui);font-weight:400;font-size:23px;letter-spacing:.02em;color:var(--ac);word-spacing:0}
+.brand p{margin:3px 0 0;font-family:"Outfit",var(--f-ui);font-weight:400;font-size:12px;line-height:1.3;color:var(--sub);letter-spacing:0}
 .proj{display:flex;gap:10px;align-items:baseline;flex:1;min-width:0;flex-wrap:wrap}
 .proj b{font-family:var(--f-disp);font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .pill{font-size:12px;font-variant-numeric:tabular-nums;color:var(--sub);white-space:nowrap;letter-spacing:0}
@@ -87,7 +87,7 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .nb:hover{border-color:var(--ac);color:var(--ac)}
 .delta{grid-column:2;font-size:12px;color:var(--sub)}
 .delta.on{color:var(--ac2)}
-.help{color:var(--sub);font-size:13px;line-height:1.7;margin:0}
+.help{color:var(--sub);font-size:14px;line-height:1.8;margin:0}
 .prodwrap{display:flex;flex-direction:column;gap:4px}
 .insp:has(.capdur) .row{display:none}
 .capdur{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;color:var(--sub)}.cdg{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.capdur{column-gap:14px}#capCut{flex:1 1 100%}#capCut:empty{display:none}.capdur .mono{min-width:48px;text-align:center;color:var(--ink)}.capdur .nb{flex:none;width:44px;height:32px}
@@ -95,8 +95,8 @@ textarea,select,input[type=text]{background:var(--paper);border:1px solid var(--
 textarea:focus,input[type=text]:focus{border-color:var(--ac);outline:none}
 textarea{resize:vertical;min-height:64px}
 .acts{display:flex;gap:6px;flex-wrap:wrap}
-.steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;counter-reset:s}
-.steps li{font-size:13.5px;display:grid;grid-template-columns:26px 1fr;gap:6px;counter-increment:s;color:var(--sub)}
+.steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px;counter-reset:s}
+.steps li{font-size:14px;line-height:1.8;display:grid;grid-template-columns:26px 1fr;gap:6px;counter-increment:s;color:var(--sub)}
 .steps li::before{content:counter(s,cjk-ideographic);font-family:var(--f-disp);font-size:15px;color:var(--ac);line-height:1.6}
 .steps b{color:var(--ink);font-weight:500}
 
@@ -262,7 +262,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .top{order:0;flex:none;gap:2px 6px;flex-wrap:wrap;padding:4px 10px 3px;border-bottom:0;background:var(--sheet)}
   .foot,#projMeta{display:none}
   .brand{gap:7px;flex:1 1 0;min-width:0}
-  .ko{font-size:20px;letter-spacing:.12em;margin-right:-.12em}.kaku{font-size:17px}.dot{width:4px;height:4px;margin:0 7px}
+  .ko{font-size:20px;letter-spacing:.06em;margin-right:-.06em}.kaku{font-size:18px}.dot{width:4px;height:4px;margin:0 6px}
   .brand p{margin:1px 0 0;font-size:11px;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .brand>div{min-width:0}
   .logo{width:30px;height:30px}
@@ -311,7 +311,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .track.f{height:44px}
   .clip{top:2px;bottom:2px;border:0;border-radius:6px;background:color-mix(in srgb,var(--c) 38%,#fff);overflow:visible;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,#6f8478)}
   .clip.mod{border:0;box-shadow:inset 0 -3px 0 var(--ac2),inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,#6f8478)}
-  .clip.sel{outline:2px solid var(--ac);outline-offset:-1px;z-index:4}
+  .clip.sel{outline:1px solid var(--ac);outline-offset:0;z-index:4}
   .clip .body{inset:0 6px;padding-top:6px;overflow:hidden;color:var(--ink);font-size:13px}
   .clip .body b,.clip .body em{color:var(--sub)}
   .d{display:none}
@@ -349,7 +349,8 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .nudge{flex-wrap:nowrap;gap:4px}
   .insp[data-edge=in] .nudge[data-k=out],.insp[data-edge=out] .nudge[data-k=in]{display:none}
   .nb{flex:1 1 0;width:auto;min-width:0;height:44px;padding:0;border:0;border-radius:8px;background:var(--well);font-size:13px}
-  .nudge .v{flex:1.3 1 0;min-width:0;border:0;font-size:14px;color:var(--ac);padding:0}
+  .nudge .v{flex:1.8 1 0;min-width:0;border:0;font-size:14px;color:var(--ac);padding:0;white-space:nowrap}
+  .vu{font-family:var(--f-ui);font-size:11px;color:var(--sub)}
   .insp .acts{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -10px;padding:0 10px}
   .insp .acts::-webkit-scrollbar{display:none}
   .insp .acts .btn{flex:none;min-height:44px;border-radius:8px}
@@ -778,7 +779,7 @@ function updatePreview(L){
   else{if(!video.paused)video.pause();if(Math.abs(video.currentTime-t)>.4/fps)video.currentTime=t}
 }
 function nudgeRow(lb,key,v,o){const d=o==null?0:v-o;return `<div class="lb">${lb}</div><div class="nudge" data-k="${key}">
-  <button class="nb" data-a="${key}:-5" aria-label="${lb}往前 5 格">−5</button><button class="nb" data-a="${key}:-1" aria-label="${lb}往前 1 格">−1</button><span class="v">${v}</span><button class="nb" data-a="${key}:1" aria-label="${lb}往後 1 格">+1</button><button class="nb" data-a="${key}:5" aria-label="${lb}往後 5 格">+5</button></div>
+  <button class="nb" data-a="${key}:-5" aria-label="${lb}往前 5 格">−5</button><button class="nb" data-a="${key}:-1" aria-label="${lb}往前 1 格">−1</button><span class="v"><span class="only-m vu">素材第 </span>${v}<span class="only-m vu"> 格</span></span><button class="nb" data-a="${key}:1" aria-label="${lb}往後 1 格">+1</button><button class="nb" data-a="${key}:5" aria-label="${lb}往後 5 格">+5</button></div>
   <div class="delta${d?" on":""}">${o==null?"新項目":d?`原本 ${o}，${d>0?"晚":"早"} ${Math.abs(d)} 格`:"未修改"}</div>`}
 function overMedia(c){return c.srcDuration&&c.out>c.srcDuration?`<p class="msg err">超出素材長度 ${c.out-c.srcDuration} 格，Claude 可能沒有這段畫面。</p>`:""}
 function renderInspector(){
