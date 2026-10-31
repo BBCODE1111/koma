@@ -1,25 +1,19 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
-<title>Koma 影格｜逐格修改 Claude 剪好的影片</title>
+<title>KOMA 影格｜逐格修改 Claude 剪好的影片</title>
 <meta name="description" content="在瀏覽器裡逐格修剪 Claude 剪好的影片、標記特效，產生可貼回 Claude 的修改提示詞，或匯出 FCPXML、EDL 到剪輯軟體。影片不會上傳。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='2' y='8' width='36' height='24' rx='2' fill='%232b2d2f'/%3E%3Crect x='15' y='12' width='10' height='16' fill='%23a3766d'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: a quiet editing desk — generous margins, preview + inspector, transport, a film-strip timeline with vertical labels, notebook below. */
 :root{
-  --paper:#f1f1ef; --sheet:#fafaf8; --well:#e8e8e5; --ink:#2b2d2f; --sub:#76797c; --line:#d8d8d4; --hair:#e5e5e1;
-  --ac:#4e6470; --ac2:#96655b; --gold:#a08e62; --onac:#fafaf8; --stage:#2b2c2d;
-  --f-disp:"Noto Serif TC","Songti TC","PMingLiU",serif;
-  --f-ui:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --paper:#f6f5ef; --sheet:#ffffff; --well:#e5eee6; --ink:#293c35; --sub:#52635b; --line:#d9ddd3; --hair:#e8eae2;
+  --ac:#366653; --ac2:#805544; --warn:#985036; --gold:#7d6a3a; --onac:#ffffff; --stage:#ecebe3;
+  --f-disp:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --f-ui:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
   --f-mono:"DM Mono",ui-monospace,"SF Mono",Menlo,monospace;
-  --r:8px;
+  --r:12px;color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#19191a; --sheet:#202122; --well:#272829; --ink:#e0dfdb; --sub:#8e9093; --line:#333436; --hair:#2a2b2d;
-  --ac:#9fb1ba; --ac2:#c49a90; --gold:#c2ad7c; --onac:#19191a; --stage:#121213; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --paper:#19191a; --sheet:#202122; --well:#272829; --ink:#e0dfdb; --sub:#8e9093; --line:#333436; --hair:#2a2b2d;
-  --ac:#9fb1ba; --ac2:#c49a90; --gold:#c2ad7c; --onac:#19191a; --stage:#121213; color-scheme:dark}
 [hidden]{display:none!important}
 html,body{background:var(--paper);color:var(--ink)}
 body{font-family:var(--f-ui);font-size:14px;line-height:1.7;letter-spacing:.02em}
@@ -34,40 +28,42 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:14px}
 .logo{width:40px;height:40px;flex:none;color:var(--ink)}
-.brand h1{margin:0;font-family:var(--f-disp);font-weight:600;font-size:28px;letter-spacing:.22em;line-height:1}
-.brand p{margin:5px 0 0;font-family:var(--f-disp);font-style:italic;font-size:12.5px;color:var(--sub);letter-spacing:.06em}
+.brand h1{margin:0;font-family:var(--f-disp);font-weight:500;font-size:22px;letter-spacing:.14em;line-height:1.1}
+.brand p{margin:4px 0 0;font-size:12px;color:var(--sub);letter-spacing:.04em}
 .proj{display:flex;gap:10px;align-items:baseline;flex:1;min-width:0;flex-wrap:wrap}
 .proj b{font-family:var(--f-disp);font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 .pill{font-family:var(--f-mono);font-size:11px;color:var(--sub);white-space:nowrap;letter-spacing:0}
 .pill.warn{color:var(--ac2)}
 .pill.warn::before{content:"— "}
-.btn{background:transparent;border:1px solid var(--line);border-radius:var(--r);padding:6px 14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn{background:transparent;border:1px solid var(--line);border-radius:8px;padding:6px 14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .btn:hover{border-color:var(--ac);color:var(--ac)}
 .btn:disabled{opacity:.35;cursor:default}
 .btn:disabled:hover{border-color:var(--line);color:inherit}
-.btn.pri,.btn.shu{background:var(--ac2);border-color:var(--ac2);color:var(--onac)}
-.btn.pri:hover,.btn.shu:hover{background:color-mix(in srgb,var(--ac2) 85%,var(--ink));color:var(--onac)}
+.btn.pri,.btn.shu{background:var(--ac);border-color:var(--ac);color:var(--onac)}
+.btn.pri:hover,.btn.shu:hover{background:color-mix(in srgb,var(--ac) 85%,var(--ink));color:var(--onac)}
 .btn.ghost{color:var(--ac2);border-color:color-mix(in srgb,var(--ac2) 40%,var(--line))}
 .btn.sm{padding:3px 11px;font-size:12px}
 .btn svg{width:14px;height:14px;fill:currentColor}
 
-.card{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r)}
+.card{background:var(--sheet);border:1px solid var(--hair);border-radius:var(--r);box-shadow:0 1px 2px rgba(41,60,53,.04)}
 
 /* stage */
 .stage{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px}
 @media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr)}}
-.preview{display:flex;align-items:center;justify-content:center;padding:18px;min-height:240px;background:var(--stage);border-color:var(--stage)}
-.frame{position:relative;height:min(52vh,520px);max-width:100%;aspect-ratio:9/16;background:#0e0e0f;border-radius:1px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.06)}
+.preview{display:flex;align-items:center;justify-content:center;padding:18px;min-height:240px;background:var(--stage);border-color:var(--hair)}
+.frame{position:relative;height:min(52vh,520px);max-width:100%;aspect-ratio:9/16;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 12px rgba(41,60,53,.1)}
 .frame video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
-.ph{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:22px 20px 46px;color:#f6faf8;
-  background:linear-gradient(180deg,color-mix(in srgb,var(--c,#9aaba3) 55%,#5a5b5c) 0%,color-mix(in srgb,var(--c,#9aaba3) 30%,#2a2b2c) 60%,#161617 100%)}
+.ph{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:22px 20px 46px;color:var(--ink);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c,#9aaba3) 30%,#fff) 0%,color-mix(in srgb,var(--c,#9aaba3) 12%,#fff) 100%)}
 .frame{container-type:inline-size}
 .ph .nm{font-family:var(--f-disp);font-weight:500;font-size:clamp(13px,8cqw,22px);line-height:1.45;letter-spacing:.08em;text-wrap:balance}
-.ph .hint{opacity:.65;font-size:11.5px;margin-top:8px}
-.ov{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;gap:6px;pointer-events:none;font-family:var(--f-mono);font-size:10.5px;color:#f6faf8}
-.ov span{background:rgba(12,18,17,.5);padding:1px 7px;border-radius:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
-.cutflag{position:absolute;left:10px;bottom:10px;border:1px solid #f6faf8;color:#f6faf8;font-size:11px;padding:0 8px;border-radius:2px;background:rgba(12,18,17,.35)}
-.fxbadge{position:absolute;right:10px;top:38px;width:42%;display:flex;flex-direction:column;gap:4px;background:rgba(12,18,17,.55);padding:5px;border-radius:3px;color:#f6faf8;font-size:11px;text-align:center;animation:fade .3s ease}
+.ph .hint{color:var(--sub);font-size:11.5px;margin-top:8px}
+.ov{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:space-between;gap:6px;pointer-events:none;font-family:var(--f-mono);font-size:10.5px;color:var(--ink)}
+.ov span{background:rgba(255,255,255,.86);padding:1px 7px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
+.cutflag{position:absolute;left:10px;bottom:10px;color:var(--ac);font-size:11px;padding:0 8px;border-radius:6px;background:rgba(255,255,255,.9)}
+.fxbadge{position:absolute;right:10px;top:38px;width:42%;display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.92);padding:5px;border-radius:8px;color:var(--ink);font-size:11px;text-align:center;cursor:pointer;animation:fade .3s ease}
+.frame:has(.capov:not([hidden])) .nm{visibility:hidden}
+.capov{position:absolute;left:8%;right:8%;bottom:11%;margin:auto;width:fit-content;max-width:84%;padding:3px 10px;border-radius:6px;background:rgba(24,36,31,.78);color:#fff;font-size:clamp(12px,6.5cqw,20px);line-height:1.4;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text}
 @keyframes fade{from{opacity:0}}
 .warnbox{position:absolute;inset:auto 10px 40px 10px;background:rgba(12,18,17,.82);color:#f6faf8;border-left:2px solid var(--gold);font-size:12px;padding:8px 10px}
 
@@ -88,6 +84,7 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .delta{grid-column:2;font-size:12px;color:var(--sub)}
 .delta.on{color:var(--ac2)}
 .help{color:var(--sub);font-size:12px;margin:0}
+.capdur{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sub)}.capdur .mono{min-width:56px;text-align:center;color:var(--ink)}.capdur .nb{flex:none;width:44px;height:32px}
 textarea,select,input[type=text]{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:8px 10px;width:100%;box-sizing:border-box}
 textarea:focus,input[type=text]:focus{border-color:var(--ac);outline:none}
 textarea{resize:vertical;min-height:64px}
@@ -162,8 +159,8 @@ textarea{resize:vertical;min-height:64px}
 .ib{width:36px;height:36px;display:grid;place-items:center;background:transparent;border:0;border-radius:3px;color:var(--sub)}
 .ib svg{width:14px;height:14px;fill:currentColor}
 .ib:hover{color:var(--ac);background:var(--well)}
-.ib.play{width:44px;height:44px;border-radius:50%;border:1px solid var(--ink);color:var(--ink);margin:0 4px}
-.ib.play:hover{border-color:var(--ac);color:var(--ac);background:transparent}
+.ib.play{width:44px;height:44px;border-radius:50%;border:0;background:var(--ac);color:#fff;margin:0 4px}
+.ib.play:hover{background:color-mix(in srgb,var(--ac) 85%,var(--ink));color:#fff}
 .spacer{flex:1}
 .zoom{display:flex;align-items:center;gap:8px;color:var(--sub);font-size:12px}
 .zoom input{width:110px;accent-color:var(--ac)}
@@ -187,7 +184,7 @@ textarea{resize:vertical;min-height:64px}
   linear-gradient(var(--hair),var(--hair)) 0 calc(100% - 9px)/100% 1px no-repeat}
 .track.f{height:56px;border-bottom:0}
 .clip{position:absolute;top:14px;bottom:14px;margin-left:var(--tlp,10px);box-sizing:border-box;background:color-mix(in srgb,var(--c) 16%,var(--sheet));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-top:3px solid var(--c);border-radius:2px;overflow:hidden;touch-action:pan-x;cursor:pointer}
-.clip.mod{border-style:dashed;border-top-style:solid;border-color:var(--ac2);border-top-color:var(--c)}
+.clip{border-radius:6px}.clip.mod{border-style:dashed;border-top-style:solid;border-color:var(--ac2);border-top-color:var(--c)}
 .clip.sel{outline:1.5px solid var(--ink);outline-offset:1px;z-index:2}
 .clip .body{position:absolute;inset:0 10px;padding-top:4px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 .clip .body b{font-family:var(--f-mono);font-weight:500;color:var(--sub);margin-right:6px;letter-spacing:0}
@@ -241,14 +238,14 @@ pre.snip{white-space:pre-wrap;background:var(--paper);border:1px solid var(--hai
 kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);border-radius:3px;padding:0 6px;letter-spacing:0}
 .foot{text-align:center;font-family:var(--f-disp);font-size:12px;color:var(--sub);letter-spacing:.1em}
 .toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 18px;border-radius:3px;z-index:50;animation:fade .25s ease;max-width:calc(100% - 40px)}
-@media (max-width:760px){.proj{order:5;flex:1 1 100%}.top #undoBtn{margin-left:auto}.top .btn{padding:6px 10px}.brand p{display:none}.frame{height:min(38vh,420px)}.preview{min-height:0}}
+@media (max-width:760px){.proj{order:5;flex:1 1 100%}.top #undoBtn{margin-left:auto}.top .btn{padding:6px 10px}.frame{height:min(38vh,420px)}.preview{min-height:0}}
 @media (max-width:560px){.zoom input{width:80px}.tc{font-size:18px}.brand h1{font-size:23px}.fxhero{grid-template-columns:104px 1fr}.tabs{gap:16px;padding:0 16px}}
 @media (prefers-reduced-motion:reduce){.fxbadge,.toast{animation:none}.sheet-card,.scrim{transition:none!important}}
 
 /* phone: one fixed screen — preview, transport, timeline, a docked trim panel and a tool bar; long content lives in a drawer */
 .only-m,.only-land{display:none!important}
 @media (max-width:760px),(max-height:500px) and (pointer:coarse){
-  :root:root:root{--paper:#141516;--sheet:#1e1f21;--well:#2a2b2e;--ink:#ecebe7;--sub:#9a9c9f;--line:#35363a;--hair:#2a2b2e;--ac:#e8a27c;--ac2:#e8a27c;--gold:#c2ad7c;--onac:#1c130e;--stage:#0c0c0d;color-scheme:dark;padding:0!important}
+  :root{padding:0!important}
   .only-m{display:revert!important}
   .only-d{display:none!important}
   html,body{height:100%;overflow:hidden;overscroll-behavior:none}
@@ -256,21 +253,24 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .app{height:var(--vh,100dvh);position:relative;top:var(--vvt,0);box-sizing:border-box;gap:0;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px);overflow:hidden}
   .card{border:0;border-radius:0}
   .stage{display:contents}
-  .top{order:0;flex:none;gap:6px;flex-wrap:nowrap;padding:0 8px;min-height:50px;border-bottom:0}
-  .top:has(#restorePrev:not([hidden])){flex-wrap:wrap}
-  .brand p,.brand h1,.foot,#projMeta{display:none}
+  .top{order:0;flex:none;gap:2px 6px;flex-wrap:wrap;padding:4px 10px 3px;border-bottom:0;background:var(--sheet)}
+  .foot,#projMeta{display:none}
+  .brand{gap:7px;flex:1 1 0;min-width:0}
+  .brand h1{font-size:15px;letter-spacing:.08em;white-space:nowrap}
+  .brand p{margin:1px 0 0;font-size:10px;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand>div{min-width:0}
   .logo{width:26px;height:26px}
-  .proj{order:0;flex:1 1 0;display:block;line-height:1.25;overflow:hidden}
-  .proj b{display:block;font-family:var(--f-ui);font-weight:500;font-size:13px}
-  .proj .pill{font-size:10px;margin-right:6px}
+  .proj{order:8;flex:1 1 100%;display:flex;gap:8px;align-items:baseline;flex-wrap:nowrap;line-height:1.4;overflow:hidden;white-space:nowrap}
+  .proj b{font-family:var(--f-ui);font-weight:400;font-size:11px;color:var(--sub);flex:0 1 auto;min-width:0}
+  .proj .pill{font-size:10px;flex:none}
   .top .btn{min-height:40px;padding:0 10px;border-radius:8px;flex:none}
   #undoBtn,#redoBtn{width:40px;padding:0;justify-content:center;border-color:transparent}
   #undoBtn .t,#redoBtn .t{display:none}
   #undoBtn svg,#redoBtn svg{width:18px;height:18px}
   #copyTop{font-weight:500}
   #restorePrev{order:9;flex:1 1 100%;margin-bottom:6px}
-  .preview{order:1;flex:1 1 0;min-height:96px;padding:0 8px;container-type:size;background:var(--stage)}
-  .frame{height:auto;width:min(100cqw,calc(100cqh*var(--ar,.5625)));max-width:none;border-radius:2px}
+  .preview{order:1;flex:1 1 0;min-height:96px;padding:6px 8px;container-type:size;background:var(--stage)}
+  .frame{height:auto;width:min(100cqw,calc(100cqh*var(--ar,.5625)));max-width:none;border-radius:6px}
   .ph{padding:12px 12px 34px}
   .ph .hint{font-size:11px}
   body.hassel .ph .hint{display:none}
@@ -279,57 +279,60 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .ov span{max-width:100%;font-size:10px;border-radius:4px}
   .cutflag{left:6px;bottom:6px;font-size:10px;border-radius:4px}
   .fxbadge{width:34%;max-width:96px;right:6px;top:6px;font-size:10px;border-radius:6px}
-  .transport{order:2;flex:none;flex-wrap:nowrap;gap:0;padding:2px 8px;justify-content:space-between;background:var(--paper)}
+  .transport{order:2;flex:none;flex-wrap:nowrap;gap:0;padding:2px 8px;justify-content:space-between;background:var(--sheet);box-shadow:none}
+  .transport>.btn{display:none}
   .transport .tc{width:68px;flex:none;font-size:13px;line-height:1.15;letter-spacing:0}
   .transport .tc small{display:block;font-size:10px}
-  .transport .btn.shu,.transport .spacer,.zoom input,.zoom label{display:none}
+  .transport .spacer,.zoom input,.zoom label{display:none}
   .transport .tgroup{flex:1;justify-content:center}
   .ib{width:44px;height:44px;color:var(--ink)}
   .ib svg{width:17px;height:17px}
-  .ib.play{width:44px;height:44px;border:0;margin:0}
-  .ib.play svg{width:24px;height:24px}
+  .ib{color:var(--ac)}
+  .ib.play{width:44px;height:44px;margin:0 2px;color:#fff}
+  .ib.play svg{width:20px;height:20px}
   .zoom .btn{min-height:40px;padding:0 8px;border-color:transparent;color:var(--sub)}
-  .tl{order:3;flex:none;display:block;position:relative;background:var(--paper)}
+  .tl{order:3;flex:none;display:block;position:relative;background:var(--sheet);box-shadow:none}
   .labs{display:none}
   .scroll{scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .scroll::-webkit-scrollbar{display:none}
   .ruler{height:20px;border:0;touch-action:pan-x;cursor:default}
-  .tick{top:12px;opacity:.5}
+  .tick{top:12px;border-left-color:var(--line)}
   .tick span{top:-11px;left:3px;font-size:9px}
   .track{border:0}
   .track.v{height:58px;background:none}
-  .track.f{height:34px}
-  .clip{top:2px;bottom:2px;border:0;border-radius:4px;background:color-mix(in srgb,var(--c) 42%,#26272a);overflow:visible;box-shadow:inset -1px 0 0 #141516}
-  .clip.mod{border:0;box-shadow:inset 0 -3px 0 var(--ac),inset -1px 0 0 #141516}
-  .clip.sel{outline:2px solid #fff;outline-offset:-1px;z-index:4}
-  .clip .body{inset:0 6px;padding-top:6px;overflow:hidden;color:#f2f1ed;font-size:12px}
-  .clip .body b,.clip .body em{color:rgba(255,255,255,.72)}
+  .track.f{height:44px}
+  .clip{top:2px;bottom:2px;border:0;border-radius:6px;background:color-mix(in srgb,var(--c) 38%,#fff);overflow:visible;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 70%,#fff)}
+  .clip.mod{border:0;box-shadow:inset 0 -3px 0 var(--ac2),inset 0 0 0 1px color-mix(in srgb,var(--c) 70%,#fff)}
+  .clip.sel{outline:2px solid var(--ac);outline-offset:-1px;z-index:4}
+  .clip .body{inset:0 6px;padding-top:6px;overflow:hidden;color:var(--ink);font-size:12px}
+  .clip .body b,.clip .body em{color:var(--sub)}
   .d{display:none}
   /* handles only exist on the selected clip, so a swipe anywhere else always pans */
   .clip .h{display:none;touch-action:none}
   .clip.sel .h{display:block;width:44px;top:-4px;bottom:-4px;background:none}
   .clip.sel .h.l{left:-36px}
   .clip.sel .h.r{right:-36px;left:auto}
-  .clip.sel .h::after{top:4px;bottom:4px;left:auto;right:0;width:8px;border-radius:3px 0 0 3px;background:#fff;opacity:1}
+  .clip.sel .h::after{top:4px;bottom:4px;left:auto;right:0;width:8px;border-radius:4px 0 0 4px;background:var(--ac);opacity:1}
   .clip.sel .h.r::after{right:auto;left:0;border-radius:0 3px 3px 0}
-  .mk{top:3px;touch-action:pan-x;cursor:pointer}
+  .mk{top:7px;touch-action:pan-x;cursor:pointer;min-width:44px}
+  .mk::before{content:"";position:absolute;inset:-7px 0}
   .mk.sel{touch-action:none;z-index:3}
   .mk i{height:28px}
-  .mk span{background:var(--well);border:0;border-radius:0 4px 4px 0;padding:3px 7px;line-height:1.3;font-size:11.5px}
-  .mk.sel span{background:#fff;color:#141516}
-  .mk.sel i{background:#fff}
+  .mk span{background:var(--well);color:var(--ink);max-width:150px;overflow:hidden;text-overflow:ellipsis;border:0;border-radius:0 4px 4px 0;padding:3px 7px;line-height:1.3;font-size:11.5px}
+  .mk.sel span{background:var(--ac);color:#fff}
+  .mk.sel i{background:var(--ac)}
   .phd{display:none}
-  body.tlfreeze .phd{display:block;border-left-color:#fff}
-  .cline{position:absolute;top:0;bottom:0;left:50%;width:2px;margin-left:-1px;background:#fff;pointer-events:none;z-index:6;box-shadow:0 0 4px rgba(0,0,0,.6)}
+  body.tlfreeze .phd{display:block;border-left-color:var(--warn)}
+  .cline{position:absolute;top:0;bottom:0;left:50%;width:2px;margin-left:-1px;background:var(--warn);border-radius:1px;pointer-events:none;z-index:6}
   body.tlfreeze .cline{opacity:.2}
   /* docked trim panel */
-  .insp{order:4;flex:none;display:none;gap:6px;padding:8px 10px;background:var(--sheet);border-top:1px solid var(--line)}
+  .insp{order:4;flex:none;display:none;gap:6px;padding:8px 10px;background:var(--sheet);border-top:1px solid var(--hair);box-shadow:none}
   body.hassel .insp{display:flex}
   .insp .eyebrow,.insp .chip,.insp h3,.insp .src,.insp .help,.insp .delta,.insp .row .lb,.insp .fxhero,.insp .mobhide{display:none!important}
   .segrow.only-m{display:flex!important;align-items:center;justify-content:space-between;gap:8px}
   .seg{flex:none;display:inline-flex;background:var(--well);border-radius:8px;padding:2px}
   .seg button{background:none;border:0;border-radius:6px;min-width:60px;height:40px;color:var(--sub)}
-  .seg button[aria-pressed=true]{background:var(--ink);color:var(--paper);font-weight:500}
+  .seg button[aria-pressed=true]{background:var(--ac);color:#fff;font-weight:500}
   .len{flex:1;min-width:0;text-align:right;font-family:var(--f-mono);font-size:11px;line-height:1.3;color:var(--sub);letter-spacing:0;white-space:nowrap}
   .len b{display:block;font-family:var(--f-ui);font-weight:500;font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
   .insp .row{display:block}
@@ -343,18 +346,25 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .fxgrid{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -10px;padding:2px 10px}
   .fxgrid::-webkit-scrollbar{display:none}
   .fxt{flex:none;width:62px;font-size:10px;white-space:nowrap}
-  .insp textarea{display:none;min-height:88px;font-size:16px}
+  .capdur .nb{height:44px}
+  .insp textarea{display:none;min-height:60px;font-size:16px}
+  body.typing .cutflag,body.typing .ov{display:none}
   .insp.noting textarea{display:block}
-  .insp.noting>:not(textarea):not(.acts){display:none!important}
+  .insp.noting>:not(textarea):not(.acts):not(.notehead):not(.capdur){display:none!important}
+  .notehead{display:none!important;font-size:12px;color:var(--sub)}
+  .insp.noting .notehead{display:block!important}
+  .insp.noting .acts button:not([data-a=close]):not([data-a=cancelnote]){display:none!important}
+  .insp:not(.noting) [data-a=cancelnote]{display:none!important}
+  @media (max-height:620px){.fxt{width:52px}.fxt span{display:none}.fxt[aria-pressed=true] span{display:none}.proj b,.proj .pill:not(.warn){display:none}}
   /* tool bar */
-  .tools{order:5;flex:none;display:flex!important;padding:2px 4px calc(2px + env(safe-area-inset-bottom,0px));background:var(--paper);border-top:1px solid var(--hair)}
-  .tools button{flex:1 1 0;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:50px;min-width:0;background:none;border:0;font-size:11px;color:var(--ink)}
+  .tools{order:5;flex:none;display:flex!important;padding:2px 4px calc(2px + env(safe-area-inset-bottom,0px));background:var(--sheet);border-top:1px solid var(--hair)}
+  .tools button{flex:1 1 0;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:50px;min-width:0;background:none;border:0;font-size:11px;color:var(--ac)}
   .tools svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   .tools .n{position:absolute;top:3px;left:calc(50% + 7px);min-width:15px;padding:0 3px;box-sizing:border-box;border-radius:8px;background:var(--ac);color:var(--onac);font-family:var(--f-mono);font-size:9.5px;line-height:15px;letter-spacing:0}
   body.hassel .tools button:not([data-t]){color:var(--sub)}
   body.typing .transport,body.typing .tl,body.typing .tools{display:none!important}
   /* drawer */
-  .scrim{display:block!important;position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s}
+  .scrim{display:block!important;position:fixed;inset:0;z-index:20;background:rgba(41,60,53,.28);opacity:0;pointer-events:none;transition:opacity .2s}
   body.sheet .scrim{opacity:1;pointer-events:auto}
   .sheet-card{position:fixed;left:0;right:0;bottom:var(--kb,0px);z-index:21;max-height:78%;display:flex;flex-direction:column;background:var(--sheet);border-radius:16px 16px 0 0;transform:translateY(100%);visibility:hidden;transition:transform .24s cubic-bezier(.2,.8,.2,1),visibility 0s .24s;padding-bottom:env(safe-area-inset-bottom,0px)}
   body.sheet .sheet-card{transform:none;visibility:visible;transition:transform .24s cubic-bezier(.2,.8,.2,1)}
@@ -380,7 +390,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
     .tools .n{position:static}
   }
 }
-@media (max-width:359px){#copyTop .long{display:none}.ib{width:38px}.transport .tc{width:60px}.seg button{min-width:50px}}
+@media (max-width:359px){#copyTop .long{display:none}.brand p{display:none}.ib{width:38px}.transport .tc{width:60px}.seg button{min-width:50px}}
 </style>
 </head><body>
 
@@ -391,7 +401,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
 <rect x="5.5" y="13.5" width="8" height="16" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
 <rect x="16" y="13.5" width="8" height="16" fill="var(--ac)"/>
 <rect x="26.5" y="13.5" width="8" height="16" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
-<g fill="currentColor" opacity=".5"><rect x="6" y="11" width="2" height="1.2"/><rect x="11" y="11" width="2" height="1.2"/><rect x="16" y="11" width="2" height="1.2"/><rect x="21" y="11" width="2" height="1.2"/><rect x="26" y="11" width="2" height="1.2"/><rect x="31" y="11" width="2" height="1.2"/><rect x="6" y="31" width="2" height="1.2"/><rect x="11" y="31" width="2" height="1.2"/><rect x="16" y="31" width="2" height="1.2"/><rect x="21" y="31" width="2" height="1.2"/><rect x="26" y="31" width="2" height="1.2"/><rect x="31" y="31" width="2" height="1.2"/></g></svg><div><h1>Koma</h1><p>editor for Claude Video</p></div></div>
+<g fill="currentColor" opacity=".5"><rect x="6" y="11" width="2" height="1.2"/><rect x="11" y="11" width="2" height="1.2"/><rect x="16" y="11" width="2" height="1.2"/><rect x="21" y="11" width="2" height="1.2"/><rect x="26" y="11" width="2" height="1.2"/><rect x="31" y="11" width="2" height="1.2"/><rect x="6" y="31" width="2" height="1.2"/><rect x="11" y="31" width="2" height="1.2"/><rect x="16" y="31" width="2" height="1.2"/><rect x="21" y="31" width="2" height="1.2"/><rect x="26" y="31" width="2" height="1.2"/><rect x="31" y="31" width="2" height="1.2"/></g></svg><div><h1>KOMA 影格</h1><p>(editor for claude video)</p></div></div>
     <div class="proj"><b id="projName"></b><span class="pill" id="projMeta"></span><span class="pill warn" id="sampleTag" hidden>範例資料</span><span class="pill" id="saveState"></span><span class="pill warn" id="vidWarn" hidden></span></div>
     <button class="btn ghost" id="restorePrev" hidden>還原上一份草稿</button>
     <button class="btn" id="undoBtn" title="復原 (Ctrl/⌘+Z)" aria-label="復原"><svg viewBox="0 0 24 24"><path d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62A7.95 7.95 0 0 1 20.4 16l2.37-.78A10.5 10.5 0 0 0 12.5 8z"/></svg><span class="t">復原</span></button>
@@ -408,6 +418,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
         <div class="warnbox" id="warn" hidden>這一格不在目前的成片裡（鏡頭被你延長了）。照常標記即可，Claude 會用素材重新輸出。</div>
         <div class="cutflag" id="cutFlag" hidden>剪接點</div>
         <div class="fxbadge" id="fxBadge" hidden></div>
+        <div class="capov" id="capOv" hidden></div>
       </div>
     </div>
     <aside class="card insp" id="insp" aria-live="polite"></aside>
@@ -423,6 +434,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
       <button class="ib" data-t="nextcut" title="下一個剪接點 (↓)" aria-label="下一個剪接點"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l10.5-7z"/></svg></button>
     </div>
     <button class="btn shu" data-t="mark" title="在播放頭加特效 (M)">＋ 加特效</button>
+    <button class="btn" data-t="caption">＋ 加字幕</button>
     <div class="spacer"></div>
     <div class="zoom"><label for="zoom">縮放</label><input type="range" id="zoom" min="0" max="100" step="1"><button class="btn sm" data-t="fit">全覽</button></div>
   </div>
@@ -441,8 +453,9 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   </div>
 
   <nav class="tools only-m" aria-label="工具">
-    <button data-t="mark"><svg viewBox="0 0 24 24"><path d="M12 3l2 5.5L19.5 10 14 12l-2 6-2-6-5.5-2L10 8.5zM19 16v5M16.5 18.5h5"/></svg>加特效</button>
-    <button data-sheet="log"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"/></svg>修改清單<span class="n" id="logN2" hidden></span></button>
+    <button data-t="mark"><svg viewBox="0 0 24 24"><path d="M12 3l2 5.5L19.5 10 14 12l-2 6-2-6-5.5-2L10 8.5zM19 16v5M16.5 18.5h5"/></svg>特效</button>
+    <button data-t="caption"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zM7 11h4M13 11h4M7 14.5h7"/></svg>字幕</button>
+    <button data-sheet="log"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"/></svg>清單<span class="n" id="logN2" hidden></span></button>
     <button data-sheet="in"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M4 20h16"/></svg>匯入</button>
     <button data-sheet="out"><svg viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5M4 20h16"/></svg>匯出</button>
     <button data-sheet="keys"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h0"/></svg>說明</button>
@@ -504,6 +517,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
             <button class="expbtn" data-exp="fcpxml"><span class="ext">.fcpxml</span><b>Final Cut Pro · DaVinci Resolve</b><span>剪接點、鏡頭名稱、特效標記（變成 marker）</span></button>
             <button class="expbtn" data-exp="edl"><span class="ext">.edl</span><b>Premiere Pro · DaVinci · Avid</b><span>剪接點與鏡頭名稱；特效寫成註解</span></button>
             <button class="expbtn" data-exp="manual"><span class="ext">.txt</span><b>剪映 · CapCut · 其他軟體</b><span>手動操作清單：照著逐項修改，不需要匯入工程</span></button>
+            <button class="expbtn" data-exp="srt"><span class="ext">.srt</span><b>字幕檔</b><span>字卡 / 字幕的文字與起訖時間，幾乎所有剪輯軟體都能讀</span></button>
             <button class="expbtn" data-exp="json"><span class="ext">.json</span><b>Koma 時間軸</b><span>給 Claude 或下次再用 Koma 打開</span></button>
           </div>
           <p class="msg" id="outMsg"></p>
@@ -519,7 +533,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
       </div>
     </div>
     <div class="tp" data-panel="keys" hidden>
-      <ol class="mhelp only-m"><li>左右滑時間軸移動畫面，白線就是目前這一格；雙指開合可以縮放。</li><li>點鏡頭後拖白色把手修剪，或在下方用 ±1、±5 逐格調入點和出點。</li><li>停在想要的格子按「加特效」，挑效果，再用「備註」寫想要的感覺。</li><li>按右上「複製給 Claude」，貼回對話就好；也可以到「匯出」輸出給剪輯軟體。</li></ol>
+      <ol class="mhelp only-m"><li>左右滑時間軸移動畫面，白線就是目前這一格；雙指開合可以縮放。</li><li>點鏡頭後拖白色把手修剪，或在下方用 ±1、±5 逐格調入點和出點。</li><li>停在想要的格子按「特效」挑效果，或按「字幕」直接打字。點時間軸或畫面上的字幕就能修改。</li><li>按右上「複製給 Claude」，貼回對話就好；也可以到「匯出」輸出給剪輯軟體。</li></ol>
       <p class="mnote only-m">公開測試版。FCPXML 與 EDL 尚未經真實剪輯軟體驗證，手機觸控手勢尚在實機驗證中。Koma 是獨立的開放工具，非 Anthropic 官方產品。</p>
       <dl class="keys only-d">
         <dt><kbd>空白鍵</kbd></dt><dd>播放 / 暫停</dd>
@@ -580,6 +594,7 @@ const PREV=KEY+":prev",MAXF=1e8,MAXTOTAL=2e6,MAXCLIPS=5000,MAXLINK=5e6,MAXPX=2e7
 const IN_CLAUDE=!!window.claude;
 
 const MQ=matchMedia("(max-width:760px),(max-height:500px) and (pointer:coarse)"),isM=()=>MQ.matches;
+let noteStart=null,noteUndo=0,badgeId=null;
 let tlFreeze=false,tlExpect=0,fromScroll=false,lastDrag=0,nudgeEdge="in";
 let orig,doc,fps=30,ppf=6,playhead=0,sel=null,undo=[],redo=[],redoStash=[],playing=false,videoURL=null,last=0,acc=0,syncClip=null,normWarn=[],vidOffset=0,calibrating=null;
 const video=$("#video"),scroll=$("#scroll"),inner=$("#inner");
@@ -604,7 +619,7 @@ function normalize(d){
   const ms=Array.isArray(d.markers)?d.markers:[],mids=new Set();
   if(ms.length>MAXCLIPS*4) throw new Error(`特效超過 ${MAXCLIPS*4} 個`);
   o.markers=ms.map((m,i)=>{let id=String(m.id??("m"+(i+1)));while(mids.has(id))id+="_"+i;mids.add(id);
-    return {id,clip:String(m.clip),at:Math.max(0,int(m.at)),type:FX.some(f=>f.k===m.type)?m.type:"other",note:String(m.note||"")}}).filter(m=>o.clips.some(c=>c.id===m.clip));
+    return {id,clip:String(m.clip),at:Math.max(0,int(m.at)),type:FX.some(f=>f.k===m.type)?m.type:"other",note:String(m.note||""),...(m.dur>0&&m.dur<=MAXF?{dur:Math.round(m.dur)}:{})}}).filter(m=>o.clips.some(c=>c.id===m.clip));
   o.markers.forEach(m=>{const c=o.clips.find(x=>x.id===m.clip);m.at=Math.min(m.at,c.out-c.in-1)});
   if(o.markers.length<ms.length)normWarn.push(`略過 ${ms.length-o.markers.length} 個對不到鏡頭的特效`);
   return o;
@@ -704,7 +719,7 @@ function renderTimeline(){
       <div class="h l" data-edge="in" title="拖曳修剪入點"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${c.out-c.in}f · ${esc(c.src)}</em></div><div class="h r" data-edge="out" title="拖曳修剪出點"></div>
       ${dI?`<i class="d dl">入${sgn(dI)}</i>`:""}${dO?`<i class="d dr">出${sgn(dO)}</i>`:""}</div>`}).join("");
   $("#trF").innerHTML=doc.markers.map(m=>{const f=markerFrame(m,L);if(f==null)return"";const fx=fxOf(m.type),isSel=sel?.kind==="mk"&&sel.id===m.id;
-    return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(`特效 ${fx.l}，${tc(f)}`)}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?"："+m.note:""))}"><i></i><span>${esc(fx.l)}</span></div>`}).join("");
+    return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(`特效 ${fx.l}，${tc(f)}`)}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?"："+m.note:""))}"><i></i><span>${esc(m.type==="text"&&m.note.trim()?m.note.trim().slice(0,14):fx.l)}</span></div>`}).join("");
   updatePlayhead();
 }
 let badgeKey="";
@@ -716,9 +731,17 @@ function updatePlayhead(){
   else if(playing){const x=playhead*ppf;if(x<scroll.scrollLeft+20||x>scroll.scrollLeft+scroll.clientWidth-40)scroll.scrollLeft=x-60}
   const near=doc.markers.find(m=>{const f=markerFrame(m,L);return f!=null&&playhead>=f&&playhead<f+Math.max(6,Math.round(fps/3))});
   const bk=near?near.id+near.type:"";
-  if(bk!==badgeKey){badgeKey=bk;const b=$("#fxBadge");b.hidden=!near;if(near)b.innerHTML=thumb(near.type)+`<span>${esc(fxOf(near.type).l)}</span>`}
+  badgeId=near?near.id:null;
+  if(bk!==badgeKey){badgeKey=bk;const b=$("#fxBadge");b.hidden=!near||near.type==="text"&&!!near.note.trim();if(near)b.innerHTML=thumb(near.type)+`<span>${esc(fxOf(near.type).l)}</span>`}
+  updateCaption(L);
   updatePreview(L);
 }
+/* captions show for their duration in the preview; they are not burned into the video */
+const capDur=m=>m.dur||Math.round(2*fps);
+function captionAt(L){let hit=null,bf=-1;for(const m of doc.markers){if(m.type!=="text"||!m.note.trim())continue;const f=markerFrame(m,L);if(f!=null&&f<=playhead&&playhead<f+capDur(m)&&f>bf){hit=m;bf=f}}return hit}
+function updateCaption(L){const m=captionAt(L),el=$("#capOv");el.hidden=!m;el.dataset.id=m?m.id:"";if(m&&el.textContent!==m.note.trim())el.textContent=m.note.trim()}
+function editCaption(id){stopPlay();sel={kind:"mk",id};const m=doc.markers.find(x=>x.id===id),L=layout(doc);renderTimeline();renderInspector();seek(markerFrame(m,L));openNote()}
+function openNote(){const n=$("#insp textarea");if(!n)return;noteStart=clone(doc);noteUndo=undo.length;$("#insp").classList.add("noting");n.focus()}
 function updatePreview(L){
   const hit=clipAt(playhead,L);if(!hit)return;
   const{c,i,start}=hit,k=playhead-start,srcF=c.in+k;
@@ -755,22 +778,23 @@ function renderInspector(){
       ${overMedia(c)}<p class="help">數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。</p>
       <label class="help" for="clipNote">給 Claude 的備註</label>
       <textarea id="clipNote" placeholder="例：這顆鏡頭調色再冷一點">${esc(c.note)}</textarea>
-      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button><button class="btn sm only-m" data-a="note">備註${c.note?" ●":""}</button><button class="btn sm" data-a="go:in">跳到入點</button><button class="btn sm" data-a="go:out">跳到出點</button><button class="btn sm ghost" data-a="delclip">刪除鏡頭</button></div>`;
+      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button><button class="btn sm only-m" data-a="cancelnote">取消</button><button class="btn sm only-m" data-a="note">備註${c.note?" ●":""}</button><button class="btn sm" data-a="go:in">跳到入點</button><button class="btn sm" data-a="go:out">跳到出點</button><button class="btn sm ghost" data-a="delclip">刪除鏡頭</button></div>`;
     noteEditor($("#clipNote"),v=>{c.note=v});
   }else if(sel?.kind==="mk"){
     const m=doc.markers.find(x=>x.id===sel.id);if(!m){sel=null;return renderInspector()}
     const L=layout(doc),e=L.map[m.clip],f=markerFrame(m,L),om=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type);
     el.innerHTML=`<div class="eyebrow">特效</div>
-      <div class="fxhero">${thumb(m.type)}<div><b>${esc(fx.l)}</b><p>${esc(fx.d)}</p></div></div>
+      <div class="notehead only-m">${m.type==="text"?"編輯字幕":"備註"} · <span class="mono">${tc(f)}</span>，預覽只供對照，不會燒進影片</div><div class="fxhero">${thumb(m.type)}<div><b>${esc(fx.l)}</b><p>${esc(fx.d)}</p></div></div>
       <div class="help">鏡頭 ${pad(e.i+1)}「${esc(e.c.name)}」第 ${f-e.start} 格 · <span class="mono">${tc(f)}</span></div>
       <div class="row"><div class="lb">位置</div><div class="nudge"><button class="nb" data-a="mk:-5" aria-label="特效往前 5 格">−5</button><button class="nb" data-a="mk:-1" aria-label="特效往前 1 格">−1</button><span class="v">${tc(f)}</span><button class="nb" data-a="mk:1" aria-label="特效往後 1 格">+1</button><button class="nb" data-a="mk:5" aria-label="特效往後 5 格">+5</button></div>
       <div class="delta${om?"":" on"}">${om?"Claude 原本放的特效":"你新增的特效"}</div></div>
       <div class="eyebrow">換一種特效</div>
       <div class="fxgrid" role="group" aria-label="特效種類">${FX.map(x=>`<button class="fxt" data-fx="${x.k}" aria-pressed="${x.k===m.type}" style="--fxc:${x.c}">${thumb(x.k)}<span>${x.l}</span></button>`).join("")}</div>
-      <label class="help" for="mkNote">想要的效果（越具體越好）</label>
-      <textarea id="mkNote" placeholder="例：抖 6 格、強度中等，配合鼓點">${esc(m.note)}</textarea>
-      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button><button class="btn sm only-m" data-a="note">備註${m.note?" ●":""}</button><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">刪除特效</button></div>`;
-    noteEditor($("#mkNote"),v=>{m.note=v});
+      ${m.type==="text"?`<div class="capdur"><span>顯示</span><button class="nb" data-a="dur:-1" aria-label="顯示短半秒">−</button><span class="mono" id="capDurV">${(capDur(m)/fps).toFixed(1)} 秒</span><button class="nb" data-a="dur:1" aria-label="顯示長半秒">＋</button></div>`:""}
+      <label class="help" for="mkNote">${m.type==="text"?"字幕內容":"想要的效果（越具體越好）"}</label>
+      <textarea id="mkNote" placeholder="${m.type==="text"?"輸入要出現的文字":"例：抖 6 格、強度中等，配合鼓點"}">${esc(m.note)}</textarea>
+      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button><button class="btn sm only-m" data-a="cancelnote">取消</button><button class="btn sm only-m" data-a="note">${m.type==="text"?"編輯字幕":"備註"}${m.note?" ●":""}</button><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">刪除特效</button></div>`;
+    noteEditor($("#mkNote"),v=>{m.note=v;if(m.type==="text"){badgeKey="";renderTimeline()}});
   }else{
     el.innerHTML=`<div class="eyebrow">使用方式</div><ol class="steps">
       <li><span><b>點時間軸上的鏡頭</b>，在這裡用 ±1 / ±5 逐格調入點、出點，也可以直接拖鏡頭兩側的邊。</span></li>
@@ -795,11 +819,13 @@ function changes(){
   doc.markers.forEach(m=>{
     const o=orig.markers.find(x=>x.id===m.id),fx=fxOf(m.type).l,note=m.note.trim()?`：${m.note.trim()}`:"";
     if(!L.map[m.clip])return;
-    if(!o){out.push({t:`新增特效【${fx}】於 ${where(m,L)}${note}`,fx:1});return}
+    const dl=m.type==="text"&&m.dur?`（顯示 ${m.dur} 格）`:"";
+    if(!o){out.push({t:`新增特效【${fx}】於 ${where(m,L)}${note}${dl}`,fx:1});return}
     const p=[],oE=OL.map[o.clip],at=clamp(m.at,0,L.map[m.clip].c.out-L.map[m.clip].c.in-1);
     if(o.clip!==m.clip||clamp(o.at,0,oE.c.out-oE.c.in-1)!==at)p.push(`位置移到 ${where(m,L)}`);
     if(o.type!==m.type)p.push(`改成【${fx}】`);
     if(o.note!==m.note)p.push(m.note.trim()?`說明改為：${m.note.trim()}`:"清除原有說明");
+    if((o.dur||0)!==(m.dur||0))p.push(`顯示改為 ${capDur(m)} 格`);
     if(p.length)out.push({t:`特效【${fxOf(o.type).l}】原在 ${where(o,OL)}：${p.join("；")}`,fx:1});
   });
   orig.markers.forEach(o=>{if(!doc.markers.some(m=>m.id===o.id)&&OL.map[o.clip])out.push({t:`移除特效【${fxOf(o.type).l}】（原在 ${where(o,OL)}）`,fx:1})});
@@ -829,15 +855,17 @@ function nudgeClip(edge,d){const c=doc.clips.find(x=>x.id===sel.id);const v=edge
   mutate(()=>{if(edge==="in")setIn(c,v);else setOut(c,v)});
   const e=layout(doc).map[c.id];seek(edge==="in"?e.start:e.start+c.out-c.in-1)}
 function placeMarker(m,f){const L=layout(doc);f=clamp(f,0,L.total-1);const h=clipAt(f,L);m.clip=h.c.id;m.at=f-h.start}
-function addMarker(){if(doc.markers.length>=MAXCLIPS*4)return toast(`特效最多 ${MAXCLIPS*4} 個`);const id="m"+Date.now().toString(36);mutate(()=>{const m={id,clip:"",at:0,type:"glitch",note:""};placeMarker(m,playhead);doc.markers.push(m);sel={kind:"mk",id}})}
+function addMarker(type="glitch"){if(doc.markers.length>=MAXCLIPS*4)return toast(`特效最多 ${MAXCLIPS*4} 個`);const id="m"+Date.now().toString(36);mutate(()=>{const m={id,clip:"",at:0,type,note:""};placeMarker(m,playhead);doc.markers.push(m);sel={kind:"mk",id}})}
 
 $("#insp").addEventListener("click",e=>{
   const t=e.target.closest(".fxt");
-  if(t&&sel?.kind==="mk"){const m=doc.markers.find(x=>x.id===sel.id);if(m.type!==t.dataset.fx){mutate(()=>{m.type=t.dataset.fx});badgeKey="";updatePlayhead()}return}
+  if(t&&sel?.kind==="mk"){const m=doc.markers.find(x=>x.id===sel.id);if(m.type!==t.dataset.fx){mutate(()=>{m.type=t.dataset.fx});badgeKey="";updatePlayhead();if(m.type==="text")openNote()}return}
   const b=e.target.closest("[data-a]");if(!b||!sel)return;const[a,v]=b.dataset.a.split(":");
   if(a==="undo")return doUndo();
-  if(a==="close"){sel=null;renderTimeline();renderInspector();return}
-  if(a==="note"){const n=$("#insp").querySelector("textarea");$("#insp").classList.add("noting");n.focus();return}
+  if(a==="close"){const n=$("#insp textarea");n&&n.blur();sel=null;renderTimeline();renderInspector();return}
+  if(a==="note")return openNote();
+  if(a==="cancelnote"){$("#insp textarea").blur();if(noteStart){doc=noteStart;undo.length=noteUndo;noteStart=null;renderAll()}else renderInspector();return}
+  if(a==="dur"){const m=doc.markers.find(x=>x.id===sel.id),d=clamp(capDur(m)+ +v*Math.round(fps/2),Math.round(fps/2),Math.round(fps*60));if(d===capDur(m))return;pushUndo();m.dur=d;$("#capDurV").textContent=`${(d/fps).toFixed(1)} 秒`;badgeKey="";updatePlayhead();renderLog();save();return}
   if(a==="edge"){nudgeEdge=v;renderInspector();const e2=layout(doc).map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1);return}
   if(a==="in"||a==="out")nudgeClip(a,+v);
   else if(a==="mk"){const m=doc.markers.find(x=>x.id===sel.id),f0=markerFrame(m,layout(doc));if(clamp(f0+ +v,0,total()-1)===f0)return;mutate(()=>placeMarker(m,f0+ +v));seek(markerFrame(m,layout(doc)))}
@@ -884,12 +912,14 @@ $("#trF").addEventListener("pointerdown",e=>{
   const m=doc.markers.find(x=>x.id===mk.dataset.id);sel={kind:"mk",id:m.id};pushUndo();
   const f0=markerFrame(m,layout(doc)),keep=clone(doc);if(isM())freeze(true);
   drag(e,(ev,dx,moved)=>{if(!moved)return;placeMarker(m,f0+Math.round(dx/ppf));playhead=markerFrame(m,layout(doc));renderTimeline();renderInspector();renderLog()},
-    (moved,cancelled)=>{if(isM()){freeze(false);if(!moved)lastDrag=0}if(cancelled)doc=keep;if(!moved||cancelled)cancelUndo();renderAll()});
+    (moved,cancelled)=>{if(isM()){freeze(false);if(!moved)lastDrag=0}if(cancelled)doc=keep;if(!moved||cancelled)cancelUndo();renderAll();if(!isM()&&!moved&&!cancelled&&m.type==="text")openNote()});
   if(!isM())seek(f0);renderTimeline();renderInspector();
 });
 /* phone: a tap selects without moving the playhead; tapping the selected item again lets go of it */
 function tapSelect(kind,sel0){return e=>{if(!isM()||performance.now()-lastDrag<400||e.target.closest(".h"))return;
-  const it=e.target.closest(sel0),id=it&&it.dataset.id;sel=it&&!(sel?.kind===kind&&sel.id===id)?{kind,id}:null;renderTimeline();renderInspector();
+  const it=e.target.closest(sel0),id=it&&it.dataset.id;
+  if(kind==="mk"&&it&&doc.markers.find(x=>x.id===id)?.type==="text")return editCaption(id);
+  sel=it&&!(sel?.kind===kind&&sel.id===id)?{kind,id}:null;renderTimeline();renderInspector();
   /* keep the preview on what is being edited */
   if(sel?.kind==="clip"){const e2=layout(doc).map[id],n=e2.c.out-e2.c.in;if(playhead<e2.start||playhead>=e2.start+n)seek(nudgeEdge==="in"?e2.start:e2.start+n-1)}}}
 $("#trV").addEventListener("click",tapSelect("clip",".clip"));
@@ -901,6 +931,11 @@ scroll.addEventListener("touchstart",e=>{if(!isM())return;stopPlay();pinch=e.tou
 scroll.addEventListener("touchmove",e=>{if(!pinch||e.touches.length!==2)return;e.preventDefault();ppf=clamp(pinch.p*span(e.touches)/pinch.d,ZMIN,maxPpf());$("#zoom").value=z2v(ppf);renderTimeline()},{passive:false});
 scroll.addEventListener("touchend",e=>{if(e.touches.length<2)pinch=null},{passive:true});
 $("#frame").addEventListener("click",()=>{if(isM())togglePlay()});
+/* tap the words on the preview to edit them */
+$("#capOv").addEventListener("click",e=>{e.stopPropagation();editCaption(e.currentTarget.dataset.id)});
+$("#fxBadge").addEventListener("click",e=>{e.stopPropagation();if(!badgeId)return;const m=doc.markers.find(x=>x.id===badgeId);if(m.type==="text")return editCaption(m.id);stopPlay();sel={kind:"mk",id:m.id};renderTimeline();renderInspector()});
+/* buttons stay where they are while the keyboard is up, so the tap lands */
+$("#insp").addEventListener("pointerdown",e=>{if($("#insp").classList.contains("noting")&&e.target.closest(".acts,.capdur"))e.preventDefault()});
 $("#trF").addEventListener("dblclick",e=>{if(isM())return;if(!e.target.closest(".mk")){seek(frameAt(e.clientX));addMarker()}});
 
 function togglePlay(){
@@ -917,6 +952,7 @@ function transport(a){
   if(a==="play")return togglePlay();
   stopPlay();
   if(a==="mark")return addMarker();
+  if(a==="caption"){addMarker("text");return openNote()}
   if(a==="fit"){if(isM()){const o=overview();ppf=Math.abs(ppf-o)<.01?defaultPpf():o;$("#zoom").value=z2v(ppf)}else fit();renderTimeline();return}
   const p=cutPoints();
   if(a==="prevcut")return seek([...p].reverse().find(x=>x<playhead)??0);
@@ -1155,6 +1191,9 @@ function buildManual(){
   out.push(...(fx.length?fx.map(({m,f},i)=>`${i+1}. ${T(f)} ${fxOf(m.type).l}${m.note?"："+m.note.replace(/\s+/g," "):""}`):["沒有特效"]));
   return out.join("\n")+"\n";
 }
+function srtTime(f){const ms=Math.round(f/fps*1000),z=(n,w=2)=>String(n).padStart(w,"0");return `${z(Math.floor(ms/3600000))}:${z(Math.floor(ms/60000)%60)}:${z(Math.floor(ms/1000)%60)},${z(ms%1000,3)}`}
+function buildSRT(){const L=layout(doc),c=doc.markers.filter(m=>m.type==="text"&&m.note.trim()&&L.map[m.clip]).map(m=>({m,f:markerFrame(m,L)})).sort((a,b)=>a.f-b.f);
+  return c.map(({m,f},i)=>{const end=Math.min(f+capDur(m),i+1<c.length?c[i+1].f:Infinity,L.total);return `${i+1}\n${srtTime(f)} --> ${srtTime(Math.max(end,f+1))}\n${m.note.trim()}\n`}).join("\n")}
 function buildEDL(){
   const d=exportDoc(),b=Math.round(fps),L=layout(d),R0=3600*b;
   let s=`TITLE: ${d.project.replace(/[\r\n]/g," ").slice(0,70)}\nFCM: NON-DROP FRAME\n\n`;
@@ -1203,6 +1242,7 @@ document.querySelectorAll("[data-exp]").forEach(b=>b.addEventListener("click",()
   if(k==="fcpxml")deliver(n+".fcpxml",buildFCPXML()).then(()=>{if(!$("#mediaDir").value.trim())$("#outMsg").textContent+=" 沒填素材資料夾，開啟後請手動重新連結素材。"});
   else if(k==="edl")deliver(n+".edl",buildEDL());
   else if(k==="manual")deliver(n+".txt",buildManual());
+  else if(k==="srt"){const t=buildSRT();if(!t)return say($("#outMsg"),false,"還沒有字幕。先按「字幕」或「加字幕」輸入內容。");deliver(n+".srt",t)}
   else deliver(n+".koma.json",JSON.stringify(exportDoc(),null,2));
 }));
 $("#copyExport").addEventListener("click",()=>copy($("#exportOut").value,$("#exportOut")));
@@ -1256,7 +1296,8 @@ $("#askSnip").textContent=`每次幫我剪完影片，請另外附上一個 .kom
                "in": 入點, "out": 出點（不含）,
                "srcDuration": 素材總長（選填） } ],
   "markers": [ { "id": "m1", "clip": 鏡頭 id, "at": 鏡頭內第幾格,
-                 "type": 特效種類, "note": 說明 } ] }
+                 "type": 特效種類, "note": 說明,
+                 "dur": 字幕顯示格數（選填，只有 text 用） } ] }
 
 鏡頭依成片順序排列。in、out、srcDuration 一律以「成片幀率」計算素材時間，即使素材本身是別的幀率。
 type 只用 glitch, flash, rgb, zoom, slow, ramp, shake, scan, text, trans, grade, sfx, other。
