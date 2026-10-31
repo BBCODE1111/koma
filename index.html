@@ -465,7 +465,7 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
   .insp:not(.noting) .acts.main .btn{display:inline-flex;flex:1 1 0;min-width:0;min-height:44px;padding:2px 0;flex-direction:column;justify-content:center;gap:2px;font-size:11px;line-height:1.2;white-space:nowrap}
   .insp:not(.noting) .acts.main .btn .ico{width:15px;height:15px;margin:0}
   .insp:not(.noting) .acts.main [data-a=close]{background:none;border-color:var(--ac);color:var(--ac)}
-  .insp:not(.noting) .acts.main [data-a=delf],.insp:not(.noting) .acts.main [data-a=addf]{flex-grow:1.25;background:color-mix(in srgb,var(--ac) 13%,var(--sheet));border-color:color-mix(in srgb,var(--ac) 45%,var(--line));color:var(--ink);font-size:12.5px;font-weight:500}
+  .insp:not(.noting) .acts.main [data-a=delf],.insp:not(.noting) .acts.main [data-a=swap],.insp:not(.noting) .acts.main [data-a=addf]{flex-grow:1.25;background:color-mix(in srgb,var(--ac) 13%,var(--sheet));border-color:color-mix(in srgb,var(--ac) 45%,var(--line));color:var(--ink);font-size:12.5px;font-weight:500}
   .clip.sel{outline-width:2px}
   .insp.more .row,.insp.more .segrow,.insp.more .over,.insp.more .help{display:none!important}
   .insp.more .moreacts{display:grid!important;grid-template-columns:repeat(4,1fr);gap:4px;margin:0;overflow:visible;padding:0}
@@ -908,8 +908,8 @@ function renderInspector(){
       ${overMedia(c)}<p class="help">${tr("數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。","Numbers are source frames. ＋ moves later, − moves earlier. Later clips shift automatically.")}</p>
       <label class="help" for="clipNote">${tr("給 Claude 的備註","Note for Claude")}</label>
       <textarea id="clipNote" placeholder="${tr("例：這顆鏡頭調色再冷一點","e.g. Make this shot's grade a bit cooler")}">${esc(c.note)}</textarea>
-      <div class="acts main">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("undo","undo",tr("復原","Undo"),"btn sm only-land")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("delf","scissors",tr("刪這格","Delete"))}${act("addf","addf",tr("加一格","Add frame"))}${act("ins:1","plus",tr("插入","Insert"))}${act("note","edit",tr("備註","Note")+(c.note?" ●":""),"btn sm only-m")}<button class="btn sm morebtn" data-a="more" aria-expanded="${moreOpen}" aria-controls="moreActs">${ic("dots")}<span>${tr("更多","More")}</span></button></div>
-      <div class="acts moreacts" id="moreActs">${act("split","split",tr("分割","Split"))}${act("swap","swap",tr("換畫面","Replace"))}${moves}${act("ins:0","plus",tr("前面插入","Insert before"))}${act("go:in","in",tr("跳到入點","Go to in"))}${act("go:out","out",tr("跳到出點","Go to out"))}${act("delclip","trash",tr("刪除鏡頭","Delete clip"),"btn sm ghost")}</div>`;
+      <div class="acts main">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("undo","undo",tr("復原","Undo"),"btn sm only-land")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("delf","scissors",tr("刪這格","Delete"))}${act("swap","swap",tr("換畫面","Replace"))}${act("addf","addf",tr("加一格","Add frame"))}${act("ins:1","plus",tr("插入","Insert"))}${act("note","edit",tr("備註","Note")+(c.note?" ●":""),"btn sm only-m")}<button class="btn sm morebtn" data-a="more" aria-expanded="${moreOpen}" aria-controls="moreActs">${ic("dots")}<span>${tr("更多","More")}</span></button></div>
+      <div class="acts moreacts" id="moreActs">${act("split","split",tr("分割","Split"))}${moves}${act("ins:0","plus",tr("前面插入","Insert before"))}${act("go:in","in",tr("跳到入點","Go to in"))}${act("go:out","out",tr("跳到出點","Go to out"))}${act("delclip","trash",tr("刪除鏡頭","Delete clip"),"btn sm ghost")}</div>`;
     noteEditor($("#clipNote"),v=>{c.note=v});
   }else if(sel?.kind==="mk"){
     const m=doc.markers.find(x=>x.id===sel.id);if(!m){sel=null;return renderInspector()}
