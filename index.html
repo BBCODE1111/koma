@@ -87,7 +87,7 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .nb:hover{border-color:var(--ac);color:var(--ac)}
 .delta{grid-column:2;font-size:12px;color:var(--sub)}
 .delta.on{color:var(--ac2)}
-.help{color:var(--sub);font-size:12px;margin:0}
+.help{color:var(--sub);font-size:13px;line-height:1.7;margin:0}
 .prodwrap{display:flex;flex-direction:column;gap:4px}
 .insp:has(.capdur) .row{display:none}
 .capdur{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;color:var(--sub)}.cdg{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.capdur{column-gap:14px}#capCut{flex:1 1 100%}#capCut:empty{display:none}.capdur .mono{min-width:48px;text-align:center;color:var(--ink)}.capdur .nb{flex:none;width:44px;height:32px}
@@ -96,7 +96,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--ac);outline:none}
 textarea{resize:vertical;min-height:64px}
 .acts{display:flex;gap:6px;flex-wrap:wrap}
 .steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;counter-reset:s}
-.steps li{display:grid;grid-template-columns:26px 1fr;gap:6px;counter-increment:s;color:var(--sub)}
+.steps li{font-size:13.5px;display:grid;grid-template-columns:26px 1fr;gap:6px;counter-increment:s;color:var(--sub)}
 .steps li::before{content:counter(s,cjk-ideographic);font-family:var(--f-disp);font-size:15px;color:var(--ac);line-height:1.6}
 .steps b{color:var(--ink);font-weight:500}
 
@@ -192,10 +192,10 @@ textarea{resize:vertical;min-height:64px}
 .clip{position:absolute;top:14px;bottom:14px;margin-left:var(--tlp,10px);box-sizing:border-box;background:color-mix(in srgb,var(--c) 24%,var(--sheet));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-top:3px solid var(--c);border-radius:2px;overflow:hidden;touch-action:pan-x;cursor:pointer}
 .clip{border-radius:6px}.clip.mod{border-style:dashed;border-top-style:solid;border-color:var(--ac2);border-top-color:var(--c)}
 .clip.sel{outline:1.5px solid var(--ink);outline-offset:1px;z-index:2}
-.clip .body{position:absolute;inset:0 10px;padding-top:4px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.clip .body{position:absolute;inset:0 10px;padding-top:4px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 .clip .body b{font-variant-numeric:tabular-nums;font-weight:500;color:var(--sub);margin-right:6px;letter-spacing:0}
 .clip.tiny .body{display:none}
-.clip .body em{display:block;font-style:normal;font-variant-numeric:tabular-nums;font-size:11px;color:var(--sub);margin-top:0;letter-spacing:0}
+.clip .body em{display:block;font-style:normal;font-variant-numeric:tabular-nums;font-size:12px;color:var(--sub);margin-top:0;letter-spacing:0}
 .h{position:absolute;top:0;bottom:0;width:9px;cursor:ew-resize;z-index:3;touch-action:none}
 .h.l{left:0}.h.r{right:0}
 .h::after{content:"";position:absolute;top:28%;bottom:28%;left:3px;width:2px;background:color-mix(in srgb,var(--c) 70%,var(--ink));opacity:.45;transition:opacity .15s}
@@ -285,7 +285,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .ov #ovSrc{display:none}
   .ov span{max-width:100%;font-size:11px;border-radius:4px}
   .cutflag{left:6px;bottom:6px;font-size:11px;border-radius:4px}
-  .fxbadge{width:34%;max-width:96px;right:6px;top:6px;font-size:11px;border-radius:6px}
+  .fxbadge{width:34%;max-width:96px;right:8px;top:36px;font-size:11px;border-radius:6px}
   .transport{order:2;flex:none;flex-wrap:nowrap;gap:0;padding:2px 8px;justify-content:space-between;background:var(--sheet);box-shadow:none}
   .transport>.btn{display:none}
   .transport .tc{width:68px;flex:none;font-size:13px;line-height:1.15;letter-spacing:0}
@@ -319,7 +319,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .clip.sel .h{display:block;width:44px;top:-4px;bottom:-4px;background:none}
   .clip.sel .h.l{left:-36px}
   .clip.sel .h.r{right:-36px;left:auto}
-  .clip.sel .h::after{top:4px;bottom:4px;left:auto;right:0;width:4px;border-radius:3px 0 0 3px;background:var(--ac);opacity:1}
+  .clip.sel .h::after{top:4px;bottom:4px;left:auto;right:0;width:5px;border-radius:3px 0 0 3px;background:var(--ac);opacity:1}
   .clip.sel .h.r::after{right:auto;left:0;border-radius:0 3px 3px 0}
   .nb[data-a$=":5"],.nb[data-a$=":-5"]{background:none;box-shadow:inset 0 0 0 1px var(--line);color:var(--sub)}
   .insp .acts [data-a=close]{background:var(--ac);border-color:var(--ac);color:#fff}
@@ -988,7 +988,7 @@ document.querySelector(".transport").addEventListener("click",e=>{const b=e.targ
 const ZMIN=.25,ZMAX=48;
 const z2v=p=>Math.round(Math.log(p/ZMIN)/Math.log(ZMAX/ZMIN)*100),v2z=v=>ZMIN*Math.pow(ZMAX/ZMIN,v/100);
 const maxPpf=()=>Math.min(ZMAX,MAXPX/Math.max(1,total()));
-const overview=()=>clamp(scroll.clientWidth*.9/Math.max(1,total()),ZMIN,maxPpf()),defaultPpf=()=>clamp(90/fps,ZMIN,maxPpf());
+const overview=()=>clamp(scroll.clientWidth*.9/Math.max(1,total()),ZMIN,maxPpf()),defaultPpf=()=>clamp(scroll.clientWidth/(6*fps),ZMIN,maxPpf());
 function fit(){if(isM()){ppf=defaultPpf();$("#zoom").value=z2v(ppf);return}const T=Math.max(1,total());ppf=clamp((scroll.clientWidth-90)/T,ZMIN,maxPpf());$("#zoom").value=z2v(ppf)}
 $("#zoom").addEventListener("input",e=>{ppf=Math.min(v2z(+e.target.value),maxPpf());renderTimeline();scroll.scrollLeft=playhead*ppf-scroll.clientWidth/2});
 

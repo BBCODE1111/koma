@@ -129,6 +129,7 @@ frame.onload=async()=>{
   T("選取鏡頭的把手觸區至少 44 寬",()=>{const r=pd.querySelector(".clip.sel .h.r").getBoundingClientRect();return r.width>=44||r.width});
   T("未選取鏡頭沒有把手，滑動不會誤修剪",()=>{const h=pd.querySelector(".clip:not(.sel) .h");return pw.getComputedStyle(h).display==="none"||"shown"});
   preset();await tick();
+  p("ppf=3;renderTimeline()");await tick();
   p("scroll.scrollLeft=300");pd.getElementById("scroll").dispatchEvent(new pw.Event("scroll"));
   T("捲動 300px 對應第 100 格",()=>eq(p("playhead"),100));
   p("seek(50)");await tick();
