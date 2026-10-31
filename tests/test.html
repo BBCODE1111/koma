@@ -137,6 +137,8 @@ frame.onload=async()=>{
   clipEl("c1").click();
   T("點鏡頭選取且不動播放頭",()=>eq([p("sel&&sel.id"),p("playhead")],["c1",0]));
   await tick();
+  T("點畫面外的鏡頭，預覽跟到該鏡頭",()=>{p("nudgeEdge='in';sel=null;renderInspector();renderTimeline();seek(0)");clipEl("c3").click();const r=[p("sel.id"),p("playhead")===p("layout(doc).map.c3.start")];p("sel={kind:'clip',id:'c1'};renderTimeline();renderInspector();seek(0)");return eq(r,["c3",true])});
+  await tick();
   const fire=(el,t,x,id=1)=>el.dispatchEvent(new pw.PointerEvent(t,{bubbles:true,cancelable:true,clientX:x,clientY:300,pointerId:id,isPrimary:true}));
   const out0=p("doc.clips[0].out"),h=pd.querySelector(".clip.sel .h.r");
   fire(h,"pointerdown",200);fire(pw,"pointermove",230);
@@ -149,7 +151,7 @@ frame.onload=async()=>{
   T("放開後修剪生效且可復原",()=>{const a=p("doc.clips[0].out");p("doUndo()");return eq([a,p("doc.clips[0].out")],[out0+5,out0])});
   preset();await tick();
   T("打開抽屜不會推動畫面",()=>{p("openSheet('out')");const a=pd.querySelector(".app"),r=[a.scrollTop,pd.body.scrollTop,pd.documentElement.scrollTop];p("closeSheet()");return eq(r,[0,0,0])});
-  T("抽屜開啟時背景不可操作，快捷鍵不會改到時間軸",()=>{p("sel=null;addMarker();openSheet('out')");const n=p("doc.markers.length");pw.dispatchEvent(new pw.KeyboardEvent("keydown",{key:"Delete",bubbles:true}));const r=[p("doc.markers.length")===n,pd.querySelector(".tl").inert];p("closeSheet()");return eq([...r,pd.querySelector(".tl").inert],[true,true,false])});
+  T("抽屜開啟時背景不可操作，快捷鍵不會改到時間軸",()=>{p("sel=null;addMarker();openSheet('out')");const n=p("doc.markers.length");pd.getElementById("sheetClose").dispatchEvent(new pw.KeyboardEvent("keydown",{key:"Delete",bubbles:true}));const r=[p("doc.markers.length")===n,pd.querySelector(".tl").inert];p("closeSheet()");return eq([...r,pd.querySelector(".tl").inert],[true,true,false])});
   preset();await tick();
   T("還原上一份草稿的按鈕完整顯示",()=>{p("sel={kind:'clip',id:'c1'};nudgeClip('out',-1);loadNew({clips:[{id:'z',out:9}]})");const b=pd.getElementById("restorePrev"),r=b.getBoundingClientRect(),ok=!b.hidden&&r.left>=0&&r.right<=pw.innerWidth&&r.width>100;p("prevDrafts=[];savePrevs()");return ok||[b.hidden,r.left,r.right]});
   await size(740,360);preset();await tick();

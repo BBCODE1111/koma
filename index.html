@@ -328,7 +328,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .insp .eyebrow,.insp .chip,.insp h3,.insp .src,.insp .help,.insp .delta,.insp .row .lb,.insp .fxhero,.insp .mobhide{display:none!important}
   .segrow.only-m{display:flex!important;align-items:center;justify-content:space-between;gap:8px}
   .seg{flex:none;display:inline-flex;background:var(--well);border-radius:8px;padding:2px}
-  .seg button{background:none;border:0;border-radius:6px;min-width:60px;height:32px;color:var(--sub)}
+  .seg button{background:none;border:0;border-radius:6px;min-width:60px;height:40px;color:var(--sub)}
   .seg button[aria-pressed=true]{background:var(--ink);color:var(--paper);font-weight:500}
   .len{flex:1;min-width:0;text-align:right;font-family:var(--f-mono);font-size:11px;line-height:1.3;color:var(--sub);letter-spacing:0;white-space:nowrap}
   .len b{display:block;font-family:var(--f-ui);font-weight:500;font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
@@ -339,7 +339,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .nudge .v{flex:1.3 1 0;min-width:0;border:0;font-size:14px;color:var(--ac);padding:0}
   .insp .acts{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -10px;padding:0 10px}
   .insp .acts::-webkit-scrollbar{display:none}
-  .insp .acts .btn{flex:none;min-height:36px;border-radius:8px}
+  .insp .acts .btn{flex:none;min-height:44px;border-radius:8px}
   .fxgrid{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -10px;padding:2px 10px}
   .fxgrid::-webkit-scrollbar{display:none}
   .fxt{flex:none;width:62px;font-size:10px;white-space:nowrap}
@@ -889,7 +889,9 @@ $("#trF").addEventListener("pointerdown",e=>{
 });
 /* phone: a tap selects without moving the playhead; tapping the selected item again lets go of it */
 function tapSelect(kind,sel0){return e=>{if(!isM()||performance.now()-lastDrag<400||e.target.closest(".h"))return;
-  const it=e.target.closest(sel0),id=it&&it.dataset.id;sel=it&&!(sel?.kind===kind&&sel.id===id)?{kind,id}:null;renderTimeline();renderInspector()}}
+  const it=e.target.closest(sel0),id=it&&it.dataset.id;sel=it&&!(sel?.kind===kind&&sel.id===id)?{kind,id}:null;renderTimeline();renderInspector();
+  /* keep the preview on what is being edited */
+  if(sel?.kind==="clip"){const e2=layout(doc).map[id],n=e2.c.out-e2.c.in;if(playhead<e2.start||playhead>=e2.start+n)seek(nudgeEdge==="in"?e2.start:e2.start+n-1)}}}
 $("#trV").addEventListener("click",tapSelect("clip",".clip"));
 $("#trF").addEventListener("click",tapSelect("mk",".mk"));
 scroll.addEventListener("scroll",()=>{if(!isM()||tlFreeze||Math.abs(scroll.scrollLeft-tlExpect)<1)return;
