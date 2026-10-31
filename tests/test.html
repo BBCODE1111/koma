@@ -171,6 +171,17 @@ frame.onload=async()=>{
   p("sel=null;renderInspector();renderTimeline()");await tick();
   pd.getElementById("capOv").click();
   T("點畫面上的字幕也能編輯",()=>eq([p("sel&&sel.id"),pd.activeElement.id,p("playing")],[cid,"mkNote",false]));
+  p("seek(400);editCaption('"+cid+"')");await tick();
+  T("編輯字幕時播放頭停在字幕上，不會歸零",()=>{const f=p(`markerFrame(doc.markers.find(m=>m.id==="${cid}"),layout(doc))`);return eq(p("playhead"),f)});
+  p(`doc.markers.find(m=>m.id==="${cid}").at=${0};renderTimeline();seek(120);editCaption("${cid}");seek(120)`);await tick();
+  pd.querySelector('#insp [data-a="close"]').click();await tick();
+  T("完成後時間軸對齊原位",()=>eq([p("playhead"),p("scroll.scrollLeft")],[120,p("120*ppf")]));
+  await new Promise(r=>setTimeout(r,450));
+  p(`editCaption("${cid}")`);await tick();
+  const atBefore=p(`doc.markers.find(m=>m.id==="${cid}").at`);
+  pd.querySelector('#insp [data-a="mk:1"]').click();await tick();
+  T("編輯字幕時可微調起點且鍵盤不收",()=>eq([p(`doc.markers.find(m=>m.id==="${cid}").at`),pd.activeElement.id,pd.getElementById("insp").classList.contains("noting")],[atBefore+1,"mkNote",true]));
+  T("編輯字幕時可直接刪除",()=>{const b=pd.querySelector('#insp [data-a="delmk"]');return (pw.getComputedStyle(b).display!=="none"&&b.textContent==="刪除字幕")||b.textContent});
   T("字幕編輯時面板在畫面內",()=>onScreen(["#mkNote",".insp .acts"]));
   pd.querySelector('#insp [data-a="dur:1"]').click();
   T("調整字幕時間不關閉鍵盤",()=>eq([pd.activeElement.id,p(`doc.markers.find(m=>m.id==="${cid}").dur`)],["mkNote",75]));
@@ -182,7 +193,7 @@ frame.onload=async()=>{
   T("字幕文字重開後保留",()=>eq(p("normalize({clips:[{id:'a',out:9}],markers:[{clip:'a',at:0,type:'text',text:'字'}]}).markers[0].text"),"字"));
   T("字幕文字帶進三種匯出",()=>{p("doc.markers=[{id:'a',clip:'c1',at:0,type:'text',note:'',text:'甲句'}]");return (p("buildFCPXML()").includes("字幕：甲句")&&p("buildEDL()").includes("字幕：甲句")&&p("buildManual()").includes("字幕：甲句"))||"missing"});
   T("舊版字幕會提醒，且可一鍵轉成字幕文字",()=>{p("normWarn=[];load({clips:[{id:'a',out:90}],markers:[{id:'x',clip:'a',at:0,type:'text',note:'舊字幕'}]})");const w=p("normWarn.join()");const before=p("buildSRT()");p("editCaption('x')");pd.querySelector('#insp [data-a="usenote"]').click();return (w.includes("用說明當字幕")&&before===""&&p("buildSRT()").includes("舊字幕")&&p("doc.markers[0].note")==="舊字幕")||[w,before,p("buildSRT()")]});
-  T("被截斷的字幕會說實際秒數",()=>{p("load({clips:[{id:'a',out:300}],markers:[{id:'x',clip:'a',at:0,type:'text',note:'',text:'甲',dur:150},{id:'y',clip:'a',at:30,type:'text',note:'',text:'乙'}]});editCaption('x')");return pd.getElementById("capCut").textContent.includes("實際 1.0 秒")||pd.getElementById("capCut").textContent});
+  T("被截斷的字幕會說實際秒數",()=>{p("load({clips:[{id:'a',out:300}],markers:[{id:'x',clip:'a',at:0,type:'text',note:'',text:'甲',dur:150},{id:'y',clip:'a',at:30,type:'text',note:'',text:'乙'}]});editCaption('x')");return pd.getElementById("capCut").textContent.includes("實際 30 格（1.00 秒）")||pd.getElementById("capCut").textContent});
   p("document.activeElement.blur();load(SAMPLE)");
   T("不合理的字幕時間會被略過",()=>eq(p("normalize({clips:[{id:'a',out:9}],markers:[{clip:'a',at:0,type:'text',dur:-5}]}).markers[0].dur===undefined"),true));
   p("document.activeElement.blur()");
