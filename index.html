@@ -353,7 +353,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .insp.noting>:not(textarea):not(.acts):not(.notehead):not(.capdur){display:none!important}
   .notehead{display:none!important;font-size:12px;color:var(--sub)}
   .insp.noting .notehead{display:block!important}
-  .insp.noting .acts button:not([data-a=close]):not([data-a=cancelnote]){display:none!important}
+  .insp.noting .acts button:not([data-a=close]):not([data-a=cancelnote]):not([data-a=usenote]){display:none!important}
   .insp:not(.noting) [data-a=cancelnote]{display:none!important}
   @media (max-height:620px){.fxt{width:52px}.fxt span{display:none}.fxt[aria-pressed=true] span{display:none}.proj b,.proj .pill:not(.warn){display:none}}
   /* tool bar */
@@ -621,6 +621,8 @@ function normalize(d){
   o.markers=ms.map((m,i)=>{let id=String(m.id??("m"+(i+1)));while(mids.has(id))id+="_"+i;mids.add(id);
     return {id,clip:String(m.clip),at:Math.max(0,int(m.at)),type:FX.some(f=>f.k===m.type)?m.type:"other",note:String(m.note||""),...(m.dur>0&&m.dur<=MAXF?{dur:Math.round(m.dur)}:{}),...(typeof m.text==="string"&&m.text?{text:m.text}:{})}}).filter(m=>o.clips.some(c=>c.id===m.clip));
   o.markers.forEach(m=>{const c=o.clips.find(x=>x.id===m.clip);m.at=Math.min(m.at,c.out-c.in-1)});
+  const legacy=o.markers.filter(m=>m.type==="text"&&!m.text&&m.note.trim()).length;
+  if(legacy&&!d.sample)normWarn.push(`${legacy} 個字幕標記只有說明、沒有字幕文字，SRT 不會輸出。點該標記後可按「用說明當字幕」`);
   if(o.markers.length<ms.length)normWarn.push(`略過 ${ms.length-o.markers.length} 個對不到鏡頭的特效`);
   return o;
 }
@@ -742,6 +744,7 @@ const capDur=m=>m.dur||Math.round(2*fps),capText=m=>(m.text||"").trim();
 /* one rule for preview and SRT: a caption ends at its duration or the next caption, and of two at the same frame the later one wins */
 function captionSpans(L){const c=doc.markers.filter(m=>m.type==="text"&&capText(m)&&L.map[m.clip]).map(m=>({m,f:markerFrame(m,L)})).sort((a,b)=>a.f-b.f).filter((x,i,a)=>!a[i+1]||a[i+1].f!==x.f);
   return c.map((x,i)=>({m:x.m,f:x.f,end:Math.min(x.f+capDur(x.m),i+1<c.length?c[i+1].f:Infinity,L.total)}))}
+function capCutText(m){const x=captionSpans(layout(doc)).find(y=>y.m===m);if(!capText(m))return "";if(!x)return "被同一格的字幕蓋過";return x.end-x.f<capDur(m)?`實際 ${((x.end-x.f)/fps).toFixed(1)} 秒，被下一句或片尾截斷`:""}
 function captionAt(L){return captionSpans(L).find(x=>x.f<=playhead&&playhead<x.end)?.m||null}
 function updateCaption(L){const m=captionAt(L),el=$("#capOv");el.hidden=!m;el.dataset.id=m?m.id:"";if(m&&el.textContent!==capText(m))el.textContent=capText(m)}
 function editCaption(id){stopPlay();sel={kind:"mk",id};const m=doc.markers.find(x=>x.id===id),L=layout(doc);renderTimeline();renderInspector();seek(markerFrame(m,L));openNote()}
@@ -794,11 +797,11 @@ function renderInspector(){
       <div class="delta${om?"":" on"}">${om?"Claude 原本放的特效":"你新增的特效"}</div></div>
       <div class="eyebrow">換一種特效</div>
       <div class="fxgrid" role="group" aria-label="特效種類">${FX.map(x=>`<button class="fxt" data-fx="${x.k}" aria-pressed="${x.k===m.type}" style="--fxc:${x.c}">${thumb(x.k)}<span>${x.l}</span></button>`).join("")}</div>
-      ${m.type==="text"?`<div class="capdur"><span>顯示</span><button class="nb" data-a="dur:-1" aria-label="顯示短半秒">−</button><span class="mono" id="capDurV">${(capDur(m)/fps).toFixed(1)} 秒</span><button class="nb" data-a="dur:1" aria-label="顯示長半秒">＋</button></div>`:""}
+      ${m.type==="text"?`<div class="capdur"><span>顯示</span><button class="nb" data-a="dur:-1" aria-label="顯示短半秒">−</button><span class="mono" id="capDurV">${(capDur(m)/fps).toFixed(1)} 秒</span><button class="nb" data-a="dur:1" aria-label="顯示長半秒">＋</button><span id="capCut" class="msg">${capCutText(m)}</span></div>`:""}
       <label class="help" for="mkNote">${m.type==="text"?"字幕內容":"想要的效果（越具體越好）"}</label>
       <textarea id="mkNote" placeholder="${m.type==="text"?esc(m.note.trim()?`Claude 的說明：${m.note.trim()}。在這裡輸入要出現的文字`:"輸入要出現的文字"):"例：抖 6 格、強度中等，配合鼓點"}">${esc(m.type==="text"?m.text||"":m.note)}</textarea>
-      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button><button class="btn sm only-m" data-a="cancelnote">取消</button><button class="btn sm only-m" data-a="note">${m.type==="text"?"編輯字幕":"備註"}${(m.type==="text"?capText(m):m.note)?" ●":""}</button><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">刪除特效</button></div>`;
-    noteEditor($("#mkNote"),v=>{if(m.type==="text"){m.text=v;badgeKey="";renderTimeline()}else m.note=v});
+      <div class="acts"><button class="btn sm only-m" data-a="close">完成</button><button class="btn sm only-land" data-a="undo">復原</button>${m.type==="text"&&m.note.trim()&&!capText(m)?'<button class="btn sm" data-a="usenote">用說明當字幕</button>':""}<button class="btn sm only-m" data-a="cancelnote">取消</button><button class="btn sm only-m" data-a="note">${m.type==="text"?"編輯字幕":"備註"}${(m.type==="text"?capText(m):m.note)?" ●":""}</button><button class="btn sm" data-a="go:mk">跳到這裡</button><button class="btn sm ghost" data-a="delmk">刪除特效</button></div>`;
+    noteEditor($("#mkNote"),v=>{if(m.type==="text"){m.text=v;badgeKey="";renderTimeline();$("#capCut").textContent=capCutText(m)}else m.note=v});
   }else{
     el.innerHTML=`<div class="eyebrow">使用方式</div><ol class="steps">
       <li><span><b>點時間軸上的鏡頭</b>，在這裡用 ±1 / ±5 逐格調入點、出點，也可以直接拖鏡頭兩側的邊。</span></li>
@@ -869,8 +872,9 @@ $("#insp").addEventListener("click",e=>{
   if(a==="undo")return doUndo();
   if(a==="close"){const n=$("#insp textarea");n&&n.blur();sel=null;renderTimeline();renderInspector();return}
   if(a==="note")return openNote();
+  if(a==="usenote"){const m=doc.markers.find(x=>x.id===sel.id),n=$("#insp textarea");n.value=m.note.trim();n.dispatchEvent(new Event("input",{bubbles:true}));b.hidden=true;return}
   if(a==="cancelnote"){$("#insp textarea").blur();if(noteStart){doc=noteStart;undo.length=noteUndo;noteStart=null;renderAll()}else renderInspector();return}
-  if(a==="dur"){const m=doc.markers.find(x=>x.id===sel.id),d=clamp(capDur(m)+ +v*Math.round(fps/2),Math.round(fps/2),Math.round(fps*60));if(d===capDur(m))return;pushUndo();m.dur=d;$("#capDurV").textContent=`${(d/fps).toFixed(1)} 秒`;badgeKey="";updatePlayhead();renderLog();save();return}
+  if(a==="dur"){const m=doc.markers.find(x=>x.id===sel.id),d=clamp(capDur(m)+ +v*Math.round(fps/2),Math.round(fps/2),Math.round(fps*60));if(d===capDur(m))return;pushUndo();m.dur=d;$("#capDurV").textContent=`${(d/fps).toFixed(1)} 秒`;$("#capCut").textContent=capCutText(m);badgeKey="";updatePlayhead();renderLog();save();return}
   if(a==="edge"){nudgeEdge=v;renderInspector();const e2=layout(doc).map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1);return}
   if(a==="in"||a==="out")nudgeClip(a,+v);
   else if(a==="mk"){const m=doc.markers.find(x=>x.id===sel.id),f0=markerFrame(m,layout(doc));if(clamp(f0+ +v,0,total()-1)===f0)return;mutate(()=>placeMarker(m,f0+ +v));seek(markerFrame(m,layout(doc)))}
