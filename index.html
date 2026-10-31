@@ -52,7 +52,7 @@ button{cursor:pointer;transition:background .2s,border-color .2s,color .2s}
 .card{background:var(--sheet);border:1px solid var(--hair);border-radius:var(--r);box-shadow:0 1px 2px rgba(41,60,53,.04)}
 
 /* stage */
-.stage{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px}
 @media (max-width:880px){.stage{grid-template-columns:minmax(0,1fr)}.insp{max-height:none}}
 .preview{display:flex;align-items:center;justify-content:center;padding:8px;min-height:240px;background:var(--stage);border-color:var(--hair)}
 .frame{position:relative;height:min(54vh,600px);max-width:100%;aspect-ratio:9/16;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 8px 28px rgba(47,74,64,.1)}
@@ -312,6 +312,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .clip{top:2px;bottom:2px;border:0;border-radius:6px;background:color-mix(in srgb,var(--c) 38%,#fff);overflow:visible;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,#6f8478)}
   .clip.mod{border:0;box-shadow:inset 0 -3px 0 var(--ac2),inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,#6f8478)}
   .clip.sel{outline:1px solid var(--ac);outline-offset:0;z-index:4}
+  .clip.sel .body{left:12px;right:12px}
   .clip .body{inset:0 6px;padding-top:6px;overflow:hidden;color:var(--ink);font-size:13px}
   .clip .body b,.clip .body em{color:var(--sub)}
   .d{display:none}
@@ -340,6 +341,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   body.hassel .insp{display:flex}
   .insp .eyebrow,.insp .chip,.insp h3,.insp .src,.insp .help,.insp .delta,.insp .row .lb,.insp .fxhero,.insp .mobhide{display:none!important}
   .segrow.only-m{display:flex!important;align-items:center;justify-content:space-between;gap:8px}
+  .dirhint{white-space:nowrap}
   .seg{flex:none;display:inline-flex;background:var(--well);border-radius:8px;padding:2px}
   .seg button{background:none;border:0;border-radius:6px;min-width:60px;height:40px;color:var(--sub)}
   .seg button[aria-pressed=true]{background:var(--ac);color:#fff;font-weight:500}
@@ -791,7 +793,7 @@ function renderInspector(){
     el.innerHTML=`<div class="eyebrow">鏡頭</div>
       <div><span class="chip" style="--c:${clipColor(c,i)}">鏡頭 ${pad(i+1)}</span></div>
       <h3>${esc(c.name)}</h3><div class="src">${esc(c.src||"（未標示素材）")}</div>
-      <div class="segrow only-m"><div class="seg" role="group" aria-label="要調整的剪接點"><button data-a="edge:in" aria-pressed="${nudgeEdge==="in"}">入點</button><button data-a="edge:out" aria-pressed="${nudgeEdge==="out"}">出點</button></div><div class="len"><b>${pad(i+1)} ${esc(c.name)}</b>${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒${dd?` (${sgn(dd)})`:""}</div></div>
+      <div class="segrow only-m"><div class="seg" role="group" aria-label="要調整的剪接點"><button data-a="edge:in" aria-pressed="${nudgeEdge==="in"}">入點</button><button data-a="edge:out" aria-pressed="${nudgeEdge==="out"}">出點</button></div><div class="len"><b>${pad(i+1)} ${esc(c.name)}</b><span class="dirhint">＋往後 −往前 · </span>${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒${dd?` (${sgn(dd)})`:""}</div></div>
       <div class="row">${nudgeRow("入點","in",c.in,o?.in)}${nudgeRow("出點","out",c.out,o?.out)}
         <div class="lb mobhide">長度</div><div class="mono mobhide">${c.out-c.in} 格 · ${((c.out-c.in)/fps).toFixed(2)} 秒${dd?` <span style="color:var(--ac2)">(${sgn(dd)})</span>`:""}</div></div>
       ${overMedia(c)}<p class="help">數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。</p>
