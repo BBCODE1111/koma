@@ -189,8 +189,9 @@ textarea{resize:vertical;min-height:64px}
 .tl{display:grid;grid-template-columns:40px minmax(0,1fr);overflow:hidden}
 .labs{border-right:1px solid var(--line);font-family:var(--f-disp);font-size:12px;color:var(--sub);letter-spacing:.3em}
 .labs div{display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--hair)}
-.labs .l1,.labs .l2{writing-mode:vertical-rl}
-.labs .l0{height:28px;font-size:0}.labs .l1{height:82px}.labs .l2{height:56px;border-bottom:0;letter-spacing:.05em}
+.labs .l1{writing-mode:vertical-rl}
+.labs .l0{height:28px;font-size:0}.labs .l1{height:82px}.labs .l2{height:116px;border-bottom:0;letter-spacing:.05em;writing-mode:horizontal-tb;flex-direction:column;justify-content:flex-start;padding-top:2px}
+.labs .l2 span{display:flex;align-items:center;font-size:11px;letter-spacing:.05em}
 .scroll{overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scrollbar-color:var(--line) transparent}
 .inner{position:relative;min-width:100%;padding-left:var(--tlp,10px);box-sizing:border-box}
 .ruler,.track{margin-left:calc(var(--tlp,10px)*-1);padding-left:var(--tlp,10px)}
@@ -202,7 +203,7 @@ textarea{resize:vertical;min-height:64px}
 .track.v{height:82px;background:
   linear-gradient(var(--hair),var(--hair)) 0 9px/100% 1px no-repeat,
   linear-gradient(var(--hair),var(--hair)) 0 calc(100% - 9px)/100% 1px no-repeat}
-.track.f{height:56px;border-bottom:0}
+.track.f{height:116px;border-bottom:0;background:repeating-linear-gradient(to bottom,transparent 0 calc(var(--lh,28px) + 2px),var(--hair) calc(var(--lh,28px) + 2px) calc(var(--lh,28px) + 3px),transparent calc(var(--lh,28px) + 3px) calc(var(--lh,28px) + 3px))}
 .clip{position:absolute;top:14px;bottom:14px;margin-left:var(--tlp,10px);box-sizing:border-box;background:color-mix(in srgb,var(--c) 24%,var(--sheet));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-top:3px solid var(--c);border-radius:2px;overflow:hidden;touch-action:pan-x;cursor:pointer}
 .clip{border-radius:6px}.clip.mod{border-style:dashed;border-top-style:solid;border-color:var(--ac2);border-top-color:var(--c)}
 .clip.sel{outline:1.5px solid var(--ink);outline-offset:1px;z-index:2}
@@ -219,7 +220,7 @@ textarea{resize:vertical;min-height:64px}
 .d{position:absolute;top:3px;background:color-mix(in srgb,var(--c) 24%,var(--sheet));padding:0 3px;border-radius:3px;font-style:normal;font-family:var(--f-mono);font-size:12px;color:var(--ac2);pointer-events:none;letter-spacing:0}
 .d.dl{left:12px}.d.dr{right:12px}
 .mk{position:absolute;top:10px;margin-left:var(--tlp,10px);display:flex;align-items:flex-start;gap:5px;cursor:grab;touch-action:none;z-index:2}
-.mk i{width:2px;height:30px;background:var(--c);flex:none}
+.mk i{width:2px;height:22px;background:var(--c);flex:none}
 .mk span{font-size:12px;line-height:1.5;color:var(--ink);background:var(--sheet);border:1px solid var(--line);border-radius:999px;padding:0 9px;white-space:nowrap}
 .mk.sel span{border-color:var(--ink);font-weight:500}
 .mk.sel i{width:3px;background:var(--ink)}
@@ -322,7 +323,7 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .tick span{top:-12px;left:3px;font-size:12px}
   .track{border:0}
   .track.v{height:clamp(62px,10dvh,92px);background:none}
-  .track.f{height:44px}
+  .track.f{height:48px}
   .clip{top:2px;bottom:2px;border:0;border-radius:6px;background:color-mix(in srgb,var(--c) 38%,var(--sheet));overflow:visible;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,#6f8478)}
   .clip.mod{border:0;box-shadow:inset 0 -3px 0 var(--ac2),inset 0 0 0 1px color-mix(in srgb,var(--c) 55%,#6f8478)}
   .clip.sel{outline:1px solid var(--ac);outline-offset:0;z-index:4}
@@ -339,10 +340,10 @@ kbd{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--line);bord
   .clip.sel .h.r::after{right:auto;left:20px;border-radius:0 3px 3px 0}
   .nb[data-a$=":5"],.nb[data-a$=":-5"]{background:none;box-shadow:inset 0 0 0 1px var(--line);color:var(--sub)}
   .insp .acts [data-a=close]{background:var(--ac);border-color:var(--ac);color:var(--onac)}
-  .mk{top:7px;touch-action:pan-x;cursor:pointer;min-width:44px}
+  .mk{touch-action:pan-x;cursor:pointer;min-width:44px}
   .mk::before{content:"";position:absolute;inset:-7px 0}
   .mk.sel{touch-action:none;z-index:3}
-  .mk i{height:28px}
+  .mk i{height:calc(var(--lh,22px) - 5px)}
   .mk span{box-shadow:inset 0 0 0 1px #c5d3c8;background:var(--well);color:var(--ink);max-width:150px;overflow:hidden;text-overflow:ellipsis;border:0;border-radius:999px;padding:3px 7px;line-height:1.3;font-size:11.5px}
   .mk.sel span{background:var(--ac);color:var(--onac)}
   .mk.sel i{background:var(--ac)}
@@ -450,6 +451,8 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
 .insp.more .moreacts{display:flex!important}
 .morebtn[aria-expanded=true]{background:var(--well);color:var(--ac);border-color:var(--ac)}
 .morebtn .ico{stroke-width:3}
+.clearrow{align-items:center;margin-bottom:10px}.clearrow .help{flex:1 1 200px;margin:0}
+#clearBtn[data-armed]{border-color:var(--ac2);color:var(--ac2)}
 .ins-j::before{content:"";position:absolute;inset:-9px -5px}
 @media (min-width:761px) and (hover:hover){.ins-j{width:20px;height:20px;margin-left:calc(var(--tlp,10px) - 10px);font-size:13px}}
 .prodwrap:not(.empty) .prodadd{display:none!important}
@@ -565,6 +568,7 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
       <div class="grid2">
         <div class="blk">
           <h4><span class="only-d" data-en="Just drop it in">拖進來就好</span><span class="only-m" data-en="Choose files">選擇檔案</span></h4>
+          <div class="acts clearrow"><button class="btn sm ghost" id="clearBtn" type="button" data-en="Clear this project">清除目前專案</button><span class="help" data-en="Removes the loaded video and timeline. Edits are kept as a previous draft you can restore.">移除已匯入的影片和時間軸；修改會留成「上一份草稿」，可以還原。</span></div>
           <div class="drop">
             <b class="only-d" data-en="Drop the video and timeline file anywhere on the page">把影片和時間軸檔一起拖進頁面任何地方</b><b class="only-m" data-en="Choose the final video and timeline file; you can pick several at once">選成片影片和時間軸檔，可以一次選多個</b>
             <span class="types"><span class="pill" data-en=".mp4 .mov final cut">.mp4 .mov 成片</span><span class="pill">.json Claude</span><span class="pill">.fcpxml</span><span class="pill">.edl</span></span>
@@ -618,10 +622,12 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
       <p class="mnote only-m" data-en="Public beta. FCPXML and EDL have not been verified in real editors, and phone gestures are still being tested on devices. Koma is an independent open tool, not an official Anthropic product.">公開測試版。FCPXML 與 EDL 尚未經真實剪輯軟體驗證，手機觸控手勢尚在實機驗證中。Koma 是獨立的開放工具，非 Anthropic 官方產品。</p>
       <dl class="keys only-d">
         <dt><kbd data-en="Space">空白鍵</kbd></dt><dd data-en="Play / pause">播放 / 暫停</dd>
-        <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd data-en="Step one frame (<kbd>Shift</kbd> for 5)">前後一格（加 <kbd>Shift</kbd> 一次 5 格）</dd>
+        <dt><kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd></dt><dd data-en="Back one second / stop / play">倒退一秒 / 停止 / 播放</dd>
+        <dt><kbd>←</kbd> <kbd>→</kbd> <kbd>,</kbd> <kbd>.</kbd></dt><dd data-en="Step one frame (<kbd>Shift</kbd>+arrow for 5)">前後一格（方向鍵加 <kbd>Shift</kbd> 一次 5 格）</dd>
+        <dt><kbd>Home</kbd> <kbd>End</kbd></dt><dd data-en="Go to the start / end">跳到開頭 / 結尾</dd>
         <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd data-en="Jump to previous / next cut">跳到上一個 / 下一個剪接點</dd>
         <dt><kbd>M</kbd></dt><dd data-en="Add an effect at the playhead">在播放頭加特效</dd>
-        <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd data-en="Set the selected clip's in / out point at the playhead">把選取鏡頭的入點 / 出點設在播放頭</dd>
+        <dt><kbd>I</kbd> <kbd>O</kbd> <span data-en="or">或</span> <kbd>[</kbd> <kbd>]</kbd></dt><dd data-en="Set the selected clip's in / out point at the playhead">把選取鏡頭的入點 / 出點設在播放頭</dd>
         <dt><kbd>Delete</kbd></dt><dd data-en="Delete the selected effect">刪除選取的特效</dd>
         <dt><kbd>X</kbd></dt><dd data-en="Delete the frame at the playhead">刪除播放頭這一格</dd>
         <dt><kbd>S</kbd></dt><dd data-en="Split the clip at the playhead">在播放頭分割鏡頭</dd>
@@ -678,6 +684,13 @@ const FX=[
  {k:"sfx",lz:"音效點",le:"Sound effect",c:"#9a8768",dz:"這裡要放音效，或讓畫面對準某個聲音。",de:"Place a sound here, or line the picture up with a sound."},
  {k:"swap",lz:"換畫面",le:"Replace shot",c:"#c0705f",dz:"從這一格起換成別的畫面，其他地方不動。",de:"Replace the picture from this frame on and leave everything else alone."},
  {k:"other",lz:"其他",le:"Other",c:"#8e9096",dz:"其他想法，請在下面寫清楚。",de:"Anything else; describe it clearly below."}].map(f=>({...f,get l(){return tr(f.lz,f.le)},get d(){return tr(f.dz,f.de)}}));
+/* effects sit on their own lanes by kind, like editor tracks; phones get two or three lanes so the editor still fits one screen */
+const LANES=[{k:"text",z:"字幕",e:"Text",t:["text"]},{k:"move",z:"節奏",e:"Motion",t:["flash","zoom","slow","ramp","shake","trans"]},{k:"look",z:"畫面",e:"Look",t:["glitch","rgb","scan","grade"]},{k:"misc",z:"其他",e:"Other",t:["sfx","swap","other"]}];
+const PHONE_LANES=[LANES[0],{k:"fx",z:"特效",e:"FX",t:LANES.slice(1).flatMap(l=>l.t)}];
+const PHONE3_LANES=[LANES[0],LANES[1],{k:"lookmisc",z:"畫面",e:"Look",t:[...LANES[2].t,...LANES[3].t]}];
+const lanes=()=>isM()?(innerHeight>=740?PHONE3_LANES:PHONE_LANES):LANES;
+const laneOf=type=>{const i=lanes().findIndex(l=>l.t.includes(type));return i<0?lanes().length-1:i};
+const laneH=()=>isM()?(innerHeight<620?20:22):28;
 const PAL=["#93a79e","#a9c6d6","#a7a0b6","#b7ab8c","#b69d9d","#8ea6a6","#a3ac93","#b49f91"];
 const KEY="koma:v1";
 const $=s=>document.querySelector(s);
@@ -833,12 +846,14 @@ function renderTimeline(){
     if((c&&(c.out-c.in)*ppf<40)||(prev&&(prev.out-prev.in)*ppf<40)||(sel?.kind==="clip"&&(sel.id===c?.id||sel.id===prev?.id)))return"";
     return `<button class="ins-j" data-at="${i}" style="left:${x}px" aria-label="${tr("在這裡插入新片段","Insert a new segment here")}" title="${tr("在這裡插入新片段","Insert a new segment here")}">＋</button>`}).join(""));
   $("#trF").innerHTML=doc.markers.map(m=>{const f=markerFrame(m,L);if(f==null)return"";const fx=fxOf(m.type),isSel=sel?.kind==="mk"&&sel.id===m.id;
-    return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(m.type==="text"?tr(`字幕 ${capText(m)||"未輸入"}，${tc(f)}，點一下編輯`,`Caption ${capText(m)||"empty"}, ${tc(f)}, tap to edit`):tr(`特效 ${fx.l}，${tc(f)}`,`Effect ${fx.l}, ${tc(f)}`))}" style="left:${f*ppf}px;--c:${fx.c}" title="${esc(fx.l+(m.note?tr("：",": ")+m.note:""))}"><i></i><span>${esc(m.type==="text"&&capText(m)?capText(m).slice(0,14):fx.l)}</span></div>`}).join("");
+    return `<div class="mk${isSel?" sel":""}" data-id="${esc(m.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(m.type==="text"?tr(`字幕 ${capText(m)||"未輸入"}，${tc(f)}，點一下編輯`,`Caption ${capText(m)||"empty"}, ${tc(f)}, tap to edit`):tr(`特效 ${fx.l}，${tc(f)}`,`Effect ${fx.l}, ${tc(f)}`))}" style="left:${f*ppf}px;top:${laneOf(m.type)*laneH()+3}px;--c:${fx.c}" title="${esc(fx.l+(m.note?tr("：",": ")+m.note:""))}"><i></i><span>${esc(m.type==="text"&&capText(m)?capText(m).slice(0,14):fx.l)}</span></div>`}).join("");
+  const lh=laneH(),ls=lanes();$("#trF").style.height=ls.length*lh+4+"px";$("#trF").style.setProperty("--lh",lh+"px");
+  $(".labs .l2").style.height=ls.length*lh+4+"px";$(".labs .l2").innerHTML=ls.map(l=>`<span style="height:${lh}px">${tr(l.z,l.e)}</span>`).join("");
   fitMarkLabels(L);updatePlayhead();
 }
 /* each label stops before the next marker; without room only its tick shows, and captions keep their words over effects on the same frame */
 function fitMarkLabels(L){const a=[...$("#trF").querySelectorAll(".mk")].map(el=>{const m=doc.markers.find(x=>x.id===el.dataset.id);return{el,m,f:markerFrame(m,L)}}).sort((x,y)=>x.f-y.f||(x.m.type==="text")-(y.m.type==="text"));
-  a.forEach((x,i)=>{const sp=x.el.querySelector("span"),isSel=sel?.kind==="mk"&&sel.id===x.m.id,g=a[i+1]?(a[i+1].f-x.f)*ppf-12:Infinity;
+  a.forEach((x,i)=>{const sp=x.el.querySelector("span"),isSel=sel?.kind==="mk"&&sel.id===x.m.id,lane=laneOf(x.m.type),nx=a.slice(i+1).find(y=>laneOf(y.m.type)===lane),g=nx?(nx.f-x.f)*ppf-12:Infinity;
     if(isSel||g===Infinity){sp.style.maxWidth="";sp.hidden=false;return}sp.hidden=g<34;sp.style.maxWidth=g+"px";sp.style.overflow="hidden";sp.style.textOverflow="ellipsis"})}
 let badgeKey="";
 function updatePlayhead(){
@@ -1200,7 +1215,8 @@ $("#capOv").addEventListener("click",e=>{e.stopPropagation();editCaption(e.curre
 $("#fxBadge").addEventListener("click",e=>{e.stopPropagation();if(!badgeId)return;const m=doc.markers.find(x=>x.id===badgeId);if(m.type==="text")return editCaption(m.id);stopPlay();sel={kind:"mk",id:m.id};renderTimeline();renderInspector()});
 /* buttons stay where they are while the keyboard is up, so the tap lands */
 $("#insp").addEventListener("pointerdown",e=>{if($("#insp").classList.contains("noting")&&e.target.closest(".acts,.capdur"))e.preventDefault()});
-$("#trF").addEventListener("dblclick",e=>{if(isM())return;if(!e.target.closest(".mk")){seek(frameAt(e.clientX));addMarker()}});
+$("#trF").addEventListener("dblclick",e=>{if(isM()||e.target.closest(".mk"))return;seek(frameAt(e.clientX));
+  const lane=lanes()[clamp(Math.floor((e.clientY-$("#trF").getBoundingClientRect().top)/laneH()),0,lanes().length-1)];if(lane.k==="text")return transport("caption");addMarker(lane.t[0])});
 
 function togglePlay(){
   playing=!playing;
@@ -1238,12 +1254,18 @@ addEventListener("keydown",e=>{
   if(document.body.classList.contains("sheet")||e.target.closest("input,textarea,select"))return;
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="z"){e.preventDefault();return e.shiftKey?doRedo():doUndo()}
   if(e.metaKey||e.ctrlKey||e.altKey)return;
-  const k=e.key,item=e.target.closest(".clip,.mk");
-  if(item&&(k==="Enter"||k===" ")){e.preventDefault();
+  let k=e.key;const item=e.target.closest(".clip,.mk");
+  if(item&&k==="Enter"){e.preventDefault();
     const kind=item.classList.contains("clip")?"clip":"mk",id=item.dataset.id;sel={kind,id};renderTimeline();renderInspector();
     document.querySelector(`.${kind}[data-id="${CSS.escape(id)}"]`)?.focus();return}
-  if((k===" "||k==="Enter")&&e.target.closest("button,a"))return;
-  if(k===" "){e.preventDefault();transport("play")}
+  if(k===" "){e.preventDefault();if(e.target.closest("button,a"))e.target.blur();transport("play");return}
+  if(k==="Enter"&&e.target.closest("button,a"))return;
+  if(k==="k"||k==="K"){if(playing)togglePlay()}
+  else if(k==="l"||k==="L"){if(!playing)togglePlay()}
+  else if(k==="j"||k==="J"){stopPlay();seek(playhead-Math.round(fps))}
+  else if(k==="Home"){e.preventDefault();stopPlay();seek(0)}
+  else if(k==="End"){e.preventDefault();stopPlay();seek(total()-1)}
+  else if(k===","||k==="."){stopPlay();seek(playhead+(k===","?-1:1))}
   else if(k==="ArrowLeft"){e.preventDefault();transport(e.shiftKey?"-5":"-1")}
   else if(k==="ArrowRight"){e.preventDefault();transport(e.shiftKey?"+5":"+1")}
   else if(k==="ArrowUp"){e.preventDefault();transport("prevcut")}
@@ -1252,7 +1274,7 @@ addEventListener("keydown",e=>{
   else if(k==="x"||k==="X")deleteFrame();
   else if(k==="s"||k==="S")splitClip();
   else if((k==="Delete"||k==="Backspace")&&sel?.kind==="mk"){e.preventDefault();mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null})}
-  else if((k==="["||k==="]")&&sel?.kind==="clip"){
+  else if((k==="["||k==="]"||k==="i"||k==="I"||k==="o"||k==="O")&&sel?.kind==="clip"){const k0=k;k=(k0==="i"||k0==="I")?"[":(k0==="o"||k0==="O")?"]":k0;
     const e2=layout(doc).map[sel.id],c=e2.c,k2=playhead-e2.start;
     if(k2<0||k2>=c.out-c.in)return toast(tr("播放頭要在選取的鏡頭範圍內","The playhead must be inside the selected clip"));
     if(k==="["?k2===0:k2===c.out-c.in-1)return;
@@ -1556,6 +1578,15 @@ $("#copySnip").addEventListener("click",()=>copy($("#askSnip").textContent,null)
 $("#resetBtn").addEventListener("click",e=>{const b=e.currentTarget;
   if(b.dataset.armed){delete b.dataset.armed;b.textContent=tr("全部還原","Reset all");mutate(()=>{doc=clone(orig);sel=null});toast(tr("已還原成 Claude 原版，可按「復原」找回","Reset to Claude's version; use Undo to get your edits back"));return}
   b.dataset.armed=1;b.textContent=tr("確定還原？再按一次","Reset? Press again");setTimeout(()=>{if(b.dataset.armed){delete b.dataset.armed;b.textContent=tr("全部還原","Reset all")}},3000)});
+/* a fresh start for the next project: the loaded video and timeline go, and edits stay one tap away as a previous draft */
+function clearProject(){
+  try{if(orig&&!orig.sample)keepPrev({orig,doc})}catch(e){return toast(e.message)}
+  stopPlay();if(videoURL)URL.revokeObjectURL(videoURL);videoURL=null;video.pause();video.removeAttribute("src");video.load();video.hidden=true;$("#ph").hidden=false;
+  load(sampleData());matchSample();closeSheet();setHint(tr("已清除。點「匯入」選新的成片和時間軸","Cleared. Use Import to choose the next video and timeline"));
+  toast(tr("已清除，要找回可以按「還原上一份草稿」","Cleared. Use Restore previous draft to get it back"))}
+$("#clearBtn").addEventListener("click",e=>{const b=e.currentTarget;
+  if(b.dataset.armed){delete b.dataset.armed;b.innerHTML=ic("trash")+tr("清除目前專案","Clear this project");clearProject();return}
+  b.dataset.armed=1;b.innerHTML=ic("trash")+tr("確定清除？再按一次","Clear? Press again");setTimeout(()=>{if(b.dataset.armed){delete b.dataset.armed;b.innerHTML=ic("trash")+tr("清除目前專案","Clear this project")}},3000)});
 $("#undoBtn").addEventListener("click",doUndo);
 $("#redoBtn").addEventListener("click",doRedo);
 $("#restorePrev").addEventListener("click",restorePrev);
@@ -1610,7 +1641,7 @@ function applyLang(){
   const b=$("#langBtn");b.textContent=en?"中":"EN";b.title=en?"切換成中文":"Switch to English";b.setAttribute("aria-label",b.title);b.lang=en?"zh-Hant":"en";
   const pb=$("#playBtn");pb.setAttribute("aria-label",playing?tr("暫停","Pause"):tr("播放","Play"));
   $("#askSnip").textContent=askText();setHint();
-  for(const[q,n]of [["#copyLog","copy"],["#copySnip","copy"],["#copyExport","copy"],["#loadPaste","load"],["#loadSample","file"],["#pickFile","file"],["#resetBtn","reset"],["#lossyYes","check"],["#lossyNo","x"],['.transport [data-t=fit]',"fit"]]){const el=document.querySelector(q);if(el&&!el.querySelector(".ico"))el.insertAdjacentHTML("afterbegin",ic(n))}
+  for(const[q,n]of [["#copyLog","copy"],["#copySnip","copy"],["#copyExport","copy"],["#loadPaste","load"],["#loadSample","file"],["#pickFile","file"],["#resetBtn","reset"],["#clearBtn","trash"],["#lossyYes","check"],["#lossyNo","x"],['.transport [data-t=fit]',"fit"]]){const el=document.querySelector(q);if(el&&!el.querySelector(".ico"))el.insertAdjacentHTML("afterbegin",ic(n))}
 }
 /* press and hold any button on a touch screen to hear what it does */
 let tipT=0,tipAt=0;

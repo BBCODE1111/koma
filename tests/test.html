@@ -26,6 +26,10 @@ frame.onload=async()=>{
   const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b)||{got:a,want:b};
   const reset=()=>k("load(SAMPLE);prevDrafts=[];savePrevs()");
   const cuts=()=>k("doc.clips.map(c=>[c.in,c.out])");
+  T("桌面特效分四軌：字幕、節奏、畫面、其他",()=>{reset();const li=x=>k(`LANES.findIndex(l=>l.t.includes('${x}'))`);return eq([k("LANES.map(l=>l.k).join()"),li('text'),li('flash'),li('rgb'),li('sfx'),k("FX.every(f=>LANES.some(l=>l.t.includes(f.k)))")],["text,move,look,misc",0,1,2,3,true])});
+  T("J K L、Home End、逗號句號",()=>{reset();k("seek(40)");const kd=key=>k(`document.body.dispatchEvent(new KeyboardEvent("keydown",{key:${JSON.stringify(key)},bubbles:true,cancelable:true}))`);kd("j");const a=k("playhead");kd("End");const b=k("playhead");kd(",");const c=k("playhead");kd("Home");const d=k("playhead");kd("l");const pl=k("playing");kd("k");return eq([a,b,c,d,pl,k("playing")],[10,k("total()-1"),k("total()-2"),0,true,false])});
+  T("I O 設入出點",()=>{reset();k("sel={kind:'clip',id:'c2'};seek(layout(doc).map.c2.start+5)");k(`document.body.dispatchEvent(new KeyboardEvent("keydown",{key:"i",bubbles:true}))`);return eq(k("doc.clips[1].in"),215)});
+  T("清除目前專案要按兩次，清除後可還原上一份草稿",()=>{reset();k("load({clips:[{id:'z',name:'匯入的',out:90}]});doc.clips[0].note='x'");const b=k("$('#clearBtn')");b.click();const still=k("doc.clips[0].id");b.click();return eq([still,k("!!orig.sample"),k("prevDrafts.length"),k("videoURL")],["z",true,1,null])});
 
   T("修剪入點，後面鏡頭順移",()=>{reset();k("sel={kind:'clip',id:'c1'};nudgeClip('in',3)");return eq(k("layout(doc).map.c2.start"),69)});
   T("裁入點時標記留在同一個素材格",()=>{reset();k("doc.markers[1].at=30;sel={kind:'clip',id:'c3'};nudgeClip('in',10)");return eq(k("doc.markers[1].at"),20)});
@@ -301,8 +305,12 @@ frame.onload=async()=>{
   preset();await tick();
   T("提示詞寫出字幕結束時間",()=>{p("seek(30);addMarker('text');doc.markers.at(-1).text='丙'");const x=p("logText()");return /丙.*顯示到 00:03:00，共 60 格/.test(x)||x});
   preset();await tick();
-  T("同格的特效不壓字幕：字幕保留文字",()=>{p("doc.markers=[{id:'g1',clip:'c1',at:10,type:'glitch',note:''},{id:'t1',clip:'c1',at:10,type:'text',note:'',text:'丁'}];renderTimeline()");return eq([pd.querySelector('.mk[data-id="g1"] span').hidden,pd.querySelector('.mk[data-id="t1"] span').hidden],[true,false])});
+  T("字幕和特效在不同軌，同一格兩個標籤都看得到",()=>{p("doc.markers=[{id:'g1',clip:'c1',at:10,type:'glitch',note:''},{id:'t1',clip:'c1',at:10,type:'text',note:'',text:'丁'}];renderTimeline()");const g=pd.querySelector('.mk[data-id="g1"]'),x=pd.querySelector('.mk[data-id="t1"]');return eq([g.querySelector('span').hidden,x.querySelector('span').hidden,g.style.top!==x.style.top],[false,false,true])});
+  T("手機特效軌只有兩條（字幕、特效）",()=>eq(p("lanes().map(l=>l.k).join()"),"text,fx"));
+  await size(430,932);p("renderAll()");await tick();T("高的手機有三條軌，仍然一屏",()=>{const r=eq(p("lanes().length"),3);return r===true?onScreen([".transport",".tl",".tools"]):r});await size(390,700);p("renderAll()");await tick();
   preset();await tick();p("sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
+  {const W=pd.defaultView;pd.querySelector('[data-a="more"]').focus();p("playing&&togglePlay()");const sy=W.scrollY;pd.querySelector('[data-a="more"]').dispatchEvent(new W.KeyboardEvent("keydown",{key:" ",bubbles:true,cancelable:true}));
+   T("按鈕有焦點時空白鍵也是播放",()=>eq([p("playing"),W.scrollY===sy],[true,true]));p("playing&&togglePlay()")}
   T("手機常用鍵排成一列不用左右滑",()=>{const a=pd.querySelector(".acts.main");return a.scrollWidth<=a.clientWidth+1||[a.scrollWidth,a.clientWidth]});
   T("更多預設收起",()=>eq(pd.defaultView.getComputedStyle(pd.querySelector("#moreActs")).display,"none"));
   pd.querySelector('[data-a="more"]').click();await tick();
