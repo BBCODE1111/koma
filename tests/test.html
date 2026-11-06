@@ -94,6 +94,11 @@ frame.onload=async()=>{
   T("影片校準期間不做任何定位",()=>{k("load(SAMPLE);videoURL='x';window.__c=video.currentTime;calibrating={};playhead=100;updatePreview(layout(doc));calibrating=null;videoURL=null");return eq(k("video.currentTime"),k("window.__c"))});
   T("手動清單先延長再裁切，每步都做得到",()=>{k("load({clips:[{id:'a',in:100,out:200}]});doc.clips[0].in=0;doc.clips[0].out=50");const x=k("buildManual()");
     return (x.indexOf("開頭延長 100 格")>0&&x.indexOf("開頭延長 100 格")<x.indexOf("結尾裁掉 150 格"))||x});
+  T("專案檔保留原始版本和修改，重開後清單不變",()=>{reset();k("doc.clips[0].out-=5;doc.clips.reverse()");const n=k("changes().length"),txt=k("JSON.stringify(projectData())");reset();
+    const m=k(`importText(${JSON.stringify(txt)},'p.koma-project.json')`);return (n>0&&k("changes().length")===n&&k("doc.clips[0].id")!==k("orig.clips[0].id")&&m.includes("已開啟專案"))||{n,m,now:k("changes().length")}});
+  T("專案檔的原始長度不變，同一支成片仍對得上",()=>{reset();const t0=k("layout(orig).total");k("doc.clips[0].out-=5");const txt=k("JSON.stringify(projectData())");reset();k(`importText(${JSON.stringify(txt)},'p.json')`);return eq([k("layout(orig).total"),k("layout(doc).total")],[t0,t0-5])});
+  T("一般時間軸匯出仍是單一版本",()=>eq(k("'koma' in exportDoc()"),false));
+  T("不完整的專案檔會報錯且不動目前時間軸",()=>{reset();const a=k("doc.clips.length");let err="";try{k(`importText('{"koma":"project","doc":{}}','x.json')`)}catch(e){err=e.message}return (err.includes("不完整")&&k("doc.clips.length")===a)||{err}});
   T("有損匯入先詢問，取消就不改時間軸",()=>{reset();const edl="001 AX V C 00:00:00:00 00:00:01:00 01:00:00:00 01:00:01:00\\n002 AX V C 00:00:00:00 00:00:01:00 01:00:02:00 01:00:03:00\\n";
     const m=k(`importText('${edl}','a.edl')`);const a=k("doc.clips.length");k("settleImport(false)");const b=k("doc.clips.length");
     k(`importText('${edl}','a.edl');settleImport(true)`);return (m.includes("尚未載入")&&a===6&&b===6&&k("doc.clips.length")===2)||{m,a,b}});

@@ -597,6 +597,12 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
     <div class="tp" data-panel="out" hidden>
       <div class="grid2">
         <div class="blk">
+          <h4 data-en="Save project">儲存專案</h4>
+          <p class="help" data-en="Keeps Claude's original and your edits in one file. Import it next time, even on another computer, together with the same final video, and carry on: the change list and preview stay as they were. Shortcut: <kbd>Ctrl/⌘</kbd>+<kbd>S</kbd>.">原始版本和你的修改都存在同一個檔案。下次（換電腦也行）把它和同一支成片一起匯入，就能接著剪，修改清單和畫面對照都跟存檔時一樣。快捷鍵 <kbd>Ctrl/⌘</kbd>+<kbd>S</kbd>。</p>
+          <div class="exp"><button class="expbtn" data-exp="project" id="saveProj"><span class="ext">.json</span><b data-en="Koma project">Koma 專案檔</b><span data-en="Original + your edits, to keep editing later">原始版本＋你的修改，之後接著剪</span></button></div>
+          <p class="msg" id="projMsg"></p>
+        </div>
+        <div class="blk">
           <h4 data-en="Export the edited timeline">匯出修改後的時間軸</h4>
           <p class="help" data-en="Grades, title cards and motion effects don't carry over, only cuts and markers. Effects appear as markers on the timeline to remind you what to do there.">調色、字卡和動態特效不會跟著過去，只有剪接點和標記。特效會以 marker 出現在時間軸上，提醒你在那裡做什麼。</p>
           <div class="exp">
@@ -604,7 +610,7 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
             <button class="expbtn" data-exp="edl"><span class="ext">.edl</span><b>Premiere Pro · DaVinci · Avid</b><span data-en="Cuts and clip names; effects as comments">剪接點與鏡頭名稱；特效寫成註解</span></button>
             <button class="expbtn" data-exp="manual"><span class="ext">.txt</span><b data-en="CapCut · other editors">剪映 · CapCut · 其他軟體</b><span data-en="A manual checklist to follow step by step, with no project import">手動操作清單：照著逐項修改，不需要匯入工程</span></button>
             <button class="expbtn" data-exp="srt"><span class="ext">.srt</span><b data-en="Subtitles">字幕檔</b><span data-en="Caption text and timing from 00:00:00; nearly every editor can read it">字幕文字與起訖時間，從 00:00:00 起算；幾乎所有剪輯軟體都能讀</span></button>
-            <button class="expbtn" data-exp="json"><span class="ext">.json</span><b data-en="Koma timeline">Koma 時間軸</b><span data-en="For Claude, or to reopen in Koma later">給 Claude 或下次再用 Koma 打開</span></button>
+            <button class="expbtn" data-exp="json"><span class="ext">.json</span><b data-en="Koma timeline">Koma 時間軸</b><span data-en="The finished edit only, for Claude or as a final version">只有改好的剪接版，給 Claude 或當作定稿</span></button>
           </div>
           <p class="msg" id="outMsg"></p>
         </div>
@@ -631,6 +637,7 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
         <dt><kbd>Delete</kbd></dt><dd data-en="Delete the selected effect">刪除選取的特效</dd>
         <dt><kbd>X</kbd></dt><dd data-en="Delete the frame at the playhead">刪除播放頭這一格</dd>
         <dt><kbd>S</kbd></dt><dd data-en="Split the clip at the playhead">在播放頭分割鏡頭</dd>
+        <dt><kbd>Ctrl/⌘</kbd>+<kbd>S</kbd></dt><dd data-en="Save project">儲存專案</dd>
         <dt><kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd></dt><dd data-en="Undo (<kbd>Shift</kbd> to redo)">復原（加 <kbd>Shift</kbd> 重做）</dd>
         <dt data-en="Drag">拖曳</dt><dd data-en="Clip edges trim in and out; drag a clip body to reorder; effect markers move; the time ruler scrubs; ＋ between clips inserts a segment.">鏡頭兩側的邊＝修剪入出點（後面鏡頭自動順移）；拖鏡頭中間＝調整順序；拖特效標記＝移動位置；拖上方時間列＝快速瀏覽；鏡頭之間的＋＝插入片段；在特效軌雙擊＝新增特效</dd>
       </dl>
@@ -1251,6 +1258,7 @@ function fit(){if(isM()){ppf=defaultPpf();$("#zoom").value=z2v(ppf);return}const
 $("#zoom").addEventListener("input",e=>{ppf=Math.min(v2z(+e.target.value),maxPpf());renderTimeline();scroll.scrollLeft=playhead*ppf-scroll.clientWidth/2});
 
 addEventListener("keydown",e=>{
+  if((e.metaKey||e.ctrlKey)&&!e.altKey&&!e.shiftKey&&e.key.toLowerCase()==="s"){e.preventDefault();return saveProject().then(t=>toast(t))}
   if(document.body.classList.contains("sheet")||e.target.closest("input,textarea,select"))return;
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="z"){e.preventDefault();return e.shiftKey?doRedo():doUndo()}
   if(e.metaKey||e.ctrlKey||e.altKey)return;
@@ -1389,6 +1397,9 @@ function importText(text,name=""){
   const ask=(w,data,done)=>{pendingImport={data,done};$("#lossyBar").hidden=false;
     document.querySelector('.tab[data-tab="in"]').click();if(isM())openSheet("in");
     return tr(`這份時間軸有 Koma 不支援的內容：${w.join("；")}。尚未載入，請選擇是否仍要匯入。`,`This timeline has content Koma doesn't support: ${w.join("; ")}. Nothing is loaded yet; choose whether to import anyway.`)};
+  if(s.startsWith("{")&&JSON.parse(s).koma==="project"){const p=JSON.parse(s);if(!p.orig||!p.doc)throw new Error(tr("專案檔不完整","The project file is incomplete"));
+    normalize(p.orig);normalize(p.doc);if(orig&&changes().length)keepPrev({orig,doc});load(p.orig,p.doc);
+    return tr(`已開啟專案：${doc.clips.length} 個鏡頭、${changes().length} 項修改。把同一支成片加進來就能對照畫面。`,`Project opened: ${doc.clips.length} clips, ${changes().length} changes. Add the same final video to compare footage.`)+notes()}
   if(s.startsWith("{")){loadNew(JSON.parse(s));return tr(`已載入 Koma 時間軸：${doc.clips.length} 個鏡頭、${doc.markers.length} 個特效。`,`Koma timeline loaded: ${doc.clips.length} clips, ${doc.markers.length} effects.`)+notes()}
   if(s.includes("<fcpxml")){const r=parseFCPXML(s),done=()=>tr(`已載入 FCPXML：${doc.clips.length} 個鏡頭、${doc.markers.length} 個標記，${+fps.toFixed(3)}fps。`,`FCPXML loaded: ${doc.clips.length} clips, ${doc.markers.length} markers, ${+fps.toFixed(3)}fps.`)+notes(r.warn);
     if(r.warn.length)return ask(r.warn,r.data,done);loadNew(r.data);return done()}
@@ -1540,8 +1551,12 @@ document.querySelectorAll("[data-exp]").forEach(b=>b.addEventListener("click",()
   else if(k==="manual")deliver(n+".txt",buildManual());
   else if(k==="srt"){const t=buildSRT(),left=doc.markers.filter(m=>m.type==="text"&&!capText(m)&&m.note.trim()).length,tip=left?tr(`有 ${left} 個字幕標記只有說明，沒有輸出；點標記可按「用說明當字幕」。`,`${left} caption markers have notes only and were left out; select one and use "Use note as caption".`):"";
     if(!t)return say($("#outMsg"),false,tip||tr("還沒有字幕。先按「字幕」或「加字幕」輸入內容。","No captions yet. Press Caption or Add caption to type one."));deliver(n+".srt",t).then(()=>{if(tip)$("#outMsg").textContent+=" "+tip})}
+  else if(k==="project")saveProject();
   else deliver(n+".koma.json",JSON.stringify(exportDoc(),null,2));
 }));
+/* a project file keeps the original and the edit, so a reload restores the change list and lines up with the same final video */
+function projectData(){const o=clone(orig);delete o.sample;return{koma:"project",version:1,saved:new Date().toISOString(),orig:o,doc:exportDoc()}}
+function saveProject(){const m=$("#outMsg"),pm=$("#projMsg");return deliver(safeName(doc.project)+".koma-project.json",JSON.stringify(projectData(),null,2)).then(()=>{const t=m.textContent;pm.className=m.className;pm.textContent=t;m.textContent="";return t})}
 $("#copyExport").addEventListener("click",()=>copy($("#exportOut").value,$("#exportOut")));
 
 /* ---------- bottom panel ---------- */
