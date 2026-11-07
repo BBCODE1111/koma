@@ -458,6 +458,8 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
 .prodwrap:not(.empty) .prodadd{display:none!important}
 .prodadd{align-self:flex-start}
 @media (min-width:761px) and (min-height:501px),(min-width:761px) and (pointer:fine){.insp.hasacts{display:flex;flex-direction:column}.insp.hasacts>.acts{order:-1}.insp.hasacts>.eyebrow{order:-2}.insp.hasacts>.acts.main{margin-bottom:-4px}}
+.clip.multi{outline-color:var(--ac);background-image:linear-gradient(color-mix(in srgb,var(--ac) 16%,transparent),color-mix(in srgb,var(--ac) 16%,transparent))}.clip.multi .h{display:none}
+.marquee{position:absolute;top:0;bottom:0;margin-left:var(--tlp,10px);background:color-mix(in srgb,var(--ac) 14%,transparent);border:1px dashed var(--ac);border-radius:3px;pointer-events:none;z-index:6}
 .dropline{position:absolute;top:0;bottom:0;width:3px;margin-left:calc(var(--tlp,10px) - 1.5px);border-radius:2px;background:var(--ac);z-index:7;pointer-events:none}
 .ins-j{position:absolute;bottom:1px;width:26px;height:26px;margin-left:calc(var(--tlp,10px) - 13px);padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--ac);background:var(--sheet);color:var(--ac);z-index:4;font-size:16px;line-height:1}
 .ins-j:hover{background:var(--ac);color:var(--onac)}
@@ -634,9 +636,12 @@ body.tlmoving #trV .clip.lifted{transition:none;z-index:6;cursor:grabbing;box-sh
         <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd data-en="Jump to previous / next cut">跳到上一個 / 下一個剪接點</dd>
         <dt><kbd>M</kbd></dt><dd data-en="Add an effect at the playhead">在播放頭加特效</dd>
         <dt><kbd>I</kbd> <kbd>O</kbd> <span data-en="or">或</span> <kbd>[</kbd> <kbd>]</kbd></dt><dd data-en="Set the selected clip's in / out point at the playhead">把選取鏡頭的入點 / 出點設在播放頭</dd>
-        <dt><kbd>Delete</kbd></dt><dd data-en="Delete the selected effect">刪除選取的特效</dd>
-        <dt><kbd>X</kbd></dt><dd data-en="Delete the frame at the playhead">刪除播放頭這一格</dd>
+        <dt><kbd>Delete</kbd></dt><dd data-en="Delete the selected effect, or remove the selected clips from the edit">刪除選取的特效，或從剪接版移除多選的鏡頭</dd>
+        <dt><kbd>X</kbd></dt><dd data-en="Cut the frame at the playhead from the edit (the video file is untouched)">刪除播放頭這一格</dd>
         <dt><kbd>S</kbd></dt><dd data-en="Split the clip at the playhead">在播放頭分割鏡頭</dd>
+        <dt><kbd>Shift</kbd>/<kbd>Ctrl/⌘</kbd>+<span data-en="click">點選</span></dt><dd data-en="Select several clips (drag across the empty effect lanes to select a span); drag one to move them all">選取多個鏡頭（在特效軌空白處拖曳可框選），拖其中一個就一起移動</dd>
+        <dt><kbd>Ctrl/⌘</kbd>+<kbd>A</kbd></dt><dd data-en="Select all clips">全選鏡頭</dd>
+        <dt><kbd>Esc</kbd></dt><dd data-en="Clear the selection">取消選取</dd>
         <dt><kbd>Ctrl/⌘</kbd>+<kbd>S</kbd></dt><dd data-en="Save project">儲存專案</dd>
         <dt><kbd>Ctrl/⌘</kbd>+<kbd>Z</kbd></dt><dd data-en="Undo (<kbd>Shift</kbd> to redo)">復原（加 <kbd>Shift</kbd> 重做）</dd>
         <dt data-en="Drag">拖曳</dt><dd data-en="Clip edges trim in and out; drag a clip body to reorder; effect markers move; the time ruler scrubs; ＋ between clips inserts a segment.">鏡頭兩側的邊＝修剪入出點（後面鏡頭自動順移）；拖鏡頭中間＝調整順序；拖特效標記＝移動位置；拖上方時間列＝快速瀏覽；鏡頭之間的＋＝插入片段；在特效軌雙擊＝新增特效</dd>
@@ -845,8 +850,8 @@ function renderTimeline(){
   let h="";for(let f=0;f<=L.total;f+=step)h+=`<div class="tick" style="left:${f*ppf}px"><span>${tc(f)}</span></div>`;
   const R=$("#ruler");R.innerHTML=h;R.style.backgroundSize=ppf>=5?`${ppf}px 6px`:"0 0";
   $("#trV").innerHTML=doc.clips.map((c,i)=>{
-    const e=L.map[c.id],o=OL.map[c.id]?.c,dI=o?c.in-o.in:0,dO=o?c.out-o.out:0,isSel=sel?.kind==="clip"&&sel.id===c.id;
-    return `<div class="clip${isSel?" sel":""}${c.ins?" ins":""}${dI||dO?" mod":""}${(c.out-c.in)*ppf<46?" tiny":""}${(c.out-c.in)*ppf<100?" short":""}" data-id="${esc(c.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(tr(`鏡頭 ${pad(i+1)} ${c.name}，${c.out-c.in} 格`,`Clip ${pad(i+1)} ${c.name}, ${c.out-c.in} frames`))}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
+    const e=L.map[c.id],o=OL.map[c.id]?.c,dI=o?c.in-o.in:0,dO=o?c.out-o.out:0,isSel=isClipSel(c.id);
+    return `<div class="clip${isSel?" sel":""}${isSel&&sel.ids?.length>1?" multi":""}${c.ins?" ins":""}${dI||dO?" mod":""}${(c.out-c.in)*ppf<46?" tiny":""}${(c.out-c.in)*ppf<100?" short":""}" data-id="${esc(c.id)}" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="${esc(tr(`鏡頭 ${pad(i+1)} ${c.name}，${c.out-c.in} 格`,`Clip ${pad(i+1)} ${c.name}, ${c.out-c.in} frames`))}" style="left:${e.start*ppf}px;width:${(c.out-c.in)*ppf}px;--c:${clipColor(c,i)}">
       <div class="h l" data-edge="in" title="${tr("拖曳修剪入點","Drag to trim the in point")}"></div><div class="body"><b>${pad(i+1)}</b>${esc(c.name)}<em>${c.out-c.in}f · ${esc(c.ins?insKind(c):c.src)}</em></div>${dI<0?`<i class="ext l" style="width:${-dI*ppf}px"></i>`:""}${dO>0?`<i class="ext r" style="width:${dO*ppf}px"></i>`:""}<div class="h r" data-edge="out" title="${tr("拖曳修剪出點","Drag to trim the out point")}"></div>
       ${(c.out-c.in)*ppf<120?"":`${dI?`<i class="d dl">${tr("入","In ")}${sgn(dI)}</i>`:""}${dO?`<i class="d dr">${tr("出","Out ")}${sgn(dO)}</i>`:""}`}</div>`}).join("");
   $("#trV").insertAdjacentHTML("beforeend",doc.clips.concat([null]).map((c,i)=>{const prev=doc.clips[i-1],x=(c?L.map[c.id].start:L.total)*ppf;
@@ -912,6 +917,11 @@ function nudgeRow(lb,key,v,o){const d=o==null?0:v-o;return `<div class="lb">${lb
 function overMedia(c){return c.srcDuration&&c.out>c.srcDuration?`<p class="msg err">${tr(`超出素材長度 ${c.out-c.srcDuration} 格，Claude 可能沒有這段畫面。`,`${c.out-c.srcDuration} frames past the source length; Claude may not have this footage.`)}</p>`:""}
 const ICONS={left:"M15 5l-7 7 7 7",right:"M9 5l7 7-7 7",check:"M5 12l5 5 9-10",x:"M6 6l12 12M18 6L6 18",undo:"M9 7L4 12l5 5M4 12h11a5 5 0 0 1 0 10h-3",trash:"M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13",scissors:"M6 6l12 12M18 6L6 18M6 3v6M18 15v6",split:"M12 3v18M4 7h5v10H4M20 7h-5v10h5",swap:"M4 8h13l-3-3M20 16H7l3 3",plus:"M12 5v14M5 12h14",edit:"M4 20h4L19 9l-4-4L4 16zM13 7l4 4",in:"M6 4v16M10 12h10M15 7l5 5-5 5",out:"M18 4v16M14 12H4M9 7l-5 5 5 5",copy:"M8 8h12v12H8zM4 16V4h12",file:"M6 3h9l4 4v14H6zM14 3v5h5",load:"M12 4v11M7 11l5 4 5-4M4 20h16",reset:"M4 5v6h6M5 11a8 8 0 1 1 1 6",fit:"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5",addf:"M4 6h10v12H4zM18 9v6M15 12h6",dots:"M5 12h.01M12 12h.01M19 12h.01"};
 const ic=n=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`;
+/* several clips can be selected at once on desktop: sel.ids holds them in timeline order, sel.id is the one clicked last */
+const selIds=()=>sel?.kind!=="clip"?[]:sel.ids?.length>1?sel.ids:[sel.id];
+const isClipSel=id=>selIds().includes(id);
+function selectClips(ids,anchor){const keep=doc.clips.map(c=>c.id).filter(i=>ids.includes(i));if(!keep.length){sel=null;return}
+  const id=keep.includes(anchor)?anchor:keep[keep.length-1];sel=keep.length>1?{kind:"clip",id,ids:keep}:{kind:"clip",id}}
 const act=(a,icon,label,cls="btn sm")=>`<button class="${cls}" data-a="${a}">${ic(icon)}<span>${label}</span></button>`;
 let moreOpen=false;
 function renderInspector(){
@@ -919,6 +929,13 @@ function renderInspector(){
   if(sel?.kind!=="clip")moreOpen=false;el.classList.toggle("more",moreOpen&&!doc.clips.find(c=>c.id===sel?.id)?.ins);el.classList.toggle("hasacts",sel?.kind==="clip");
   document.body.classList.toggle("hassel",!!sel);el.classList.remove("noting");const wasTyping=document.body.classList.contains("typing");document.body.classList.remove("typing");if(wasTyping&&isM()){scroll.scrollLeft=playhead*ppf;tlExpect=scroll.scrollLeft}el.dataset.edge=nudgeEdge;
   if(sel?.kind==="clip"){
+    if(sel.ids?.length>1){const g=doc.clips.filter(c=>sel.ids.includes(c.id));if(g.length<2){selectClips(g.map(c=>c.id));return renderInspector()}
+      const n=g.reduce((t,c)=>t+c.out-c.in,0),idx=g.map(c=>doc.clips.indexOf(c)+1);
+      el.innerHTML=`<div class="eyebrow">${tr("多選","Multiple clips")}</div><h3>${tr(`已選 ${g.length} 個鏡頭`,`${g.length} clips selected`)}</h3>
+        <div class="src">${idx.map(pad).join("、")} · ${tr(`共 ${n} 格 · ${(n/fps).toFixed(2)} 秒`,`${n} frames · ${(n/fps).toFixed(2)}s in all`)}</div>
+        <p class="help">${tr("拖其中一個鏡頭，選取的鏡頭會一起移動並排在一起。Shift＋點選可以選一段範圍，⌘／Ctrl＋點選可以加選或取消；在特效軌空白處拖曳可以框選。","Drag any of them to move them all together; they land side by side. Shift-click selects a range, ⌘/Ctrl-click adds or removes one, and dragging across the empty effect lanes selects a span.")}</p>
+        <div class="acts main">${act("gmv:-1","left",tr("一起往前移","Move all earlier"))}${act("gmv:1","right",tr("一起往後移","Move all later"))}${act("gclear","x",tr("取消多選","Clear selection"))}${act("gdel","trash",tr("移除這些鏡頭","Remove these clips"),"btn sm ghost")}</div>`;
+      return}
     const i=doc.clips.findIndex(c=>c.id===sel.id),c=doc.clips[i];if(!c){sel=null;return renderInspector()}
     const o=orig.clips.find(x=>x.id===c.id),dd=o?(c.out-c.in)-(o.out-o.in):0;
     const moves=`${act("mv:-1","left",tr("往前移","Move earlier"))}${act("mv:1","right",tr("往後移","Move later"))}`;
@@ -928,7 +945,7 @@ function renderInspector(){
       <div class="capdur"><span class="seg2" role="group" aria-label="${tr("素材來源","Footage source")}"><button data-a="kind:gen" aria-pressed="${c.ins!=="footage"}">${tr("請 Claude 製作","Claude makes it")}</button><button data-a="kind:footage" aria-pressed="${c.ins==="footage"}">${tr("我提供素材","I supply it")}</button></span><span class="cdg"><span>${tr("長度","Length")}</span><button class="nb" data-a="len:-1" aria-label="${tr("短半秒","Half a second shorter")}">−</button><span class="mono">${durText(c.out-c.in)}</span><button class="nb" data-a="len:1" aria-label="${tr("長半秒","Half a second longer")}">＋</button></span></div>
       <label class="help fieldlab" for="clipNote">${tr("這段要放什麼","What goes here")}</label>
       <textarea id="clipNote" placeholder="${tr("例：加一段城市空拍，黃昏色調","e.g. An aerial city shot in dusk tones")}">${esc(c.note)}</textarea>
-      <div class="acts main">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("note","edit",tr("編輯說明","Edit note"),"btn sm only-m")}${moves}${act("delclip","trash",tr("刪除片段","Delete segment"),"btn sm ghost")}</div>`;
+      <div class="acts main">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("note","edit",tr("編輯說明","Edit note"),"btn sm only-m")}${moves}${act("delclip","trash",tr("移除片段","Remove segment"),"btn sm ghost")}</div>`;
       noteEditor($("#clipNote"),v=>{c.note=v});
       return;
     }
@@ -941,8 +958,8 @@ function renderInspector(){
       ${overMedia(c)}<p class="help">${tr("數字是素材的格數。＋往後（較晚），−往前（較早）。後面的鏡頭會自動順移。","Numbers are source frames. ＋ moves later, − moves earlier. Later clips shift automatically.")}</p>
       <label class="help" for="clipNote">${tr("給 Claude 的備註","Note for Claude")}</label>
       <textarea id="clipNote" placeholder="${tr("例：這顆鏡頭調色再冷一點","e.g. Make this shot's grade a bit cooler")}">${esc(c.note)}</textarea>
-      <div class="acts main">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("undo","undo",tr("復原","Undo"),"btn sm only-land")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("delf","scissors",tr("刪這格","Delete"))}${act("swap","swap",tr("換畫面","Replace"))}${act("addf","addf",tr("加一格","Add frame"))}${act("ins:1","plus",tr("插入","Insert"))}${act("note","edit",tr("備註","Note")+(c.note?" ●":""),"btn sm only-m")}<button class="btn sm morebtn" data-a="more" aria-expanded="${moreOpen}" aria-controls="moreActs">${ic("dots")}<span>${tr("更多","More")}</span></button></div>
-      <div class="acts moreacts" id="moreActs">${act("split","split",tr("分割","Split"))}${moves}${act("ins:0","plus",tr("前面插入","Insert before"))}${act("go:in","in",tr("跳到入點","Go to in"))}${act("go:out","out",tr("跳到出點","Go to out"))}${act("delclip","trash",tr("刪除鏡頭","Delete clip"),"btn sm ghost")}</div>`;
+      <div class="acts main">${act("close","check",tr("完成","Done"),"btn sm only-m")}${act("undo","undo",tr("復原","Undo"),"btn sm only-land")}${act("cancelnote","x",tr("取消","Cancel"),"btn sm only-m")}${act("delf","scissors",tr("刪這格","Cut 1 frame"))}${act("swap","swap",tr("換畫面","Replace"))}${act("addf","addf",tr("加一格","Add frame"))}${act("ins:1","plus",tr("插入","Insert"))}${act("note","edit",tr("備註","Note")+(c.note?" ●":""),"btn sm only-m")}<button class="btn sm morebtn" data-a="more" aria-expanded="${moreOpen}" aria-controls="moreActs">${ic("dots")}<span>${tr("更多","More")}</span></button></div>
+      <div class="acts moreacts" id="moreActs">${act("split","split",tr("分割","Split"))}${moves}${act("ins:0","plus",tr("前面插入","Insert before"))}${act("go:in","in",tr("跳到入點","Go to in"))}${act("go:out","out",tr("跳到出點","Go to out"))}${act("delclip","trash",tr("移除鏡頭","Remove clip"),"btn sm ghost")}</div>`;
     noteEditor($("#clipNote"),v=>{c.note=v});
   }else if(sel?.kind==="mk"){
     const m=doc.markers.find(x=>x.id===sel.id);if(!m){sel=null;return renderInspector()}
@@ -1059,6 +1076,16 @@ function nudgeClip(edge,d){const c=doc.clips.find(x=>x.id===sel.id);const v=edge
 const newId=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 /* jumping to a cut carries the clip selection along, so the next action lands on the clip you are looking at */
 function jumpCut(f){seek(f);if(sel?.kind!=="clip")return;const h=clipAt(playhead,layout(doc));if(h&&h.c.id!==sel.id){sel={kind:"clip",id:h.c.id};renderTimeline();renderInspector()}}
+/* move a set of clips so they sit together, starting at index `to` among the clips that are not moving */
+function moveClips(ids,to,anchor){const g=doc.clips.filter(c=>ids.includes(c.id));if(!g.length)return;
+  const rest=doc.clips.filter(c=>!ids.includes(c.id)),next=[...rest.slice(0,to),...g,...rest.slice(to)];
+  if(next.every((c,i)=>c===doc.clips[i])){selectClips(ids,anchor);return renderAll()}
+  mutate(()=>{doc.clips=next;selectClips(ids,anchor)})}
+function nudgeGroup(d){const ids=selIds(),rest=doc.clips.filter(c=>!ids.includes(c.id)),first=doc.clips.findIndex(c=>ids.includes(c.id));
+  const before=doc.clips.slice(0,first).filter(c=>!ids.includes(c.id)).length;moveClips(ids,clamp(before+d,0,rest.length),sel?.id)}
+function removeClips(ids){if(doc.clips.length-ids.length<1)return toast(tr("至少要留一個鏡頭","At least one clip must remain"));const n=ids.length;
+  mutate(()=>{doc.clips=doc.clips.filter(c=>!ids.includes(c.id));sel=null});
+  toast(tr(`已從剪接版移除 ${n} 個鏡頭，影片檔不受影響（⌘Z 可復原）`,`Removed ${n} clips from the edit; the video file is untouched (⌘Z to undo)`))}
 function moveClip(id,to){const from=doc.clips.findIndex(c=>c.id===id);to=clamp(to,0,doc.clips.length-1);if(from<0||from===to)return;
   const now=performance.now(),same=lastMove&&lastMove.id===id&&now-lastMove.t<2000&&lastMove.n===undo.length;
   if(same){const[c]=doc.clips.splice(from,1);doc.clips.splice(to,0,c);sel={kind:"clip",id};renderAll()}else mutate(()=>{const[c]=doc.clips.splice(from,1);doc.clips.splice(to,0,c);sel={kind:"clip",id}});
@@ -1073,7 +1100,7 @@ function splitAtFrame(c,k,skip){const i=doc.clips.indexOf(c),tail={id:newId(c.id
 function deleteFrame(){const L=layout(doc),h=clipAt(playhead,L);if(!h)return;const c=h.c,k=playhead-h.start,n=c.out-c.in;
   if(n===1){if(doc.clips.length<2)return toast(tr("至少要留一個鏡頭","At least one clip must remain"));return mutate(()=>{doc.clips=doc.clips.filter(x=>x!==c);sel=null})}
   const f=playhead;mutate(()=>{if(c.ins)setOut(c,c.out-1);else if(k===0)setIn(c,c.in+1);else if(k===n-1)setOut(c,c.out-1);else{const t=splitAtFrame(c,k,1);sel={kind:"clip",id:t.id}}if(!sel||sel.kind!=="clip")sel={kind:"clip",id:c.id}});
-  seek(Math.min(f,total()-1));toast(tr("已刪除這一格","Frame deleted"))}
+  seek(Math.min(f,total()-1));toast(tr("已從剪接版刪掉這一格，影片檔不受影響","Cut 1 frame from the edit; the video file is untouched"))}
 function splitClip(){const L=layout(doc),h=clipAt(playhead,L);if(!h)return;const k=playhead-h.start;if(h.c.ins)return toast(tr("新片段不用分割","New segments can't be split"));if(k===0)return toast(tr("播放頭已在鏡頭開頭","The playhead is at the clip start"));
   mutate(()=>{const t=splitAtFrame(h.c,k,0);sel={kind:"clip",id:t.id}});toast(tr("已分割，可以移動或刪除其中一段","Split; move or delete either part"))}
 function nearestCut(){const L=layout(doc),h=clipAt(playhead,L);if(!h)return doc.clips.length;return playhead-h.start<(h.c.out-h.c.in)/2?h.i:h.i+1}
@@ -1096,6 +1123,9 @@ $("#insp").addEventListener("click",e=>{
   if(a==="dur"){const m=doc.markers.find(x=>x.id===sel.id);if(m.type==="swap"){const d2=clamp((m.dur||1)+ +v,1,MAXF);if(d2===(m.dur||1))return;pushUndo();m.dur=d2;$("#capDurV").textContent=d2;renderLog();save();return}const d=clamp(capDur(m)+ +v*Math.round(fps/2),Math.round(fps/2),Math.round(fps*60));if(d===capDur(m))return;pushUndo();m.dur=d;$("#capDurV").textContent=durText(d);$("#capCut").textContent=capCutText(m);badgeKey="";updatePlayhead();renderLog();save();return}
   if(a==="edge"){nudgeEdge=v;renderInspector();const e2=layout(doc).map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1);return}
   if(a==="mv"){const i=doc.clips.findIndex(x=>x.id===sel.id);moveClip(sel.id,i+ +v);return}
+  if(a==="gmv")return nudgeGroup(+v);
+  if(a==="gclear"){selectClips([sel.id]);renderTimeline();renderInspector();return}
+  if(a==="gdel"){if(b.dataset.armed)return removeClips(selIds());const lab=b.innerHTML;b.dataset.armed=1;b.textContent=tr("再按一次確認","Press again to confirm");setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.innerHTML=lab}},2500);return}
   if(a==="delf")return deleteFrame();
   if(a==="addf"){const c=doc.clips.find(x=>x.id===sel.id);if(c.out>=maxOut(c))return toast(tr("這個鏡頭已到上限","This clip cannot get longer"));nudgeClip("out",1);const e2=layout(doc).map[c.id];seek(e2.start+c.out-c.in-1);return}
   if(a==="split")return splitClip();
@@ -1108,7 +1138,7 @@ $("#insp").addEventListener("click",e=>{
   else if(a==="go"){const L=layout(doc);if(v==="mk")seek(markerFrame(doc.markers.find(x=>x.id===sel.id),L));else{const e2=L.map[sel.id];seek(v==="in"?e2.start:e2.start+e2.c.out-e2.c.in-1)}}
   else if(a==="delmk")mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null});
   else if(a==="delclip"){
-    if(b.dataset.armed){if(doc.clips.length<2)return toast(tr("至少要留一個鏡頭","At least one clip must remain"));mutate(()=>{doc.clips=doc.clips.filter(x=>x.id!==sel.id);sel=null})}
+    if(b.dataset.armed){if(doc.clips.length<2)return toast(tr("至少要留一個鏡頭","At least one clip must remain"));mutate(()=>{doc.clips=doc.clips.filter(x=>x.id!==sel.id);sel=null});toast(tr("已從剪接版移除這個鏡頭，影片檔不受影響","Removed the clip from the edit; the video file is untouched"))}
     else{const lab=b.innerHTML;b.dataset.armed=1;b.textContent=tr("再按一次確認","Press again to confirm");setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.innerHTML=lab}},2500)}
   }
 });
@@ -1139,38 +1169,47 @@ $("#trV").addEventListener("pointerdown",e=>{
       (moved,cancelled)=>{handleTap=!moved&&!cancelled;if(isM())freeze(false);if(cancelled)doc=JSON.parse(before);if(JSON.stringify(doc)===before)cancelUndo();renderAll()});
     renderTimeline();renderInspector();return;
   }
-  if(!isM()||sel?.kind!=="clip"||sel.id!==id){sel={kind:"clip",id};renderTimeline();renderInspector();seek(frameAt(e.clientX))}
-  dragMove(e,id);
+  if(!isM()&&(e.shiftKey||e.metaKey||e.ctrlKey)){e.preventDefault();const order=doc.clips.map(c=>c.id),cur=selIds();
+    if(e.shiftKey&&cur.length){const a0=order.indexOf(sel.id),b0=order.indexOf(id);selectClips(order.slice(Math.min(a0,b0),Math.max(a0,b0)+1),sel.id)}
+    else selectClips(cur.includes(id)?cur.filter(x=>x!==id):[...cur,id],id);
+    renderTimeline();renderInspector();return}
+  const inGroup=!isM()&&sel?.ids?.length>1&&sel.ids.includes(id);
+  if(inGroup){sel.id=id;renderTimeline();renderInspector()}
+  else if(!isM()||sel?.kind!=="clip"||sel.id!==id){sel={kind:"clip",id};renderTimeline();renderInspector();seek(frameAt(e.clientX))}
+  dragMove(e,id,inGroup);
 });
 $("#trV").addEventListener("click",e=>{const j=e.target.closest(".ins-j");if(!j)return;e.stopPropagation();stopPlay();insertClip(+j.dataset.at)});
 /* drag a clip's body to change the order: the clip follows the finger, the others slide aside, and its effects and captions travel with it */
 function moveSession(id,x0){
-  const L=layout(doc),me=doc.clips.find(c=>c.id===id),rest=doc.clips.filter(c=>c!==me),sc0=scroll.scrollLeft;
-  const of=c=>document.querySelector(`.clip[data-id="${CSS.escape(c)}"]`),mine=of(id);
+  const L=layout(doc),ids=isClipSel(id)?selIds():[id],g=doc.clips.filter(c=>ids.includes(c.id)),rest=doc.clips.filter(c=>!ids.includes(c.id)),sc0=scroll.scrollLeft;
+  const of=c=>document.querySelector(`.clip[data-id="${CSS.escape(c)}"]`),mine=g.map(c=>of(c.id)).filter(Boolean);
   const marks=[...document.querySelectorAll("#trF .mk")].map(el=>({el,c:doc.markers.find(m=>m.id===el.dataset.id)?.clip}));
-  let x=x0,to=doc.clips.indexOf(me),raf=0;
+  /* the grabbed clip follows the pointer and the rest of the group gathers around it */
+  let gi=0;const inG={};g.forEach(c=>{inG[c.id]=gi;gi+=c.out-c.in});const head=L.map[id].start-inG[id];
+  let x=x0,to=rest.filter(c=>L.map[c.id].start<L.map[g[0].id].start).length,raf=0;
   const line=document.createElement("div");line.className="dropline";$("#trV").append(line);
-  document.getSelection()?.removeAllRanges();document.body.classList.add("tlmoving");mine?.classList.add("lifted");if(isM())freeze(true);
+  document.getSelection()?.removeAllRanges();document.body.classList.add("tlmoving");mine.forEach(el=>el.classList.add("lifted"));if(isM())freeze(true);
   const paint=()=>{
-    const f=(x-inner.getBoundingClientRect().left-tlPad())/ppf,dest={};
+    const fol=x-x0+scroll.scrollLeft-sc0,f=g.length>1?head+fol/ppf+gi/2:(x-inner.getBoundingClientRect().left-tlPad())/ppf,dest={};
     to=rest.filter(c=>L.map[c.id].start+(c.out-c.in)/2<f).length;
-    let at=0;[...rest.slice(0,to),me,...rest.slice(to)].forEach(c=>{dest[c.id]=at;at+=c.out-c.in});
-    const fol=x-x0+scroll.scrollLeft-sc0,off=c=>c===id?fol:(dest[c]-L.map[c].start)*ppf;
-    rest.forEach(c=>{const el=of(c.id);if(el)el.style.transform=`translateX(${off(c.id)}px)`});
-    if(mine)mine.style.transform=`translateX(${fol}px)`;
-    marks.forEach(m=>{if(m.c&&m.c in dest)m.el.style.transform=`translateX(${off(m.c)}px)`});
-    line.style.left=dest[id]*ppf+"px"};
+    let at=0;rest.slice(0,to).forEach(c=>{dest[c.id]=at;at+=c.out-c.in});const gStart=at;at+=gi;rest.slice(to).forEach(c=>{dest[c.id]=at;at+=c.out-c.in});
+    const off=c=>c in inG?fol+(head+inG[c]-L.map[c].start)*ppf:(dest[c]-L.map[c].start)*ppf;
+    doc.clips.forEach(c=>{const el=of(c.id);if(el)el.style.transform=`translateX(${off(c.id)}px)`});
+    marks.forEach(m=>{if(m.c&&L.map[m.c])m.el.style.transform=`translateX(${off(m.c)}px)`});
+    line.style.left=gStart*ppf+"px"};
   const tick=()=>{const r=scroll.getBoundingClientRect(),E=56,d=x<r.left+E?-(r.left+E-x):x>r.right-E?x-(r.right-E):0;
     if(d){scroll.scrollLeft+=clamp(d,-E,E)/4;tlExpect=scroll.scrollLeft;paint()}raf=requestAnimationFrame(tick)};
   paint();raf=requestAnimationFrame(tick);
-  return{move(nx){x=nx;paint()},end(commit){cancelAnimationFrame(raf);line.remove();document.body.classList.remove("tlmoving");mine?.classList.remove("lifted");
+  return{move(nx){x=nx;paint()},end(commit){cancelAnimationFrame(raf);line.remove();document.body.classList.remove("tlmoving");mine.forEach(el=>el.classList.remove("lifted"));
     document.querySelectorAll("#trV .clip,#trF .mk").forEach(el=>{el.style.transform=""});if(isM())freeze(false);
-    if(commit)moveClip(id,to);else if(isM())updatePlayhead()}};
+    if(commit){if(g.length>1)moveClips(ids,to,id);else moveClip(id,to)}else if(isM())updatePlayhead()}};
 }
-function dragMove(e,id){
+function dragMove(e,id,inGroup){
   let ses=null;const x0=e.clientX,th=e.pointerType==="mouse"?3:6;
   drag(e,(ev,dx)=>{if(!ses&&Math.abs(dx)<th)return;ses=ses||moveSession(id,x0);ses.move(ev.clientX)},
-    (_,cancelled)=>{if(ses)ses.end(!cancelled);else if(isM())lastDrag=0});
+    (_,cancelled)=>{if(ses)ses.end(!cancelled);else if(isM())lastDrag=0;
+      /* a plain click inside a group, with no drag, narrows the selection to that clip */
+      else if(inGroup&&!cancelled){sel={kind:"clip",id};renderTimeline();renderInspector();seek(frameAt(e.clientX))}});
 }
 /* phone: holding any clip picks it up, so reordering needs no tap first. A touch that moves early stays a pan. */
 let lift=null;
@@ -1191,7 +1230,15 @@ document.querySelectorAll(".tl,#frame,.transport").forEach(el=>{el.addEventListe
 $("#trF").addEventListener("pointerdown",e=>{
   if(isM()&&(!e.isPrimary||!e.target.closest(".mk.sel")))return;
   stopPlay();
-  const mk=e.target.closest(".mk");if(!mk){sel=null;renderTimeline();renderInspector();seek(frameAt(e.clientX));return}
+  const mk=e.target.closest(".mk");
+  if(!mk&&!isM()){const f0=frameAt(e.clientX),r=$("#trF").getBoundingClientRect(),box=document.createElement("div");box.className="marquee";let shown=false;
+    drag(e,(ev,dx,moved)=>{if(!moved)return;if(!shown){$("#trF").append(box);shown=true}const f1=frameAt(ev.clientX),a=Math.min(f0,f1),b2=Math.max(f0,f1)+1,L=layout(doc);
+      box.style.left=a*ppf+"px";box.style.width=(b2-a)*ppf+"px";
+      const ids=doc.clips.filter(c=>{const s0=L.map[c.id].start;return s0<b2&&s0+c.out-c.in>a}).map(c=>c.id);
+      selectClips(ids,ids[ids.length-1]);renderTimeline();if(shown)$("#trF").append(box)},
+      moved=>{box.remove();if(!moved){sel=null;renderTimeline();renderInspector();seek(f0)}else renderInspector()});
+    return}
+  if(!mk){sel=null;renderTimeline();renderInspector();seek(frameAt(e.clientX));return}
   const m=doc.markers.find(x=>x.id===mk.dataset.id);sel={kind:"mk",id:m.id};pushUndo();
   const f0=markerFrame(m,layout(doc)),keep=clone(doc);if(isM())freeze(true);
   drag(e,(ev,dx,moved)=>{if(!moved)return;placeMarker(m,f0+Math.round(dx/ppf));playhead=markerFrame(m,layout(doc));renderTimeline();renderInspector();renderLog()},
@@ -1260,6 +1307,7 @@ $("#zoom").addEventListener("input",e=>{ppf=Math.min(v2z(+e.target.value),maxPpf
 addEventListener("keydown",e=>{
   if((e.metaKey||e.ctrlKey)&&!e.altKey&&!e.shiftKey&&e.key.toLowerCase()==="s"){e.preventDefault();return saveProject().then(t=>toast(t))}
   if(document.body.classList.contains("sheet")||e.target.closest("input,textarea,select"))return;
+  if((e.metaKey||e.ctrlKey)&&!e.shiftKey&&e.key.toLowerCase()==="a"&&!document.body.classList.contains("sheet")&&!e.target.closest("input,textarea,select")){e.preventDefault();selectClips(doc.clips.map(c=>c.id),sel?.kind==="clip"?sel.id:null);renderTimeline();renderInspector();return}
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="z"){e.preventDefault();return e.shiftKey?doRedo():doUndo()}
   if(e.metaKey||e.ctrlKey||e.altKey)return;
   let k=e.key;const item=e.target.closest(".clip,.mk");
@@ -1281,6 +1329,8 @@ addEventListener("keydown",e=>{
   else if(k==="m"||k==="M")transport("mark");
   else if(k==="x"||k==="X")deleteFrame();
   else if(k==="s"||k==="S")splitClip();
+  else if(k==="Escape"&&sel){sel=null;renderTimeline();renderInspector()}
+  else if((k==="Delete"||k==="Backspace")&&sel?.ids?.length>1){e.preventDefault();removeClips(selIds())}
   else if((k==="Delete"||k==="Backspace")&&sel?.kind==="mk"){e.preventDefault();mutate(()=>{doc.markers=doc.markers.filter(x=>x.id!==sel.id);sel=null})}
   else if((k==="["||k==="]"||k==="i"||k==="I"||k==="o"||k==="O")&&sel?.kind==="clip"){const k0=k;k=(k0==="i"||k0==="I")?"[":(k0==="o"||k0==="O")?"]":k0;
     const e2=layout(doc).map[sel.id],c=e2.c,k2=playhead-e2.start;

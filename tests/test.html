@@ -346,6 +346,28 @@ frame.onload=async()=>{
     T(`英文手機 ${W}×${H} 同屏且標題列不溢出`,()=>{const o=onScreen([...BASE,"#langBtn","#undoBtn","#redoBtn","#copyTop"]);if(o!==true)return o;const b=pd.querySelector(".top").getBoundingClientRect();return (pd.documentElement.scrollWidth<=W&&b.right<=W+.5)||[pd.documentElement.scrollWidth,b.right]});
     p("nudgeEdge='in';sel={kind:'clip',id:'c2'};renderTimeline();renderInspector()");await tick();
     T(`英文手機 ${W}×${H} 修剪面板同屏`,()=>onScreen([".transport",".tl",".nudge[data-k=in] .nb"]))}
+  await size(1280,800);p("load(SAMPLE);sel=null;renderAll()");await tick();
+  {const k=p,reset=()=>p("load(SAMPLE);sel=null;renderAll()");
+  const pdn=(sel0,o)=>k(`(()=>{const el=document.querySelector(${JSON.stringify(sel0)}),r=el.getBoundingClientRect();el.dispatchEvent(new PointerEvent("pointerdown",Object.assign({bubbles:true,cancelable:true,pointerId:7,isPrimary:true,pointerType:"mouse",clientX:r.left+r.width/2,clientY:r.top+r.height/2},${JSON.stringify(o||{})})));return r.left+r.width/2})()`);
+  const pev=(type,x)=>k(`window.dispatchEvent(new PointerEvent(${JSON.stringify(type)},{bubbles:true,pointerId:7,pointerType:"mouse",clientX:${x},clientY:10}))`);
+  T("Shift 點選選一段範圍，⌘ 點選加選或取消",()=>{reset();k("sel={kind:'clip',id:'c2'};renderAll()");const x=pdn('.clip[data-id="c4"]',{shiftKey:true});pev("pointerup",x);const a=k("selIds().join()");
+    const y=pdn('.clip[data-id="c3"]',{metaKey:true});pev("pointerup",y);const b=k("selIds().join()");const z=pdn('.clip[data-id="c6"]',{ctrlKey:true});pev("pointerup",z);
+    return eq([a,b,k("selIds().join()"),k("document.querySelectorAll('#trV .clip.multi').length")],["c2,c3,c4","c2,c4","c2,c4,c6",3])});
+  T("多選時面板顯示數量和一起移動的按鈕",()=>{reset();k("selectClips(['c1','c3']);renderAll()");const h=k("$('#insp').textContent");return (/已選 2 個鏡頭|2 clips selected/.test(h)&&k("!!$('#insp [data-a=\"gmv:1\"]')"))||h});
+  T("多選鏡頭一起移到新位置，特效跟著走，一次復原",()=>{reset();const m0=k("doc.markers.map(m=>m.clip).join()");k("moveClips(['c1','c3'],1,'c1')");const a=k("doc.clips.map(c=>c.id).join()");
+    const m1=k("doc.markers.map(m=>m.clip).join()");k("doUndo()");return eq([a,m1===m0,k("doc.clips.map(c=>c.id).join()")],["c2,c1,c3,c4,c5,c6",true,"c1,c2,c3,c4,c5,c6"])});
+  T("拖曳多選鏡頭會整組移動並排在一起",()=>{reset();k("selectClips(['c1','c3']);renderAll()");const x=pdn('.clip[data-id="c1"]');const far=k("$('.clip[data-id=\"c5\"]').getBoundingClientRect().right-2");
+    pev("pointermove",x+10);pev("pointermove",far);pev("pointerup",far);const ids=k("doc.clips.map(c=>c.id)");return (Math.abs(ids.indexOf("c1")-ids.indexOf("c3"))===1&&ids.indexOf("c1")>2&&k("selIds().length")===2)||ids});
+  T("多選後點一下其中一個（不拖）只留那一個",()=>{reset();k("selectClips(['c1','c2','c3']);renderAll()");const x=pdn('.clip[data-id="c2"]');pev("pointerup",x);return eq(k("selIds().join()"),"c2")});
+  T("一起往後移一格",()=>{reset();k("selectClips(['c1','c2']);nudgeGroup(1)");return eq(k("doc.clips.map(c=>c.id).join()"),"c3,c1,c2,c4,c5,c6")});
+  T("在特效軌空白處拖曳框選鏡頭",()=>{reset();k("doc.markers=[];renderAll()");const r=k("(()=>{const L=layout(doc),i=document.getElementById('trF').getBoundingClientRect(),inn=document.querySelector('.tl-inner,#inner')||document.getElementById('trF');return [i.top+5]})()");
+    const x0=k("(()=>{const r=$('.clip[data-id=\"c2\"]').getBoundingClientRect();return r.left+r.width/2})()"),x1=k("(()=>{const r=$('.clip[data-id=\"c4\"]').getBoundingClientRect();return r.left+r.width/2})()");
+    k(`$('#trF').dispatchEvent(new PointerEvent("pointerdown",{bubbles:true,cancelable:true,pointerId:7,isPrimary:true,pointerType:"mouse",clientX:${x0},clientY:${r[0]}}))`);pev("pointermove",x0+20);pev("pointermove",x1);pev("pointerup",x1);
+    return eq([k("selIds().join()"),k("!!document.querySelector('.marquee')")],["c2,c3,c4",false])});
+  T("⌘A 全選、Esc 取消、Delete 移除多選鏡頭",()=>{reset();const kd=(key,o)=>k(`document.body.dispatchEvent(new KeyboardEvent("keydown",Object.assign({key:${JSON.stringify(key)},bubbles:true,cancelable:true},${JSON.stringify(o||{})})))`);
+    kd("a",{metaKey:true});const a=k("selIds().length");kd("Escape");const b=k("sel");k("selectClips(['c2','c3'])");kd("Delete");return eq([a,b,k("doc.clips.map(c=>c.id).join()")],[6,null,"c1,c4,c5,c6"])});
+  T("刪這格的英文不再只寫 Delete",()=>{const src=k("renderInspector.toString()");return (src.includes('"Cut 1 frame"')&&!src.includes('tr("刪這格","Delete")'))||"label"});
+  }
   p("setLang('zh')");await size(390,700);preset();
 
   reset();
